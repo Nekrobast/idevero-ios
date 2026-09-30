@@ -46,7 +46,7 @@ struct FoundationModelsProvider: IntelligenceProvider {
     #if canImport(FoundationModels)
     @available(iOS 26.0, *)
     @Generable
-    private struct ModelFinding {
+    struct ModelFinding {
         @Guide(description: "Short domain concept absent from the local discoveries")
         var concept: String
         @Guide(description: "One concise reason explaining material value")
@@ -57,7 +57,7 @@ struct FoundationModelsProvider: IntelligenceProvider {
 
     @available(iOS 26.0, *)
     @Generable
-    private struct ModelFindings {
+    struct ModelFindings {
         @Guide(description: "At most eight domain-specific, non-duplicative findings", .maximumCount(8))
         var discoveries: [ModelFinding]
         @Guide(description: "At most three material unknowns", .maximumCount(3))
@@ -69,7 +69,8 @@ struct FoundationModelsProvider: IntelligenceProvider {
         guard let store = try? KnowledgeStore.load() else { return local }
         let structured = findings.discoveries.map { SemanticFinding(concept: $0.concept, reason: $0.reason, lens: $0.lens) }
         let combined = AppleDiscoveryMerger(store: store).merge(local: local.discoveries, findings: structured)
-        let unknowns = Array(Set(local.unknowns + findings.unknowns)).prefix(5).map(String.init)
+        let uniqueUnknowns: [String] = Array(Set(local.unknowns + findings.unknowns))
+        let unknowns: [String] = Array(uniqueUnknowns.prefix(5))
         var merged = PromptAnalysis(analysisID: local.analysisID, title: local.title, input: local.input, task: local.task, intent: local.intent, domain: local.domain, secondaryDomains: local.secondaryDomains, target: local.target, outcome: local.outcome, elaboration: local.elaboration, discoveries: combined, unknowns: unknowns, prompt: "", qualityNotes: local.qualityNotes, intelligenceMode: "APPLE AUGMENTED + LOCAL EXPERT", analyzedAt: .now)
         merged = PromptAnalysis(analysisID: merged.analysisID, title: merged.title, input: merged.input, task: merged.task, intent: merged.intent, domain: merged.domain, secondaryDomains: merged.secondaryDomains, target: merged.target, outcome: merged.outcome, elaboration: merged.elaboration, discoveries: merged.discoveries, unknowns: merged.unknowns, prompt: SpecializedCompiler().compile(merged), qualityNotes: merged.qualityNotes, intelligenceMode: merged.intelligenceMode, analyzedAt: merged.analyzedAt)
         return merged
