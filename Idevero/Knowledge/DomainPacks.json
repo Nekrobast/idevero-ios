@@ -1,0 +1,1087 @@
+{
+  "schema": 3,
+  "domains": [
+    {
+      "id": "personal_finance",
+      "family": "FINANCE",
+      "labels": {
+        "es": "finanzas personales",
+        "en": "personal finance"
+      },
+      "signals": [
+        {
+          "pattern": "gastos?|ingresos?|ahorro|presupuesto personal|deudas?",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "USER_OUTCOME",
+        "BUDGET_LIMIT",
+        "DATA_MODEL",
+        "EVENT_HISTORY",
+        "CURRENT_STATE",
+        "THRESHOLD",
+        "ACTION_ALERT",
+        "PRIVACY_SENSITIVITY",
+        "RECONCILIATION"
+      ],
+      "unknowns": [],
+      "parents": []
+    },
+    {
+      "id": "commerce",
+      "family": "COMMERCE",
+      "labels": {
+        "es": "comercio",
+        "en": "commerce"
+      },
+      "signals": [
+        {
+          "pattern": "tienda|ventas?|cat[aá]logo|stock|inventario|proveedor|clientes?",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "USER_OUTCOME",
+        "DATA_MODEL",
+        "EVENT_HISTORY",
+        "CURRENT_STATE",
+        "THRESHOLD",
+        "ACTION_ALERT",
+        "TOTAL_COST",
+        "SOURCE_PROVENANCE",
+        "RECONCILIATION"
+      ],
+      "unknowns": [],
+      "parents": []
+    },
+    {
+      "id": "product_buying",
+      "family": "COMMERCE",
+      "labels": {
+        "es": "decisión de compra",
+        "en": "buying decision"
+      },
+      "signals": [
+        {
+          "pattern": "comprar|compra|barat[oa]|mejor calidad.?precio|presupuesto|segunda mano|regalo",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "USE_CONTEXT",
+        "BUDGET_LIMIT",
+        "MARKET_LOCATION",
+        "CURRENTNESS",
+        "COMPATIBILITY",
+        "TOTAL_COST",
+        "USAGE_FREQUENCY",
+        "MAINTENANCE",
+        "WARRANTY_SUPPORT"
+      ],
+      "unknowns": [],
+      "parents": []
+    },
+    {
+      "id": "mobility",
+      "family": "AUTOMOTIVE",
+      "labels": {
+        "es": "movilidad y vehículos",
+        "en": "mobility and vehicles"
+      },
+      "signals": [
+        {
+          "pattern": "bicicleta|bici|coche|moto|patinete|veh[ií]culo|ebike",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "USE_CONTEXT",
+        "BUDGET_LIMIT",
+        "SIZE_FIT",
+        "USAGE_FREQUENCY",
+        "MAINTENANCE",
+        "TOTAL_COST",
+        "WARRANTY_SUPPORT",
+        "MARKET_LOCATION"
+      ],
+      "unknowns": [
+        {
+          "field": "usage",
+          "question": "¿Para qué uso y terreno principal?",
+          "level": "critical",
+          "placeholder": "[USO Y TERRENO]"
+        },
+        {
+          "field": "fit",
+          "question": "¿Qué talla o medidas físicas condicionan el ajuste?",
+          "level": "critical",
+          "placeholder": "[TALLA O ALTURA]"
+        }
+      ],
+      "parents": [
+        "product_buying"
+      ]
+    },
+    {
+      "id": "travel_hospitality",
+      "family": "TRAVEL",
+      "labels": {
+        "es": "viajes y hospitalidad",
+        "en": "travel and hospitality"
+      },
+      "signals": [
+        {
+          "pattern": "viaje|vacaciones|itinerario|hotel|restaurante|cafeter[ií]a|turismo|jap[oó]n",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "MARKET_LOCATION",
+        "BUDGET_LIMIT",
+        "TIME_FEASIBILITY",
+        "GEOGRAPHIC_CLUSTERING",
+        "DEPENDENCY_ORDER",
+        "CONTINGENCY",
+        "CURRENTNESS"
+      ],
+      "unknowns": [],
+      "parents": []
+    },
+    {
+      "id": "food_meals",
+      "family": "FOOD",
+      "labels": {
+        "es": "alimentación y comidas",
+        "en": "food and meals"
+      },
+      "signals": [
+        {
+          "pattern": "comidas?|recetas?|ingredientes?|men[uú]|dieta|restaurante|cafeter[ií]a|meals?|recipes?|ingredients?|weekly menu",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "USE_CONTEXT",
+        "DATA_MODEL",
+        "DEPENDENCY_ORDER",
+        "BUDGET_LIMIT",
+        "TIME_FEASIBILITY",
+        "REGULATED_BOUNDARY"
+      ],
+      "unknowns": [],
+      "parents": []
+    },
+    {
+      "id": "health_wellness",
+      "family": "HEALTH_WELLNESS",
+      "labels": {
+        "es": "salud y bienestar",
+        "en": "health and wellness"
+      },
+      "signals": [
+        {
+          "pattern": "salud|s[ií]ntoma|dieta|nutrici[oó]n|gimnasio|entrenamiento|rutina|lesi[oó]n",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "BASELINE",
+        "PROGRESSION",
+        "FEEDBACK_LOOP",
+        "PRIVACY_SENSITIVITY",
+        "REGULATED_BOUNDARY",
+        "CONTINGENCY"
+      ],
+      "unknowns": [],
+      "parents": []
+    },
+    {
+      "id": "education",
+      "family": "EDUCATION",
+      "labels": {
+        "es": "aprendizaje y educación",
+        "en": "learning and education"
+      },
+      "signals": [
+        {
+          "pattern": "aprender|estudiar|curso|examen|idioma|ense[nñ]ar",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "BASELINE",
+        "DEPENDENCY_ORDER",
+        "PROGRESSION",
+        "FEEDBACK_LOOP",
+        "TIME_FEASIBILITY"
+      ],
+      "unknowns": [],
+      "parents": []
+    },
+    {
+      "id": "professional_services",
+      "family": "BUSINESS",
+      "labels": {
+        "es": "servicios profesionales",
+        "en": "professional services"
+      },
+      "signals": [
+        {
+          "pattern": "cl[ií]nica|consulta|despacho|taller|laboratorio|profesionales?|citas?",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "DATA_MODEL",
+        "EVENT_HISTORY",
+        "TIME_FEASIBILITY",
+        "PRIVACY_SENSITIVITY",
+        "REGULATED_BOUNDARY",
+        "RECONCILIATION"
+      ],
+      "unknowns": [],
+      "parents": []
+    },
+    {
+      "id": "events_production",
+      "family": "ENTERTAINMENT",
+      "labels": {
+        "es": "eventos y producción",
+        "en": "events and production"
+      },
+      "signals": [
+        {
+          "pattern": "evento|boda|teatro|festival|torneo|producci[oó]n|ensayo|funci[oó]n",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "DATA_MODEL",
+        "TIME_FEASIBILITY",
+        "DEPENDENCY_ORDER",
+        "CONTINGENCY",
+        "AUDIENCE_DECISION"
+      ],
+      "unknowns": [],
+      "parents": []
+    },
+    {
+      "id": "technology",
+      "family": "TECHNOLOGY",
+      "labels": {
+        "es": "tecnología",
+        "en": "technology"
+      },
+      "signals": [
+        {
+          "pattern": "m[oó]vil|port[aá]til|ordenador|software|hardware|dispositivo|api\\b",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "USE_CONTEXT",
+        "BUDGET_LIMIT",
+        "COMPATIBILITY",
+        "CURRENTNESS",
+        "TOTAL_COST",
+        "WARRANTY_SUPPORT",
+        "SOURCE_PROVENANCE"
+      ],
+      "unknowns": [],
+      "parents": []
+    },
+    {
+      "id": "home",
+      "family": "HOME",
+      "labels": {
+        "es": "hogar",
+        "en": "home"
+      },
+      "signals": [
+        {
+          "pattern": "casa|hogar|limpieza|reforma|mueble|electrodom[eé]stico",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "USE_CONTEXT",
+        "BUDGET_LIMIT",
+        "SIZE_FIT",
+        "MAINTENANCE",
+        "TOTAL_COST",
+        "CONTINGENCY"
+      ],
+      "unknowns": [],
+      "parents": []
+    },
+    {
+      "id": "creative_visual",
+      "family": "CREATIVE",
+      "labels": {
+        "es": "creación visual",
+        "en": "visual creation"
+      },
+      "signals": [
+        {
+          "pattern": "imagen|foto|fotograf[ií]a|ilustraci[oó]n|cartel|logo|retrato|samur[aá]i",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "VISUAL_HIERARCHY",
+        "MOTIVATED_LIGHT",
+        "MATERIAL_BEHAVIOR"
+      ],
+      "unknowns": [],
+      "parents": []
+    },
+    {
+      "id": "communication",
+      "family": "BUSINESS",
+      "labels": {
+        "es": "comunicación interpersonal",
+        "en": "interpersonal communication"
+      },
+      "signals": [
+        {
+          "pattern": "email|correo|mensaje|carta|pedir|agradecer|subida de sueldo",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "TONE_RELATIONSHIP",
+        "CLEAR_ASK",
+        "EVIDENCE_PROOF"
+      ],
+      "unknowns": [],
+      "parents": []
+    },
+    {
+      "id": "automation_ops",
+      "family": "TECHNOLOGY",
+      "labels": {
+        "es": "automatización y operaciones",
+        "en": "automation and operations"
+      },
+      "signals": [
+        {
+          "pattern": "automatizar|workflow|facturas|cada vez que|cuando llegue|agente",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "TRIGGER",
+        "DATA_MODEL",
+        "IDEMPOTENCY",
+        "FAILURE_RECOVERY",
+        "HUMAN_APPROVAL",
+        "SOURCE_PROVENANCE"
+      ],
+      "unknowns": [],
+      "parents": []
+    },
+    {
+      "id": "computing",
+      "family": "CONSUMER_TECH",
+      "labels": {
+        "es": "informática de consumo",
+        "en": "consumer computing"
+      },
+      "signals": [
+        {
+          "pattern": "port[aá]til|laptop|ordenador|pc\\b|monitor|teclado|gpu|gaming pc",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "USE_CONTEXT",
+        "BUDGET_LIMIT",
+        "PERFORMANCE_NEED",
+        "COMPATIBILITY",
+        "BATTERY_MOBILITY",
+        "DISPLAY_NEED",
+        "VARIANT_IDENTITY",
+        "SOFTWARE_SUPPORT",
+        "WARRANTY_SUPPORT"
+      ],
+      "unknowns": [
+        {
+          "field": "use",
+          "question": "¿Cuál será el uso principal y qué programas debe mover?",
+          "level": "critical",
+          "placeholder": "[USO PRINCIPAL]"
+        }
+      ],
+      "parents": [
+        "product_buying",
+        "technology"
+      ]
+    },
+    {
+      "id": "phones_tablets",
+      "family": "CONSUMER_TECH",
+      "labels": {
+        "es": "móviles y tablets",
+        "en": "phones and tablets"
+      },
+      "signals": [
+        {
+          "pattern": "smartphone|m[oó]vil|tablet|iphone|android|whatsapp",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "USE_CONTEXT",
+        "BUDGET_LIMIT",
+        "CAMERA_NEED",
+        "BATTERY_MOBILITY",
+        "DISPLAY_NEED",
+        "PERFORMANCE_NEED",
+        "SOFTWARE_SUPPORT",
+        "VARIANT_IDENTITY",
+        "AVAILABILITY"
+      ],
+      "unknowns": [
+        {
+          "field": "use",
+          "question": "¿Qué usos deben pesar más en la decisión?",
+          "level": "critical",
+          "placeholder": "[USO PRINCIPAL]"
+        }
+      ],
+      "parents": [
+        "product_buying",
+        "technology"
+      ]
+    },
+    {
+      "id": "photography",
+      "family": "CREATIVE_TECH",
+      "labels": {
+        "es": "fotografía y vídeo",
+        "en": "photography and video"
+      },
+      "signals": [
+        {
+          "pattern": "c[aá]mara|objetivo|lente|fotograf[ií]a|retrato profesional|grabaci[oó]n",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "USE_CONTEXT",
+        "BUDGET_LIMIT",
+        "CAMERA_NEED",
+        "COMPATIBILITY",
+        "VARIANT_IDENTITY",
+        "BATTERY_MOBILITY",
+        "CONDITION_HISTORY",
+        "VISUAL_HIERARCHY"
+      ],
+      "unknowns": [],
+      "parents": [
+        "product_buying",
+        "creative_visual"
+      ]
+    },
+    {
+      "id": "cycling",
+      "family": "MOBILITY",
+      "labels": {
+        "es": "ciclismo",
+        "en": "cycling"
+      },
+      "signals": [
+        {
+          "pattern": "bicicleta|\\bbici\\b|ciclismo|mtb|carretera|gravel|ebike",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "USE_CONTEXT",
+        "BUDGET_LIMIT",
+        "TERRAIN",
+        "RIDER_FIT",
+        "SIZE_FIT",
+        "USAGE_FREQUENCY",
+        "CONDITION_HISTORY",
+        "MAINTENANCE",
+        "SAFETY_EQUIPMENT",
+        "TOTAL_COST"
+      ],
+      "unknowns": [
+        {
+          "field": "terrain",
+          "question": "¿Dónde y para qué usarás principalmente la bicicleta?",
+          "level": "critical",
+          "placeholder": "[USO Y TERRENO]"
+        },
+        {
+          "field": "height",
+          "question": "¿Qué altura y medidas condicionan la talla?",
+          "level": "critical",
+          "placeholder": "[ALTURA Y AJUSTE]"
+        }
+      ],
+      "parents": [
+        "mobility",
+        "product_buying"
+      ]
+    },
+    {
+      "id": "vehicles",
+      "family": "MOBILITY",
+      "labels": {
+        "es": "automoción",
+        "en": "vehicles"
+      },
+      "signals": [
+        {
+          "pattern": "coche|autom[oó]vil|moto|furgoneta|veh[ií]culo",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "USE_CONTEXT",
+        "BUDGET_LIMIT",
+        "CONDITION_HISTORY",
+        "MAINTENANCE",
+        "TOTAL_COST",
+        "ENERGY_EFFICIENCY",
+        "SAFETY_EQUIPMENT",
+        "MARKET_LOCATION",
+        "WARRANTY_SUPPORT"
+      ],
+      "unknowns": [],
+      "parents": [
+        "mobility",
+        "product_buying"
+      ]
+    },
+    {
+      "id": "home_appliances",
+      "family": "HOME",
+      "labels": {
+        "es": "electrodomésticos",
+        "en": "home appliances"
+      },
+      "signals": [
+        {
+          "pattern": "tele\\b|televisor|lavadora|frigor[ií]fico|aspirador|cafetera|electrodom[eé]stico",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "USE_CONTEXT",
+        "BUDGET_LIMIT",
+        "SPACE_DIMENSIONS",
+        "CAPACITY",
+        "ENERGY_EFFICIENCY",
+        "INSTALLATION_REQUIREMENTS",
+        "MAINTENANCE",
+        "WARRANTY_SUPPORT",
+        "DELIVERY_RETURNS"
+      ],
+      "unknowns": [],
+      "parents": [
+        "home",
+        "product_buying"
+      ]
+    },
+    {
+      "id": "home_improvement",
+      "family": "HOME",
+      "labels": {
+        "es": "reforma y mejora del hogar",
+        "en": "home improvement"
+      },
+      "signals": [
+        {
+          "pattern": "reforma|obra|pintar|reparar casa|cocina|ba[nñ]o|fontaner[ií]a|electricidad",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "USER_OUTCOME",
+        "SPACE_DIMENSIONS",
+        "BUDGET_LIMIT",
+        "INSTALLATION_REQUIREMENTS",
+        "DEPENDENCY_ORDER",
+        "SAFETY_EQUIPMENT",
+        "TIME_FEASIBILITY",
+        "CONTINGENCY"
+      ],
+      "unknowns": [],
+      "parents": [
+        "home"
+      ]
+    },
+    {
+      "id": "furniture",
+      "family": "HOME",
+      "labels": {
+        "es": "muebles y ergonomía",
+        "en": "furniture and ergonomics"
+      },
+      "signals": [
+        {
+          "pattern": "mueble|sof[aá]|mesa|silla|armario|colch[oó]n|escritorio",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "USE_CONTEXT",
+        "SPACE_DIMENSIONS",
+        "SIZE_FIT",
+        "MATERIAL_BEHAVIOR",
+        "MAINTENANCE",
+        "DELIVERY_RETURNS",
+        "BUDGET_LIMIT"
+      ],
+      "unknowns": [],
+      "parents": [
+        "home",
+        "product_buying"
+      ]
+    },
+    {
+      "id": "meal_planning",
+      "family": "FOOD",
+      "labels": {
+        "es": "planificación de comidas",
+        "en": "meal planning"
+      },
+      "signals": [
+        {
+          "pattern": "plan(?:ificar)? comidas?|plan meals?|meal plans?|men[uú] semanal|cocinar semana|batch cooking",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "USE_CONTEXT",
+        "INGREDIENT_CONSTRAINTS",
+        "NUTRITION_GOAL",
+        "MEAL_SEQUENCE",
+        "SHOPPING_LIST",
+        "PREP_STORAGE",
+        "BUDGET_LIMIT",
+        "TIME_FEASIBILITY"
+      ],
+      "unknowns": [
+        {
+          "field": "diners",
+          "question": "¿Para cuántas personas y con qué restricciones?",
+          "level": "critical",
+          "placeholder": "[PERSONAS Y RESTRICCIONES]"
+        }
+      ],
+      "parents": [
+        "food_meals"
+      ]
+    },
+    {
+      "id": "restaurants_hospitality",
+      "family": "HOSPITALITY",
+      "labels": {
+        "es": "restauración y hostelería",
+        "en": "restaurants and hospitality"
+      },
+      "signals": [
+        {
+          "pattern": "restaurante|cafeter[ií]a|bar\\b|hotel|hosteler[ií]a",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "USER_OUTCOME",
+        "VALUE_PROPOSITION",
+        "PRIMARY_CTA",
+        "SOCIAL_PROOF",
+        "OBJECTION_HANDLING",
+        "APPOINTMENT_SCHEDULING",
+        "CAPACITY",
+        "SOURCE_PROVENANCE"
+      ],
+      "unknowns": [],
+      "parents": [
+        "commerce",
+        "travel_hospitality"
+      ]
+    },
+    {
+      "id": "contracts_legal_info",
+      "family": "LEGAL_INFORMATION",
+      "labels": {
+        "es": "contratos e información jurídica",
+        "en": "contracts and legal information"
+      },
+      "signals": [
+        {
+          "pattern": "contrato|cl[aá]usula|arrendamiento|acuerdo|t[eé]rminos legales|legal",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "SOURCE_BOUNDARY",
+        "PARTIES_ROLES",
+        "DATES_DEADLINES",
+        "PAYMENT_OBLIGATIONS",
+        "TERMINATION",
+        "CLAUSE_RISK",
+        "REGULATED_BOUNDARY",
+        "SOURCE_PROVENANCE"
+      ],
+      "unknowns": [
+        {
+          "field": "jurisdiction",
+          "question": "¿Qué país o jurisdicción resulta relevante?",
+          "level": "useful",
+          "placeholder": "[JURISDICCIÓN]"
+        }
+      ],
+      "parents": []
+    },
+    {
+      "id": "event_organization",
+      "family": "EVENTS",
+      "labels": {
+        "es": "organización de eventos y competiciones",
+        "en": "event and competition organization"
+      },
+      "signals": [
+        {
+          "pattern": "organiza|organizar|evento|torneo|competici[oó]n|jornada|festival|boda",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "EVENT_OBJECTIVE",
+        "PARTICIPANTS",
+        "SCHEDULE_FORMAT",
+        "VENUE_RESOURCES",
+        "REGISTRATION",
+        "RULES_SCORING",
+        "RESOURCE_ALLOCATION",
+        "CONTINGENCY"
+      ],
+      "unknowns": [
+        {
+          "field": "event_format",
+          "question": "¿Qué formato y número aproximado de participantes tendrá?",
+          "level": "critical",
+          "placeholder": "[FORMATO Y PARTICIPANTES]"
+        }
+      ],
+      "parents": [
+        "events_production"
+      ]
+    },
+    {
+      "id": "operations_registry",
+      "family": "OPERATIONS",
+      "labels": {
+        "es": "gestión de activos y operaciones",
+        "en": "asset and operations management"
+      },
+      "signals": [
+        {
+          "pattern": "gestionar|controlar|seguimiento|operaciones|activos|equipos|instalaciones",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "USER_OUTCOME",
+        "ASSET_REGISTRY",
+        "STATUS_LIFECYCLE",
+        "INSPECTION_RECORD",
+        "EVENT_HISTORY",
+        "LOCATION_CONTEXT",
+        "STAKEHOLDERS",
+        "ACCESS_ROLES",
+        "AUDIT_TRAIL",
+        "SEARCH_FILTER_SORT"
+      ],
+      "unknowns": [],
+      "parents": [
+        "automation_ops"
+      ]
+    },
+    {
+      "id": "appointments_services",
+      "family": "PROFESSIONAL_SERVICES",
+      "labels": {
+        "es": "citas y servicios profesionales",
+        "en": "appointments and services"
+      },
+      "signals": [
+        {
+          "pattern": "citas?|agenda|pacientes?|clientes?|profesional|consulta|cl[ií]nica",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "STAKEHOLDERS",
+        "APPOINTMENT_SCHEDULING",
+        "RESOURCE_ALLOCATION",
+        "STATUS_LIFECYCLE",
+        "PRIVACY_SENSITIVITY",
+        "ACCESS_ROLES",
+        "AUDIT_TRAIL"
+      ],
+      "unknowns": [],
+      "parents": [
+        "professional_services"
+      ]
+    },
+    {
+      "id": "landing_conversion",
+      "family": "WEB_MARKETING",
+      "labels": {
+        "es": "landing y conversión",
+        "en": "landing and conversion"
+      },
+      "signals": [
+        {
+          "pattern": "landing|p[aá]gina de venta|captar leads?|conversi[oó]n",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "VALUE_PROPOSITION",
+        "PRIMARY_CTA",
+        "SOCIAL_PROOF",
+        "OBJECTION_HANDLING",
+        "SEO_SEARCH_INTENT",
+        "RESPONSIVE_CONTEXT"
+      ],
+      "unknowns": [],
+      "parents": [
+        "communication"
+      ]
+    },
+    {
+      "id": "social_media",
+      "family": "MARKETING",
+      "labels": {
+        "es": "redes sociales",
+        "en": "social media"
+      },
+      "signals": [
+        {
+          "pattern": "instagram|tiktok|linkedin|twitter|\\bx\\b|redes sociales|reel",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "PLATFORM_NATIVE_FORMAT",
+        "HOOK_RETENTION",
+        "AUDIENCE_DECISION",
+        "EVIDENCE_PROOF",
+        "CLEAR_ASK",
+        "CONVERSION_METRIC"
+      ],
+      "unknowns": [],
+      "parents": [
+        "communication"
+      ]
+    },
+    {
+      "id": "presentations_sales",
+      "family": "COMMUNICATION",
+      "labels": {
+        "es": "presentaciones y ventas",
+        "en": "presentations and sales"
+      },
+      "signals": [
+        {
+          "pattern": "presentaci[oó]n|diapositivas|pitch|inversores|ventas|powerpoint",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "AUDIENCE_DECISION",
+        "SLIDE_STORY_ARC",
+        "SLIDE_PURPOSE",
+        "VISUAL_EVIDENCE",
+        "EVIDENCE_PROOF",
+        "OBJECTION_HANDLING",
+        "CLEAR_ASK"
+      ],
+      "unknowns": [],
+      "parents": [
+        "communication"
+      ]
+    },
+    {
+      "id": "data_analysis",
+      "family": "DATA",
+      "labels": {
+        "es": "análisis de datos",
+        "en": "data analysis"
+      },
+      "signals": [
+        {
+          "pattern": "analiza|datos|csv|estad[ií]stica|dataset|m[eé]trica|dashboard",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "USER_OUTCOME",
+        "DATA_QUALITY",
+        "MISSING_OUTLIERS",
+        "METHOD_FIT",
+        "UNCERTAINTY",
+        "REPRODUCIBILITY",
+        "VISUAL_EVIDENCE",
+        "SOURCE_PROVENANCE"
+      ],
+      "unknowns": [],
+      "parents": []
+    },
+    {
+      "id": "language_learning",
+      "family": "EDUCATION",
+      "labels": {
+        "es": "aprendizaje de idiomas",
+        "en": "language learning"
+      },
+      "signals": [
+        {
+          "pattern": "aprender ingl[eé]s|learn spanish|idioma|vocabulario|pronunciaci[oó]n",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "BASELINE",
+        "LEARNING_TARGET",
+        "PREREQUISITES",
+        "RETRIEVAL_PRACTICE",
+        "FEEDBACK_LOOP",
+        "ASSESSMENT",
+        "TIME_FEASIBILITY"
+      ],
+      "unknowns": [],
+      "parents": [
+        "education"
+      ]
+    },
+    {
+      "id": "fitness_training",
+      "family": "HEALTH_WELLNESS",
+      "labels": {
+        "es": "entrenamiento físico",
+        "en": "fitness training"
+      },
+      "signals": [
+        {
+          "pattern": "rutina|gym|gimnasio|entrenamiento|ponerme fuerte|ganar masa|correr",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "BASELINE",
+        "TRAINING_SCHEDULE",
+        "EQUIPMENT",
+        "VOLUME_INTENSITY",
+        "PROGRESSION",
+        "RECOVERY",
+        "FEEDBACK_LOOP",
+        "REGULATED_BOUNDARY"
+      ],
+      "unknowns": [
+        {
+          "field": "schedule",
+          "question": "¿Cuántos días y cuánto tiempo puedes entrenar?",
+          "level": "critical",
+          "placeholder": "[DÍAS Y DURACIÓN]"
+        }
+      ],
+      "parents": [
+        "health_wellness"
+      ]
+    },
+    {
+      "id": "software_engineering",
+      "family": "TECHNOLOGY",
+      "labels": {
+        "es": "ingeniería de software",
+        "en": "software engineering"
+      },
+      "signals": [
+        {
+          "pattern": "script|c[oó]digo|programa|react|python|typescript|api\\b",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "INPUT_OUTPUT_CONTRACT",
+        "EDGE_CASES",
+        "DEPENDENCY_POLICY",
+        "INPUT_VALIDATION",
+        "FAILURE_RECOVERY",
+        "REGRESSION_TEST",
+        "OBSERVABILITY"
+      ],
+      "unknowns": [],
+      "parents": [
+        "technology"
+      ]
+    },
+    {
+      "id": "debugging_diagnostics",
+      "family": "TECHNOLOGY",
+      "labels": {
+        "es": "diagnóstico técnico",
+        "en": "technical diagnostics"
+      },
+      "signals": [
+        {
+          "pattern": "error|bug|no funciona|falla|depura|debug|crash",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "ERROR_REPRODUCTION",
+        "EXPECTED_ACTUAL",
+        "ROOT_CAUSE_EVIDENCE",
+        "DEPENDENCY_POLICY",
+        "REGRESSION_TEST",
+        "OBSERVABILITY"
+      ],
+      "unknowns": [],
+      "parents": [
+        "software_engineering"
+      ]
+    },
+    {
+      "id": "agents_automation",
+      "family": "TECHNOLOGY",
+      "labels": {
+        "es": "agentes y automatización",
+        "en": "agents and automation"
+      },
+      "signals": [
+        {
+          "pattern": "agente|agent|automatiza|workflow|bot\\b",
+          "flags": "i"
+        }
+      ],
+      "concepts": [
+        "TRIGGER",
+        "INPUT_OUTPUT_CONTRACT",
+        "PERMISSION_BOUNDARY",
+        "HUMAN_APPROVAL",
+        "STOP_CONDITION",
+        "IDEMPOTENCY",
+        "FAILURE_RECOVERY",
+        "OBSERVABILITY",
+        "EVALUATION_CASES",
+        "MANUAL_OVERRIDE"
+      ],
+      "unknowns": [],
+      "parents": [
+        "automation_ops"
+      ]
+    }
+  ]
+}

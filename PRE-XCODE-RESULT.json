@@ -1,0 +1,47 @@
+{
+  "status": "PASS",
+  "checks": {
+    "resourcesPresent": true,
+    "jsonSchema": true,
+    "concepts": true,
+    "relationships": true,
+    "domains": true,
+    "intents": true,
+    "strategies": true,
+    "duplicateConceptIDs": true,
+    "duplicateDomainIDs": true,
+    "duplicateStrategyIDs": true,
+    "danglingRelationships": true,
+    "danglingDomainConcepts": true,
+    "danglingParents": true,
+    "danglingStrategyAliases": true,
+    "regexInventory": true,
+    "regexVectors": true,
+    "parityCorpus": true,
+    "testCoverage": true,
+    "synchronizedResources": true,
+    "sharedScheme": true,
+    "testTarget": true,
+    "deployment17": true,
+    "version021": true,
+    "foundationConditional": true,
+    "developmentIcon": true,
+    "noPaidAPI": true,
+    "noMCP": true,
+    "noBackend": true
+  },
+  "failures": [],
+  "warnings": [
+    "Xcode/Swift compiler not available in this environment.",
+    "Foundation Models runtime requires a compatible physical device.",
+    "Development AppIcon is not the final App Store artwork."
+  ],
+  "details": {
+    "danglingRelations": [],
+    "danglingDomainConcepts": [],
+    "danglingParents": [],
+    "danglingAliases": [],
+    "fileCount": 38,
+    "testFiles": 4
+  }
+}

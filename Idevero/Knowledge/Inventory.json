@@ -1,0 +1,10 @@
+{
+  "schema": 3,
+  "concepts": 128,
+  "relationships": 54,
+  "domainPacks": 38,
+  "intentPacks": 38,
+  "strategyPacks": 30,
+  "aliases": 6,
+  "exportedStrategies": 30
+}

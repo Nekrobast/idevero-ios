@@ -1,0 +1,1605 @@
+{
+  "schema": 3,
+  "concepts": [
+    {
+      "id": "USER_OUTCOME",
+      "labels": {
+        "es": "resultado real del usuario",
+        "en": "real user outcome"
+      },
+      "reason": "Aclara la decisión o acción que debe facilitarse, en vez de limitarse al objeto mencionado.",
+      "lens": "Outcome",
+      "aliases": [],
+      "intents": [
+        "app",
+        "web",
+        "shopping",
+        "business"
+      ],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "USE_CONTEXT",
+      "labels": {
+        "es": "uso y contexto",
+        "en": "use case and context"
+      },
+      "reason": "Cambia qué criterios importan y evita recomendaciones universales.",
+      "lens": "Needs",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "BUDGET_LIMIT",
+      "labels": {
+        "es": "presupuesto máximo",
+        "en": "budget limit"
+      },
+      "reason": "Descarta opciones inviables y obliga a considerar el coste total.",
+      "lens": "Constraints",
+      "aliases": [
+        "precio máximo",
+        "límite de gasto",
+        "budget"
+      ],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "MARKET_LOCATION",
+      "labels": {
+        "es": "mercado y ubicación",
+        "en": "market and location"
+      },
+      "reason": "Precios, disponibilidad, normativa y logística dependen del lugar.",
+      "lens": "Context",
+      "aliases": [
+        "país",
+        "región",
+        "market"
+      ],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "CURRENTNESS",
+      "labels": {
+        "es": "actualidad y fecha de corte",
+        "en": "freshness and cutoff date"
+      },
+      "reason": "Evita decisiones basadas en precios, disponibilidad o normas desactualizadas.",
+      "lens": "Evidence",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "COMPATIBILITY",
+      "labels": {
+        "es": "compatibilidad",
+        "en": "compatibility"
+      },
+      "reason": "Una opción útil debe encajar con el equipo, formato o ecosistema existente.",
+      "lens": "Fit",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "TOTAL_COST",
+      "labels": {
+        "es": "coste total",
+        "en": "total cost of ownership"
+      },
+      "reason": "Incluye mantenimiento, consumibles, envío, garantías y costes posteriores.",
+      "lens": "Ownership",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "SIZE_FIT",
+      "labels": {
+        "es": "talla, ajuste y ergonomía",
+        "en": "size, fit and ergonomics"
+      },
+      "reason": "La adecuación física puede ser más decisiva que una especificación nominal.",
+      "lens": "Fit",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "USAGE_FREQUENCY",
+      "labels": {
+        "es": "frecuencia e intensidad de uso",
+        "en": "usage frequency and intensity"
+      },
+      "reason": "Determina durabilidad, capacidad y nivel de inversión razonables.",
+      "lens": "Needs",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "MAINTENANCE",
+      "labels": {
+        "es": "mantenimiento y reparabilidad",
+        "en": "maintenance and repairability"
+      },
+      "reason": "Afecta coste, seguridad y vida útil.",
+      "lens": "Ownership",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "WARRANTY_SUPPORT",
+      "labels": {
+        "es": "garantía y soporte",
+        "en": "warranty and support"
+      },
+      "reason": "Reduce el riesgo posterior a la compra o implantación.",
+      "lens": "Risk",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "DATA_MODEL",
+      "labels": {
+        "es": "entidades, identificadores y relaciones",
+        "en": "entities, identifiers and relationships"
+      },
+      "reason": "Evita duplicados y permite seguir el histórico de cada unidad.",
+      "lens": "Data",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "EVENT_HISTORY",
+      "labels": {
+        "es": "histórico de movimientos o eventos",
+        "en": "event and movement history"
+      },
+      "reason": "Permite auditar cambios, reconstruir estado y detectar tendencias.",
+      "lens": "Data",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "CURRENT_STATE",
+      "labels": {
+        "es": "estado actual calculado",
+        "en": "calculated current state"
+      },
+      "reason": "Convierte movimientos históricos en una situación utilizable ahora.",
+      "lens": "Calculation",
+      "aliases": [],
+      "requires": [
+        "EVENT_HISTORY"
+      ],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "THRESHOLD",
+      "labels": {
+        "es": "umbrales configurables",
+        "en": "configurable thresholds"
+      },
+      "reason": "Define cuándo una desviación requiere atención.",
+      "lens": "Rules",
+      "aliases": [],
+      "requires": [
+        "CURRENT_STATE"
+      ],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "ACTION_ALERT",
+      "labels": {
+        "es": "avisos accionables",
+        "en": "actionable alerts"
+      },
+      "reason": "Un aviso solo aporta valor cuando deriva de un estado y un umbral fiables.",
+      "lens": "Operations",
+      "aliases": [],
+      "requires": [
+        "CURRENT_STATE",
+        "THRESHOLD"
+      ],
+      "cost": 2,
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "SOURCE_PROVENANCE",
+      "labels": {
+        "es": "fuente, procedencia y frescura",
+        "en": "source, provenance and freshness"
+      },
+      "reason": "Permite saber si los datos son fiables, actuales y trazables.",
+      "lens": "Evidence",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "PRIVACY_SENSITIVITY",
+      "labels": {
+        "es": "privacidad y datos sensibles",
+        "en": "privacy and sensitive data"
+      },
+      "reason": "Limita recogida, exposición y conservación de datos personales o delicados.",
+      "lens": "Safety",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "REGULATED_BOUNDARY",
+      "labels": {
+        "es": "límites legales o profesionales",
+        "en": "legal or professional boundaries"
+      },
+      "reason": "Evita presentar información general como asesoramiento o diagnóstico individual.",
+      "lens": "Safety",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "TIME_FEASIBILITY",
+      "labels": {
+        "es": "viabilidad temporal",
+        "en": "time feasibility"
+      },
+      "reason": "Obliga a incluir desplazamientos, esperas, preparación y descanso.",
+      "lens": "Planning",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "GEOGRAPHIC_CLUSTERING",
+      "labels": {
+        "es": "agrupación geográfica",
+        "en": "geographic clustering"
+      },
+      "reason": "Reduce trayectos y planes físicamente incoherentes.",
+      "lens": "Planning",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "DEPENDENCY_ORDER",
+      "labels": {
+        "es": "dependencias y orden",
+        "en": "dependencies and sequence"
+      },
+      "reason": "Evita ejecutar pasos antes de disponer de sus entradas o prerrequisitos.",
+      "lens": "Workflow",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "CONTINGENCY",
+      "labels": {
+        "es": "alternativa y recuperación",
+        "en": "contingency and recovery"
+      },
+      "reason": "Mantiene utilidad cuando falla el plan principal.",
+      "lens": "Risk",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "AUDIENCE_DECISION",
+      "labels": {
+        "es": "qué debe entender, creer o decidir la audiencia",
+        "en": "audience understanding or decision"
+      },
+      "reason": "Organiza contenido y evidencia alrededor de un cambio concreto.",
+      "lens": "Communication",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "EVIDENCE_PROOF",
+      "labels": {
+        "es": "evidencia y prueba",
+        "en": "evidence and proof"
+      },
+      "reason": "Sustenta afirmaciones y reduce objeciones sin exagerar.",
+      "lens": "Evidence",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "TONE_RELATIONSHIP",
+      "labels": {
+        "es": "relación, sensibilidad y tono",
+        "en": "relationship, sensitivity and tone"
+      },
+      "reason": "Ajusta la comunicación al vínculo y al riesgo interpersonal.",
+      "lens": "Communication",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "CLEAR_ASK",
+      "labels": {
+        "es": "petición y siguiente paso",
+        "en": "clear ask and next step"
+      },
+      "reason": "Hace explícito qué respuesta o acción se espera.",
+      "lens": "Communication",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "BASELINE",
+      "labels": {
+        "es": "nivel o estado inicial",
+        "en": "baseline"
+      },
+      "reason": "Permite diseñar una progresión desde la realidad, no desde un promedio imaginado.",
+      "lens": "Diagnosis",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "PROGRESSION",
+      "labels": {
+        "es": "progresión y criterios de avance",
+        "en": "progression and advancement criteria"
+      },
+      "reason": "Evita planes estáticos y hace observable el progreso.",
+      "lens": "Planning",
+      "aliases": [],
+      "requires": [
+        "BASELINE"
+      ],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "FEEDBACK_LOOP",
+      "labels": {
+        "es": "práctica, feedback y revisión",
+        "en": "practice, feedback and review"
+      },
+      "reason": "Convierte contenido en aprendizaje o mejora real.",
+      "lens": "Quality",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "INPUT_VALIDATION",
+      "labels": {
+        "es": "validación de entrada",
+        "en": "input validation"
+      },
+      "reason": "Previene errores antes de que contaminen cálculos o procesos posteriores.",
+      "lens": "Quality",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "RECONCILIATION",
+      "labels": {
+        "es": "reconciliación y comprobación",
+        "en": "reconciliation and verification"
+      },
+      "reason": "Demuestra que totales, saldos o estados coinciden con sus fuentes.",
+      "lens": "Quality",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "TRIGGER",
+      "labels": {
+        "es": "disparador",
+        "en": "trigger"
+      },
+      "reason": "Define exactamente cuándo empieza una automatización.",
+      "lens": "Automation",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "IDEMPOTENCY",
+      "labels": {
+        "es": "deduplicación e idempotencia",
+        "en": "deduplication and idempotency"
+      },
+      "reason": "Evita repetir acciones o crear registros duplicados al reintentar.",
+      "lens": "Reliability",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "FAILURE_RECOVERY",
+      "labels": {
+        "es": "reintentos, errores y recuperación",
+        "en": "retries, failures and recovery"
+      },
+      "reason": "Hace explícito cómo se detecta, registra y resuelve un fallo.",
+      "lens": "Reliability",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "HUMAN_APPROVAL",
+      "labels": {
+        "es": "aprobación humana",
+        "en": "human approval"
+      },
+      "reason": "Mantiene control en acciones irreversibles, costosas o sensibles.",
+      "lens": "Safety",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "MATERIAL_BEHAVIOR",
+      "labels": {
+        "es": "materiales e interacción física",
+        "en": "materials and physical interaction"
+      },
+      "reason": "Hace coherentes agua, metal, tela, piel, reflejos y desgaste dentro de una escena.",
+      "lens": "Visual",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "VISUAL_HIERARCHY",
+      "labels": {
+        "es": "composición y jerarquía visual",
+        "en": "composition and visual hierarchy"
+      },
+      "reason": "Controla qué se percibe primero y cómo recorre la mirada la escena.",
+      "lens": "Visual",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "MOTIVATED_LIGHT",
+      "labels": {
+        "es": "iluminación motivada",
+        "en": "motivated lighting"
+      },
+      "reason": "Relaciona las fuentes de luz con el entorno y evita efectos incompatibles.",
+      "lens": "Visual",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "PRESERVE_IDENTITY",
+      "labels": {
+        "es": "preservación de identidad",
+        "en": "identity preservation"
+      },
+      "reason": "Protege rostros, proporciones, postura y rasgos cuando la tarea es editar.",
+      "lens": "Preservation",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "DECISION_CRITERIA",
+      "labels": {
+        "es": "criterios que cambian la decisión",
+        "en": "decision-changing criteria"
+      },
+      "reason": "Evita ordenar alternativas por especificaciones que no afectan al objetivo real.",
+      "lens": "Decision",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "CURRENT_SETUP",
+      "labels": {
+        "es": "situación o equipo actual",
+        "en": "current setup"
+      },
+      "reason": "Permite evaluar reemplazos, mejoras y compatibilidad respecto a lo que ya existe.",
+      "lens": "Context",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "VARIANT_IDENTITY",
+      "labels": {
+        "es": "variante exacta",
+        "en": "exact variant"
+      },
+      "reason": "Precio, compatibilidad y prestaciones pueden cambiar entre versiones aparentemente iguales.",
+      "lens": "Evidence",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "TRADE_OFFS",
+      "labels": {
+        "es": "compromisos entre alternativas",
+        "en": "trade-offs"
+      },
+      "reason": "Hace explícito qué se gana y qué se sacrifica con cada opción.",
+      "lens": "Decision",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "AVAILABILITY",
+      "labels": {
+        "es": "disponibilidad real",
+        "en": "real availability"
+      },
+      "reason": "Una recomendación no sirve si no puede adquirirse o utilizarse en el mercado del usuario.",
+      "lens": "Market",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "DELIVERY_RETURNS",
+      "labels": {
+        "es": "entrega y devoluciones",
+        "en": "delivery and returns"
+      },
+      "reason": "Afectan coste efectivo, riesgo y plazo de una compra.",
+      "lens": "Ownership",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "PERFORMANCE_NEED",
+      "labels": {
+        "es": "rendimiento necesario",
+        "en": "required performance"
+      },
+      "reason": "Dimensiona potencia y capacidad según la carga real, evitando pagar de más o quedarse corto.",
+      "lens": "Fit",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "BATTERY_MOBILITY",
+      "labels": {
+        "es": "autonomía y movilidad",
+        "en": "battery and mobility"
+      },
+      "reason": "Importa cuando el uso ocurre lejos de una toma o requiere transporte frecuente.",
+      "lens": "Fit",
+      "aliases": [],
+      "usefulWhen": {
+        "pattern": "port[aá]til|m[oó]vil|tablet|viaje|campo|battery|laptop",
+        "flags": "i"
+      },
+      "irrelevantWhen": null
+    },
+    {
+      "id": "DISPLAY_NEED",
+      "labels": {
+        "es": "pantalla y legibilidad",
+        "en": "display and readability"
+      },
+      "reason": "Tamaño, brillo, resolución y ergonomía dependen de cómo y dónde se consumirá contenido.",
+      "lens": "Fit",
+      "aliases": [],
+      "usefulWhen": {
+        "pattern": "pantalla|foto|v[ií]deo|diseño|jugar|sal[oó]n|exterior",
+        "flags": "i"
+      },
+      "irrelevantWhen": null
+    },
+    {
+      "id": "CAMERA_NEED",
+      "labels": {
+        "es": "calidad fotográfica y de vídeo",
+        "en": "camera and video quality"
+      },
+      "reason": "Debe priorizarse solo cuando capturar imágenes es parte importante del uso.",
+      "lens": "Fit",
+      "aliases": [],
+      "usefulWhen": {
+        "pattern": "foto|c[aá]mara|v[ií]deo|retrato|contenido|camera",
+        "flags": "i"
+      },
+      "irrelevantWhen": {
+        "pattern": "solo llamadas|whatsapp b[aá]sico",
+        "flags": "i"
+      }
+    },
+    {
+      "id": "SOFTWARE_SUPPORT",
+      "labels": {
+        "es": "actualizaciones y soporte de software",
+        "en": "software updates and support"
+      },
+      "reason": "Influye en seguridad, compatibilidad y vida útil real del dispositivo.",
+      "lens": "Ownership",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "TERRAIN",
+      "labels": {
+        "es": "terreno y superficie",
+        "en": "terrain and surface"
+      },
+      "reason": "Cambia geometría, tracción, comodidad, componentes y seguridad necesarias.",
+      "lens": "Fit",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "RIDER_FIT",
+      "labels": {
+        "es": "medidas y postura del usuario",
+        "en": "rider measurements and posture"
+      },
+      "reason": "Relaciona la talla nominal con altura, entrepierna, alcance y posición de uso.",
+      "lens": "Fit",
+      "aliases": [],
+      "relations": [
+        {
+          "type": "influences",
+          "to": "SIZE_FIT"
+        }
+      ],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "SAFETY_EQUIPMENT",
+      "labels": {
+        "es": "seguridad y equipamiento obligatorio",
+        "en": "safety equipment"
+      },
+      "reason": "Reduce riesgos previsibles y evita una recomendación incompleta.",
+      "lens": "Safety",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "CONDITION_HISTORY",
+      "labels": {
+        "es": "estado, desgaste e historial",
+        "en": "condition and history"
+      },
+      "reason": "En segunda mano, el mantenimiento y los daños previos importan tanto como el modelo.",
+      "lens": "Risk",
+      "aliases": [],
+      "usefulWhen": {
+        "pattern": "segunda mano|usad[oa]|reacondicionad[oa]",
+        "flags": "i"
+      },
+      "irrelevantWhen": null
+    },
+    {
+      "id": "ENERGY_EFFICIENCY",
+      "labels": {
+        "es": "consumo y eficiencia energética",
+        "en": "energy efficiency"
+      },
+      "reason": "Afecta coste continuo, instalación y adecuación al uso.",
+      "lens": "Ownership",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "SPACE_DIMENSIONS",
+      "labels": {
+        "es": "medidas y espacio disponible",
+        "en": "available space and dimensions"
+      },
+      "reason": "Evita recomendar objetos, muebles o equipos que no caben o no permiten uso cómodo.",
+      "lens": "Fit",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "INSTALLATION_REQUIREMENTS",
+      "labels": {
+        "es": "instalación y requisitos físicos",
+        "en": "installation requirements"
+      },
+      "reason": "Puede exigir potencia, ventilación, conexiones, herramientas o permisos.",
+      "lens": "Feasibility",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "CAPACITY",
+      "labels": {
+        "es": "capacidad necesaria",
+        "en": "required capacity"
+      },
+      "reason": "Dimensiona almacenamiento, volumen o carga según usuarios y frecuencia.",
+      "lens": "Fit",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "INGREDIENT_CONSTRAINTS",
+      "labels": {
+        "es": "alergias, preferencias y restricciones alimentarias",
+        "en": "dietary constraints"
+      },
+      "reason": "Evita propuestas inseguras o incompatibles con las personas que comerán.",
+      "lens": "Safety",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "NUTRITION_GOAL",
+      "labels": {
+        "es": "objetivo nutricional",
+        "en": "nutrition goal"
+      },
+      "reason": "Determina energía, distribución y composición sin asumir necesidades médicas.",
+      "lens": "Outcome",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "MEAL_SEQUENCE",
+      "labels": {
+        "es": "planificación y reutilización de comidas",
+        "en": "meal sequence and reuse"
+      },
+      "reason": "Coordina compras, preparación, conservación y reutilización para reducir tiempo y desperdicio.",
+      "lens": "Planning",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "SHOPPING_LIST",
+      "labels": {
+        "es": "lista de compra consolidada",
+        "en": "consolidated shopping list"
+      },
+      "reason": "Convierte el plan de comidas en cantidades adquiribles y reduce duplicados.",
+      "lens": "Delivery",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "PREP_STORAGE",
+      "labels": {
+        "es": "preparación y conservación",
+        "en": "preparation and storage"
+      },
+      "reason": "Hace viable el plan considerando tiempo, caducidad, refrigeración y recalentado.",
+      "lens": "Operations",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "PARTIES_ROLES",
+      "labels": {
+        "es": "partes y responsabilidades",
+        "en": "parties and responsibilities"
+      },
+      "reason": "Aclara quién debe hacer qué y frente a quién.",
+      "lens": "Legal information",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "DATES_DEADLINES",
+      "labels": {
+        "es": "fechas, plazos y renovaciones",
+        "en": "dates, deadlines and renewals"
+      },
+      "reason": "Los plazos pueden cambiar derechos, obligaciones y acciones disponibles.",
+      "lens": "Legal information",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "PAYMENT_OBLIGATIONS",
+      "labels": {
+        "es": "importes, pagos y penalizaciones",
+        "en": "payments and penalties"
+      },
+      "reason": "Permite detectar coste, calendario de pago y consecuencias de incumplimiento.",
+      "lens": "Legal information",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "TERMINATION",
+      "labels": {
+        "es": "terminación, renovación y salida",
+        "en": "termination and renewal"
+      },
+      "reason": "Identifica cómo finaliza la relación y qué preavisos o costes existen.",
+      "lens": "Legal information",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "CLAUSE_RISK",
+      "labels": {
+        "es": "cláusulas atípicas o de riesgo",
+        "en": "risky clauses"
+      },
+      "reason": "Destaca lenguaje que limita derechos, amplía responsabilidad o crea obligaciones poco evidentes.",
+      "lens": "Risk",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "SOURCE_BOUNDARY",
+      "labels": {
+        "es": "resumir solo lo presente",
+        "en": "source-only boundary"
+      },
+      "reason": "Impide completar huecos inventando contenido ausente del documento.",
+      "lens": "Evidence",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "EVENT_OBJECTIVE",
+      "labels": {
+        "es": "objetivo y formato del evento",
+        "en": "event objective and format"
+      },
+      "reason": "Determina participantes, estructura, recursos y definición de éxito sin inventar la disciplina.",
+      "lens": "Planning",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "PARTICIPANTS",
+      "labels": {
+        "es": "participantes y capacidad",
+        "en": "participants and capacity"
+      },
+      "reason": "Condiciona formato, duración, espacio, personal y comunicación.",
+      "lens": "Operations",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "SCHEDULE_FORMAT",
+      "labels": {
+        "es": "calendario, rondas y secuencia",
+        "en": "schedule and sequence"
+      },
+      "reason": "Evita solapes y permite que recursos y participantes estén disponibles cuando corresponde.",
+      "lens": "Planning",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "VENUE_RESOURCES",
+      "labels": {
+        "es": "espacios y recursos compartidos",
+        "en": "venues and shared resources"
+      },
+      "reason": "Relaciona capacidad, disponibilidad y asignación con el programa.",
+      "lens": "Operations",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "REGISTRATION",
+      "labels": {
+        "es": "inscripción y elegibilidad",
+        "en": "registration and eligibility"
+      },
+      "reason": "Define quién participa, qué datos se necesitan y cómo se confirman plazas.",
+      "lens": "Workflow",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "RULES_SCORING",
+      "labels": {
+        "es": "reglas, puntuación y desempates",
+        "en": "rules scoring and tiebreaks"
+      },
+      "reason": "Evita decisiones arbitrarias durante una competición o selección.",
+      "lens": "Governance",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "STAKEHOLDERS",
+      "labels": {
+        "es": "personas y roles",
+        "en": "people and roles"
+      },
+      "reason": "Permite asignar acceso, responsabilidad y comunicación sin mezclar actores.",
+      "lens": "Operations",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "ASSET_REGISTRY",
+      "labels": {
+        "es": "activos o unidades identificables",
+        "en": "asset registry"
+      },
+      "reason": "Da identidad estable a cada elemento que debe inspeccionarse, mantenerse o seguirse.",
+      "lens": "Data",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "STATUS_LIFECYCLE",
+      "labels": {
+        "es": "estados y transiciones",
+        "en": "statuses and transitions"
+      },
+      "reason": "Hace visible cómo evoluciona una entidad y qué acciones están permitidas en cada fase.",
+      "lens": "Workflow",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "INSPECTION_RECORD",
+      "labels": {
+        "es": "revisiones e inspecciones",
+        "en": "inspection records"
+      },
+      "reason": "Permite comparar cambios entre revisiones y detectar problemas recurrentes.",
+      "lens": "Operations",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "LOCATION_CONTEXT",
+      "labels": {
+        "es": "ubicación y contexto operativo",
+        "en": "location context"
+      },
+      "reason": "Relaciona activos, personas o eventos con condiciones propias del lugar.",
+      "lens": "Context",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "APPOINTMENT_SCHEDULING",
+      "labels": {
+        "es": "citas y disponibilidad",
+        "en": "appointments and availability"
+      },
+      "reason": "Coordina demanda, recursos, profesionales y duración sin solapes.",
+      "lens": "Planning",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "RESOURCE_ALLOCATION",
+      "labels": {
+        "es": "asignación de recursos",
+        "en": "resource allocation"
+      },
+      "reason": "Evita conflictos cuando varias tareas compiten por personas, salas o equipos.",
+      "lens": "Operations",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "AUDIT_TRAIL",
+      "labels": {
+        "es": "trazabilidad de cambios",
+        "en": "audit trail"
+      },
+      "reason": "Permite saber quién cambió qué, cuándo y por qué en procesos sensibles.",
+      "lens": "Governance",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "ACCESS_ROLES",
+      "labels": {
+        "es": "roles y permisos",
+        "en": "roles and permissions"
+      },
+      "reason": "Limita acciones y visibilidad según responsabilidad real.",
+      "lens": "Security",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "BACKUP_RECOVERY",
+      "labels": {
+        "es": "copias y recuperación",
+        "en": "backup and recovery"
+      },
+      "reason": "Reduce pérdida de datos y define cómo volver a un estado válido.",
+      "lens": "Reliability",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "OFFLINE_FIELD_USE",
+      "labels": {
+        "es": "captura sin conexión y sincronización posterior",
+        "en": "offline field use"
+      },
+      "reason": "Resulta útil cuando el trabajo ocurre en campo o con conectividad irregular.",
+      "lens": "Operations",
+      "aliases": [],
+      "usefulWhen": {
+        "pattern": "campo|rural|viaje|obra|inspecci[oó]n|offline|sin conexi[oó]n",
+        "flags": "i"
+      },
+      "irrelevantWhen": {
+        "pattern": "landing|portfolio|p[aá]gina informativa",
+        "flags": "i"
+      }
+    },
+    {
+      "id": "SEARCH_FILTER_SORT",
+      "labels": {
+        "es": "búsqueda, filtros y orden",
+        "en": "search filters and sorting"
+      },
+      "reason": "Permite encontrar elementos cuando el volumen supera una lista pequeña.",
+      "lens": "UX",
+      "aliases": [],
+      "usefulWhen": {
+        "pattern": "cat[aá]logo|historial|muchos|inventario|productos|clientes|registros",
+        "flags": "i"
+      },
+      "irrelevantWhen": null
+    },
+    {
+      "id": "IMPORT_EXPORT",
+      "labels": {
+        "es": "importación y exportación",
+        "en": "import and export"
+      },
+      "reason": "Facilita migración, interoperabilidad y copias cuando existen datos previos.",
+      "lens": "Operations",
+      "aliases": [],
+      "usefulWhen": {
+        "pattern": "excel|csv|migr|datos existentes|export",
+        "flags": "i"
+      },
+      "irrelevantWhen": null
+    },
+    {
+      "id": "EMPTY_ERROR_RECOVERY",
+      "labels": {
+        "es": "vacío, error y recuperación",
+        "en": "empty error and recovery states"
+      },
+      "reason": "Mantiene comprensible el flujo antes de tener datos y cuando una operación falla.",
+      "lens": "UX",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "ACCESSIBILITY_NEEDS",
+      "labels": {
+        "es": "necesidades de accesibilidad",
+        "en": "accessibility needs"
+      },
+      "reason": "Puede cambiar transporte, ritmo, interacción, contenido y formatos de entrega.",
+      "lens": "Accessibility",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "RESPONSIVE_CONTEXT",
+      "labels": {
+        "es": "contexto móvil y escritorio",
+        "en": "mobile and desktop context"
+      },
+      "reason": "Ajusta densidad, navegación y acciones al dispositivo realmente usado.",
+      "lens": "UX",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "PRIMARY_CTA",
+      "labels": {
+        "es": "acción principal y conversión",
+        "en": "primary action and conversion"
+      },
+      "reason": "Evita dispersar una landing o campaña entre objetivos incompatibles.",
+      "lens": "Conversion",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "VALUE_PROPOSITION",
+      "labels": {
+        "es": "promesa y diferenciación",
+        "en": "value proposition"
+      },
+      "reason": "Explica para quién es la oferta, qué problema resuelve y por qué elegirla.",
+      "lens": "Positioning",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "SOCIAL_PROOF",
+      "labels": {
+        "es": "prueba y confianza",
+        "en": "proof and trust"
+      },
+      "reason": "Reduce objeciones con evidencia creíble en lugar de adjetivos promocionales.",
+      "lens": "Conversion",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "OBJECTION_HANDLING",
+      "labels": {
+        "es": "objeciones prioritarias",
+        "en": "priority objections"
+      },
+      "reason": "Permite responder dudas que impiden actuar sin añadir secciones genéricas.",
+      "lens": "Conversion",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "SEO_SEARCH_INTENT",
+      "labels": {
+        "es": "intención de búsqueda y SEO básico",
+        "en": "search intent and SEO basics"
+      },
+      "reason": "Alinea contenido, títulos y estructura con lo que la audiencia busca.",
+      "lens": "Acquisition",
+      "aliases": [],
+      "usefulWhen": {
+        "pattern": "web|landing|blog|contenido|seo",
+        "flags": "i"
+      },
+      "irrelevantWhen": null
+    },
+    {
+      "id": "PLATFORM_NATIVE_FORMAT",
+      "labels": {
+        "es": "formato nativo de plataforma",
+        "en": "platform-native format"
+      },
+      "reason": "Adapta ritmo, longitud y apoyo visual al comportamiento real de cada canal.",
+      "lens": "Channel",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "HOOK_RETENTION",
+      "labels": {
+        "es": "hook y retención",
+        "en": "hook and retention"
+      },
+      "reason": "Gana atención y mantiene interés sin depender de titulares engañosos.",
+      "lens": "Creative",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "CONVERSION_METRIC",
+      "labels": {
+        "es": "objetivo y métrica de conversión",
+        "en": "conversion objective and metric"
+      },
+      "reason": "Conecta la pieza con una acción observable y una forma de aprender.",
+      "lens": "Measurement",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "SLIDE_STORY_ARC",
+      "labels": {
+        "es": "arco narrativo de la presentación",
+        "en": "presentation story arc"
+      },
+      "reason": "Ordena las diapositivas según lo que la audiencia debe entender, creer o decidir.",
+      "lens": "Story",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "SLIDE_PURPOSE",
+      "labels": {
+        "es": "mensaje único por diapositiva",
+        "en": "single message per slide"
+      },
+      "reason": "Evita convertir páginas de documento en diapositivas densas.",
+      "lens": "Presentation",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "VISUAL_EVIDENCE",
+      "labels": {
+        "es": "visualización adecuada de evidencia",
+        "en": "evidence visualization"
+      },
+      "reason": "Elige tabla, gráfico, diagrama o imagen según la relación que debe comprenderse.",
+      "lens": "Presentation",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "DATA_QUALITY",
+      "labels": {
+        "es": "calidad y limitaciones de datos",
+        "en": "data quality and limitations"
+      },
+      "reason": "Detecta ausencias, duplicados, sesgos y errores antes de calcular conclusiones.",
+      "lens": "Data",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "MISSING_OUTLIERS",
+      "labels": {
+        "es": "faltantes y valores atípicos",
+        "en": "missing values and outliers"
+      },
+      "reason": "Obliga a decidir tratamiento y efecto sobre métricas o modelos.",
+      "lens": "Data",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "METHOD_FIT",
+      "labels": {
+        "es": "método adecuado a la pregunta",
+        "en": "method fit"
+      },
+      "reason": "Evita aplicar una técnica porque está disponible en vez de porque responde la pregunta.",
+      "lens": "Method",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "UNCERTAINTY",
+      "labels": {
+        "es": "incertidumbre y límites",
+        "en": "uncertainty and limitations"
+      },
+      "reason": "Evita presentar estimaciones o evidencia incompleta como certeza.",
+      "lens": "Evidence",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "REPRODUCIBILITY",
+      "labels": {
+        "es": "pasos reproducibles",
+        "en": "reproducibility"
+      },
+      "reason": "Permite revisar cómo se obtuvo un resultado y repetirlo con nuevos datos.",
+      "lens": "Quality",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "LEARNING_TARGET",
+      "labels": {
+        "es": "nivel objetivo observable",
+        "en": "observable learning target"
+      },
+      "reason": "Convierte aprender un tema en una capacidad verificable.",
+      "lens": "Learning",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "PREREQUISITES",
+      "labels": {
+        "es": "prerrequisitos",
+        "en": "prerequisites"
+      },
+      "reason": "Evita avanzar sobre conocimientos que todavía no están consolidados.",
+      "lens": "Learning",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "RETRIEVAL_PRACTICE",
+      "labels": {
+        "es": "recuperación activa y repetición",
+        "en": "retrieval and spaced practice"
+      },
+      "reason": "Mejora retención y revela lagunas mejor que releer pasivamente.",
+      "lens": "Learning",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "ASSESSMENT",
+      "labels": {
+        "es": "evaluación y evidencia de progreso",
+        "en": "assessment and progress evidence"
+      },
+      "reason": "Comprueba la capacidad real y ajusta el siguiente nivel.",
+      "lens": "Learning",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "TRAINING_SCHEDULE",
+      "labels": {
+        "es": "días y duración disponibles",
+        "en": "training schedule"
+      },
+      "reason": "Determina frecuencia, volumen y distribución sostenible.",
+      "lens": "Training",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "EQUIPMENT",
+      "labels": {
+        "es": "equipamiento disponible",
+        "en": "available equipment"
+      },
+      "reason": "Limita ejercicios o métodos posibles sin asumir acceso a material.",
+      "lens": "Training",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "RECOVERY",
+      "labels": {
+        "es": "descanso y recuperación",
+        "en": "recovery"
+      },
+      "reason": "Condiciona progresión, frecuencia e intensidad sin diagnosticar problemas médicos.",
+      "lens": "Training",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "VOLUME_INTENSITY",
+      "labels": {
+        "es": "volumen e intensidad",
+        "en": "volume and intensity"
+      },
+      "reason": "Permite dosificar el estímulo y progresarlo de forma medible.",
+      "lens": "Training",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "ERROR_REPRODUCTION",
+      "labels": {
+        "es": "reproducción mínima del error",
+        "en": "minimal reproduction"
+      },
+      "reason": "Separa síntomas de causa y crea una base verificable para corregir.",
+      "lens": "Debugging",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "EXPECTED_ACTUAL",
+      "labels": {
+        "es": "comportamiento esperado y actual",
+        "en": "expected and actual behavior"
+      },
+      "reason": "Define la diferencia observable que debe explicarse.",
+      "lens": "Debugging",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "ROOT_CAUSE_EVIDENCE",
+      "labels": {
+        "es": "evidencia de causa raíz",
+        "en": "root cause evidence"
+      },
+      "reason": "Evita corregir por intuición sin aislar la causa.",
+      "lens": "Debugging",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "REGRESSION_TEST",
+      "labels": {
+        "es": "prueba de regresión",
+        "en": "regression test"
+      },
+      "reason": "Demuestra que el arreglo persiste y no rompe flujos relacionados.",
+      "lens": "Quality",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "INPUT_OUTPUT_CONTRACT",
+      "labels": {
+        "es": "contrato de entrada y salida",
+        "en": "input output contract"
+      },
+      "reason": "Hace verificable qué recibe una solución técnica y qué debe devolver.",
+      "lens": "Engineering",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "EDGE_CASES",
+      "labels": {
+        "es": "casos límite relevantes",
+        "en": "relevant edge cases"
+      },
+      "reason": "Cubre condiciones que cambian el comportamiento sin convertir la tarea en arquitectura empresarial.",
+      "lens": "Engineering",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "DEPENDENCY_POLICY",
+      "labels": {
+        "es": "dependencias y compatibilidad",
+        "en": "dependencies and compatibility"
+      },
+      "reason": "Evita añadir librerías innecesarias o incompatibles con el entorno.",
+      "lens": "Engineering",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "OBSERVABILITY",
+      "labels": {
+        "es": "registro y observabilidad",
+        "en": "logging and observability"
+      },
+      "reason": "Permite detectar, explicar y recuperar fallos operativos.",
+      "lens": "Reliability",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "MANUAL_OVERRIDE",
+      "labels": {
+        "es": "control manual",
+        "en": "manual override"
+      },
+      "reason": "Permite recuperar control cuando una automatización clasifica o actúa incorrectamente.",
+      "lens": "Safety",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "STOP_CONDITION",
+      "labels": {
+        "es": "condición de parada",
+        "en": "stop condition"
+      },
+      "reason": "Evita bucles o agentes que continúan actuando sin criterio de terminado.",
+      "lens": "Agent",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "PERMISSION_BOUNDARY",
+      "labels": {
+        "es": "límites de acción",
+        "en": "action permissions"
+      },
+      "reason": "Define qué puede hacer el agente y qué requiere aprobación.",
+      "lens": "Agent",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    },
+    {
+      "id": "EVALUATION_CASES",
+      "labels": {
+        "es": "casos de evaluación",
+        "en": "evaluation cases"
+      },
+      "reason": "Mide si el agente cumple su misión sin confiar en una demostración aislada.",
+      "lens": "Quality",
+      "aliases": [],
+      "usefulWhen": null,
+      "irrelevantWhen": null
+    }
+  ]
+}

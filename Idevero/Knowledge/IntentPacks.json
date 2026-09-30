@@ -1,0 +1,119 @@
+{
+  "schema": 3,
+  "intents": [
+    {
+      "id": "CREATE"
+    },
+    {
+      "id": "IMPROVE"
+    },
+    {
+      "id": "EDIT"
+    },
+    {
+      "id": "RESTORE"
+    },
+    {
+      "id": "BUY"
+    },
+    {
+      "id": "COMPARE"
+    },
+    {
+      "id": "REPLACE"
+    },
+    {
+      "id": "UPGRADE"
+    },
+    {
+      "id": "PLAN"
+    },
+    {
+      "id": "TRACK"
+    },
+    {
+      "id": "ORGANIZE"
+    },
+    {
+      "id": "DECIDE"
+    },
+    {
+      "id": "LEARN"
+    },
+    {
+      "id": "FIX"
+    },
+    {
+      "id": "OPTIMIZE"
+    },
+    {
+      "id": "MONITOR"
+    },
+    {
+      "id": "ANALYZE"
+    },
+    {
+      "id": "SUMMARIZE"
+    },
+    {
+      "id": "TRANSFORM"
+    },
+    {
+      "id": "SELL"
+    },
+    {
+      "id": "PRESENT"
+    },
+    {
+      "id": "CONVINCE"
+    },
+    {
+      "id": "DOCUMENT"
+    },
+    {
+      "id": "AUTOMATE"
+    },
+    {
+      "id": "RESEARCH"
+    },
+    {
+      "id": "RECOMMEND"
+    },
+    {
+      "id": "WRITE"
+    },
+    {
+      "id": "GENERATE"
+    },
+    {
+      "id": "VALIDATE"
+    },
+    {
+      "id": "CONTINUE"
+    },
+    {
+      "id": "DEBUG"
+    },
+    {
+      "id": "CALCULATE"
+    },
+    {
+      "id": "EXTRACT"
+    },
+    {
+      "id": "CLASSIFY"
+    },
+    {
+      "id": "SCHEDULE"
+    },
+    {
+      "id": "COMMUNICATE"
+    },
+    {
+      "id": "DESIGN"
+    },
+    {
+      "id": "EXECUTE"
+    }
+  ]
+}

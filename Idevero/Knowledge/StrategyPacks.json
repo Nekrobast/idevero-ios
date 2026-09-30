@@ -1,0 +1,2036 @@
+{
+  "schema": 3,
+  "strategies": [
+    {
+      "id": "image",
+      "label": "Dirección artística",
+      "blueprint": "VisualIntent",
+      "format": "dirección visual fluida",
+      "quality": [
+        "dirección artística coherente",
+        "jerarquía visual clara",
+        "luz y materiales relacionados",
+        "sin parámetros contradictorios"
+      ],
+      "forbidden": [
+        "base de datos",
+        "autenticación",
+        "testing"
+      ],
+      "candidates": [
+        {
+          "label": "sujeto y acción",
+          "reason": "Define qué debe leerse primero y evita una escena ambigua.",
+          "lens": "Art direction",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "entorno narrativo",
+          "reason": "Sitúa al sujeto en un mundo visual coherente.",
+          "lens": "Environment",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "composición y encuadre",
+          "reason": "Controla jerarquía, escala y recorrido visual.",
+          "lens": "Composition",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "ángulo y perspectiva",
+          "reason": "Cambia la sensación de poder, intimidad o dinamismo.",
+          "lens": "Camera",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "luz motivada",
+          "reason": "La fuente de luz debe pertenecer a la escena y ordenar volúmenes.",
+          "lens": "Lighting",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "paleta coherente",
+          "reason": "Une atmósfera, época y emoción sin mezclar estilos incompatibles.",
+          "lens": "Art direction",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "materiales y textura",
+          "reason": "Hace creíble la interacción entre ropa, metal, piel, agua y entorno.",
+          "lens": "Materials",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "profundidad y movimiento",
+          "reason": "Separa planos y comunica lluvia, viento o acción.",
+          "lens": "Composition",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "nivel de realismo",
+          "reason": "Evita que el modelo mezcle fotografía, ilustración y render sin intención.",
+          "lens": "Visual consistency",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "relación de aspecto",
+          "reason": "Debe responder al uso previsto de la imagen.",
+          "lens": "Composition",
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "image_editing",
+      "label": "Edición visual preservativa",
+      "blueprint": "EditPreservation",
+      "format": "instrucción de edición por prioridades",
+      "quality": [
+        "identidad preservada",
+        "cambio localizado",
+        "integración física natural",
+        "lista inequívoca de no alterar"
+      ],
+      "forbidden": [
+        "reinterpretación del sujeto",
+        "rediseño completo"
+      ],
+      "candidates": [
+        {
+          "label": "preservar rostros e identidad",
+          "reason": "Es la restricción de mayor coste si el modelo la altera.",
+          "lens": "Preservation",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "conservar posición y proporciones",
+          "reason": "Evita que una edición local recomponga toda la imagen.",
+          "lens": "Preservation",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "cambio exacto y localizado",
+          "reason": "Delimita qué debe variar.",
+          "lens": "Edit intent",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "perspectiva coincidente",
+          "reason": "El elemento editado debe respetar cámara y geometría.",
+          "lens": "Integration",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "luz, color y sombras coincidentes",
+          "reason": "Integra el cambio sin aspecto pegado.",
+          "lens": "Integration",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "mantener ropa y estilo",
+          "reason": "Protege rasgos secundarios de identidad.",
+          "lens": "Preservation",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "conservar resolución y detalle",
+          "reason": "Evita degradación fuera del área editada.",
+          "lens": "Quality",
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "app",
+      "label": "Producto y software",
+      "blueprint": "ProductSoftware",
+      "format": "especificación de producto ejecutable",
+      "quality": [
+        "outcome antes que features",
+        "flujo principal completo",
+        "datos y estados coherentes",
+        "alcance priorizado",
+        "validación observable"
+      ],
+      "forbidden": [
+        "AI por defecto",
+        "gamificación automática",
+        "social sharing sin razón",
+        "arquitectura empresarial para MVP"
+      ],
+      "candidates": [
+        {
+          "label": "resultado real del usuario",
+          "reason": "Transforma la petición literal en la decisión o acción que el producto debe facilitar.",
+          "lens": "Product",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "usuario y contexto de uso",
+          "reason": "Determina frecuencia, entorno, urgencia y nivel de conocimiento.",
+          "lens": "Product",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "acción principal",
+          "reason": "Define el momento de valor que organiza todo el producto.",
+          "lens": "UX",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "flujo principal de principio a fin",
+          "reason": "Evita colecciones de pantallas sin recorrido útil.",
+          "lens": "UX",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "flujos secundarios relevantes",
+          "reason": "Cubre corrección, consulta, recuperación y repetición.",
+          "lens": "UX",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "arquitectura de información",
+          "reason": "Agrupa contenido y acciones según el modelo mental.",
+          "lens": "UX",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "pantallas y navegación",
+          "reason": "Convierte los flujos en una interfaz recorrible.",
+          "lens": "UX",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "modelo de datos y relaciones",
+          "reason": "Hace persistibles y verificables las funciones elegidas.",
+          "lens": "Data",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "fuentes y frescura de datos",
+          "reason": "Es crítica cuando el valor depende de información externa o actual.",
+          "lens": "Data",
+          "when": {
+            "pattern": "tiempo|precio|surf|olas|mercado|mapa|ubicaci[oó]n|tr[aá]fico",
+            "flags": ""
+          },
+          "unless": null
+        },
+        {
+          "label": "búsqueda, filtros y orden",
+          "reason": "Aporta valor cuando existen muchas entidades comparables.",
+          "lens": "UX",
+          "when": {
+            "pattern": "cat[aá]logo|viajes|recetas|cartas|productos|gastos|lugares|reservas",
+            "flags": ""
+          },
+          "unless": null
+        },
+        {
+          "label": "persistencia y sincronización",
+          "reason": "Define dónde vive el estado y cómo se recupera.",
+          "lens": "Engineering",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "offline y recuperación",
+          "reason": "Evita pérdida de utilidad con mala conexión.",
+          "lens": "Engineering",
+          "when": {
+            "pattern": "viaje|surf|campo|offline|sin conexi[oó]n|m[oó]vil",
+            "flags": ""
+          },
+          "unless": null
+        },
+        {
+          "label": "notificaciones útiles",
+          "reason": "Solo deben existir si hay eventos accionables.",
+          "lens": "Operations",
+          "when": {
+            "pattern": "alert|recordatorio|reserva|venc|mejor hora|l[ií]mite",
+            "flags": ""
+          },
+          "unless": null
+        },
+        {
+          "label": "importación y exportación",
+          "reason": "Reduce lock-in y facilita incorporar o extraer datos.",
+          "lens": "Data",
+          "when": {
+            "pattern": "gastos|stock|inventario|colecci[oó]n|empresa|viajes",
+            "flags": ""
+          },
+          "unless": null
+        },
+        {
+          "label": "privacidad y permisos",
+          "reason": "Protege datos personales, financieros o ubicación.",
+          "lens": "Quality",
+          "when": {
+            "pattern": "gastos|salud|ubicaci[oó]n|documentos|cuenta|personal",
+            "flags": ""
+          },
+          "unless": null
+        },
+        {
+          "label": "estados vacío, carga, error y recuperación",
+          "reason": "Define comportamiento real más allá del happy path.",
+          "lens": "Quality",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "accesibilidad y responsive",
+          "reason": "Mantiene los flujos utilizables en dispositivos distintos.",
+          "lens": "Quality",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "rendimiento y seguridad proporcional",
+          "reason": "Centra riesgos reales del caso.",
+          "lens": "Engineering",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "pruebas del valor principal",
+          "reason": "Verifica que el producto resuelve la tarea.",
+          "lens": "Quality",
+          "core": true,
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "web",
+      "label": "Estrategia web",
+      "blueprint": "WebExperience",
+      "format": "brief web según subtipo",
+      "quality": [
+        "subtipo correcto",
+        "jerarquía orientada al objetivo",
+        "conversión coherente",
+        "móvil y SEO proporcionados"
+      ],
+      "forbidden": [
+        "base de datos automática",
+        "login sin necesidad"
+      ],
+      "candidates": [
+        {
+          "label": "subtipo de sitio",
+          "reason": "Landing, corporativa, portfolio, contenido, directorio, ecommerce, marketplace y web app requieren criterios distintos.",
+          "lens": "Strategy",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "audiencia y objetivo de visita",
+          "reason": "Define qué debe entender o hacer alguien al llegar.",
+          "lens": "Strategy",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "propuesta de valor visible",
+          "reason": "Conecta problema, promesa y diferenciación.",
+          "lens": "Conversion",
+          "when": {
+            "pattern": "landing|empresa|servicio|producto|vender",
+            "flags": ""
+          },
+          "unless": null
+        },
+        {
+          "label": "hero y CTA principal",
+          "reason": "Orienta la primera pantalla a una acción concreta.",
+          "lens": "Conversion",
+          "when": {
+            "pattern": "landing|vender|reserva|captar|servicio",
+            "flags": ""
+          },
+          "unless": null
+        },
+        {
+          "label": "prueba y objeciones",
+          "reason": "Reduce incertidumbre antes de convertir.",
+          "lens": "Conversion",
+          "when": {
+            "pattern": "landing|ecommerce|servicio|empresa",
+            "flags": ""
+          },
+          "unless": null
+        },
+        {
+          "label": "arquitectura de información",
+          "reason": "Organiza rutas y contenido según intención.",
+          "lens": "UX",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "catálogo, variantes y disponibilidad",
+          "reason": "Estructura la decisión de compra.",
+          "lens": "Commerce",
+          "when": {
+            "pattern": "tienda|ecommerce|productos|cat[aá]logo",
+            "flags": ""
+          },
+          "unless": null
+        },
+        {
+          "label": "carrito, pago, envío y devoluciones",
+          "reason": "Completa el ciclo comercial.",
+          "lens": "Commerce",
+          "when": {
+            "pattern": "tienda|ecommerce|checkout|comprar",
+            "flags": ""
+          },
+          "unless": null
+        },
+        {
+          "label": "SEO y metadatos",
+          "reason": "Permite descubrimiento cuando el contenido es público.",
+          "lens": "Content",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "móvil, accesibilidad y rendimiento",
+          "reason": "Condiciona conversión y uso real.",
+          "lens": "Quality",
+          "core": true,
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "programming",
+      "label": "Ingeniería de código",
+      "blueprint": "TechnicalTask",
+      "format": "tarea técnica compacta",
+      "quality": [
+        "contrato entrada/salida",
+        "alcance proporcional",
+        "errores relevantes",
+        "ejecución reproducible"
+      ],
+      "forbidden": [
+        "plan de marketing",
+        "documento de producto para un script"
+      ],
+      "candidates": [
+        {
+          "label": "entorno y versión relevante",
+          "reason": "Evita soluciones incompatibles con el runtime real.",
+          "lens": "Environment",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "entrada y salida exactas",
+          "reason": "Define el contrato observable.",
+          "lens": "Contract",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "comportamiento esperado",
+          "reason": "Separa qué hacer de cómo implementarlo.",
+          "lens": "Contract",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "manejo seguro de archivos",
+          "reason": "Previene pérdida o colisiones.",
+          "lens": "Reliability",
+          "when": {
+            "pattern": "archivo|foto|pdf|carpeta|renombr|orden",
+            "flags": ""
+          },
+          "unless": null
+        },
+        {
+          "label": "casos límite",
+          "reason": "Evita una solución que solo funcione con el ejemplo feliz.",
+          "lens": "Quality",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "errores y mensajes útiles",
+          "reason": "Permite diagnosticar fallos previsibles.",
+          "lens": "Reliability",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "dependencias mínimas",
+          "reason": "Reduce instalación y fragilidad.",
+          "lens": "Engineering",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "rendimiento proporcional",
+          "reason": "Importa con volúmenes grandes.",
+          "lens": "Engineering",
+          "when": {
+            "pattern": "miles|millones|grande|masivo|gb|rendimiento",
+            "flags": ""
+          },
+          "unless": null
+        },
+        {
+          "label": "pruebas y ejemplo de ejecución",
+          "reason": "Hace verificable y utilizable la solución.",
+          "lens": "Quality",
+          "core": true,
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "debugging",
+      "label": "Diagnóstico y reparación",
+      "blueprint": "DebugInvestigation",
+      "format": "protocolo de diagnóstico y parche",
+      "quality": [
+        "causa demostrada",
+        "parche mínimo",
+        "sin causa inventada",
+        "regresión cubierta"
+      ],
+      "forbidden": [
+        "reescritura total",
+        "features nuevas"
+      ],
+      "candidates": [
+        {
+          "label": "reproducción mínima",
+          "reason": "Confirma el fallo y reduce variables.",
+          "lens": "Evidence",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "comportamiento actual y esperado",
+          "reason": "Define la desviación.",
+          "lens": "Evidence",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "entorno, logs y evidencia",
+          "reason": "Evita diagnosticar por intuición.",
+          "lens": "Evidence",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "aislamiento de la causa",
+          "reason": "Distingue correlación de causa raíz.",
+          "lens": "Diagnosis",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "archivos y rutas a inspeccionar",
+          "reason": "Dirige la búsqueda cuando falta código.",
+          "lens": "Diagnosis",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "parche mínimo",
+          "reason": "Reduce riesgo de regresión.",
+          "lens": "Repair",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "prueba de regresión",
+          "reason": "Demuestra que el fallo no vuelve.",
+          "lens": "Quality",
+          "core": true,
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "research",
+      "label": "Diseño de investigación",
+      "blueprint": "ResearchBrief",
+      "format": "research brief",
+      "quality": [
+        "pregunta exacta",
+        "jerarquía de fuentes",
+        "actualidad cuando importa",
+        "incertidumbre explícita"
+      ],
+      "forbidden": [
+        "fuentes inventadas",
+        "afirmaciones sin respaldo"
+      ],
+      "candidates": [
+        {
+          "label": "pregunta de investigación exacta",
+          "reason": "Evita responder una pregunta parecida.",
+          "lens": "Research design",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "definiciones y criterios",
+          "reason": "Hace comparables conceptos ambiguos como mejor.",
+          "lens": "Scope",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "alcance temporal y geográfico",
+          "reason": "Determina qué evidencia aplica.",
+          "lens": "Scope",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "actualidad y fecha de corte",
+          "reason": "Es imprescindible para productos, precios, normas y mercado.",
+          "lens": "Currentness",
+          "when": {
+            "pattern": "mejor|m[oó]vil|precio|actual|mercado|comprar|202\\d|norma|ley",
+            "flags": ""
+          },
+          "unless": null
+        },
+        {
+          "label": "fuentes primarias y oficiales",
+          "reason": "Aporta evidencia directa.",
+          "lens": "Sources",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "fuentes secundarias independientes",
+          "reason": "Contrasta interpretación y pruebas.",
+          "lens": "Sources",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "método de comparación",
+          "reason": "Impide seleccionar datos de forma oportunista.",
+          "lens": "Method",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "evidencia contradictoria y sesgos",
+          "reason": "Evita una síntesis falsa.",
+          "lens": "Bias",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "lagunas e incertidumbre",
+          "reason": "Marca lo que no puede concluirse.",
+          "lens": "Evidence",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "citas trazables",
+          "reason": "Permite verificar afirmaciones.",
+          "lens": "Evidence",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "síntesis orientada a decisión",
+          "reason": "Convierte hallazgos en respuesta útil.",
+          "lens": "Synthesis",
+          "core": true,
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "shopping",
+      "label": "Decisión de compra",
+      "blueprint": "BuyingDecision",
+      "format": "brief de compra accionable",
+      "quality": [
+        "mejor definido por uso",
+        "coste total",
+        "variantes comparables",
+        "recomendación condicionada"
+      ],
+      "forbidden": [
+        "ranking universal",
+        "precio inventado"
+      ],
+      "candidates": [
+        {
+          "label": "caso de uso real",
+          "reason": "Define qué significa mejor para esta persona.",
+          "lens": "Needs",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "presupuesto como límite",
+          "reason": "Cambia qué opciones son válidas.",
+          "lens": "Constraints",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "país, disponibilidad y precio actual",
+          "reason": "Evita productos inaccesibles u obsoletos.",
+          "lens": "Market",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "variantes exactas",
+          "reason": "Configuración puede cambiar la recomendación.",
+          "lens": "Comparison",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "criterios ponderados por uso",
+          "reason": "Evita rankings genéricos.",
+          "lens": "Decision",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "coste total, garantía y soporte",
+          "reason": "Incluye riesgos posteriores.",
+          "lens": "Ownership",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "durabilidad y longevidad",
+          "reason": "Mide valor a largo plazo.",
+          "lens": "Ownership",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "alternativas y trade-offs",
+          "reason": "Explica qué se sacrifica.",
+          "lens": "Decision",
+          "core": true,
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "travel",
+      "label": "Planificación de viaje",
+      "blueprint": "TravelPlan",
+      "format": "planning brief por días",
+      "quality": [
+        "itinerario viable",
+        "zonas agrupadas",
+        "tiempo realista",
+        "reservas y contingencias"
+      ],
+      "forbidden": [
+        "horarios inventados",
+        "doce visitas diarias",
+        "stack de software"
+      ],
+      "candidates": [
+        {
+          "label": "fechas, origen y duración",
+          "reason": "Condicionan transporte, clima y ritmo.",
+          "lens": "Logistics",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "viajeros, intereses y ritmo",
+          "reason": "Evita un itinerario genérico.",
+          "lens": "Experience",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "presupuesto y distribución",
+          "reason": "Equilibra transporte, alojamiento, entradas y comida.",
+          "lens": "Budget",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "alojamiento como ancla geográfica",
+          "reason": "Afecta desplazamientos diarios.",
+          "lens": "Geography",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "agrupación por zonas",
+          "reason": "Reduce trayectos y zigzag.",
+          "lens": "Geography",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "tiempos puerta a puerta",
+          "reason": "Incluye traslados, colas, comidas y descanso.",
+          "lens": "Time",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "aperturas y reservas verificadas",
+          "reason": "Evita planes imposibles.",
+          "lens": "Reservations",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "transporte local y billetes",
+          "reason": "Hace ejecutable la ruta.",
+          "lens": "Logistics",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "comida integrada en la ruta",
+          "reason": "Evita tratar comidas como tiempo inexistente.",
+          "lens": "Experience",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "clima y plan alternativo",
+          "reason": "Protege frente a lluvia o cierres.",
+          "lens": "Contingency",
+          "core": true,
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "spreadsheet",
+      "label": "Diseño de workbook",
+      "blueprint": "WorkbookSpec",
+      "format": "especificación funcional de workbook",
+      "quality": [
+        "modelo relacional claro",
+        "fórmulas reconciliadas",
+        "entrada validada",
+        "flujo probado"
+      ],
+      "forbidden": [
+        "texto narrativo como sustituto",
+        "dashboard sin datos base"
+      ],
+      "candidates": [
+        {
+          "label": "propósito y flujo de uso",
+          "reason": "Define quién introduce datos y qué decisión obtiene.",
+          "lens": "Usability",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "hojas por responsabilidad",
+          "reason": "Separa maestros, movimientos, cálculos y presentación.",
+          "lens": "Data modeling",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "IDs únicos y relaciones",
+          "reason": "Evita duplicados y fórmulas frágiles.",
+          "lens": "Data modeling",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "columnas y tipos de datos",
+          "reason": "Convierte el objetivo en tablas construibles.",
+          "lens": "Data modeling",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "validación y desplegables",
+          "reason": "Previene errores en origen.",
+          "lens": "Input validation",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "fórmulas y referencias estructuradas",
+          "reason": "Mantiene cálculos al crecer.",
+          "lens": "Calculation",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "lookups y campos calculados",
+          "reason": "Conecta maestros y movimientos.",
+          "lens": "Calculation",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "histórico de movimientos",
+          "reason": "Permite auditoría.",
+          "lens": "Error prevention",
+          "when": {
+            "pattern": "stock|inventario|gastos|ventas|turnos",
+            "flags": ""
+          },
+          "unless": null
+        },
+        {
+          "label": "resúmenes y tablas dinámicas",
+          "reason": "Facilita análisis.",
+          "lens": "Reporting",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "dashboard y alertas visuales",
+          "reason": "Hace visibles excepciones.",
+          "lens": "Reporting",
+          "when": {
+            "pattern": "stock|ventas|gastos|seguimiento|control",
+            "flags": ""
+          },
+          "unless": null
+        },
+        {
+          "label": "protección de fórmulas",
+          "reason": "Evita daños accidentales.",
+          "lens": "Error prevention",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "pruebas y reconciliación",
+          "reason": "Verifica totales y entradas inválidas.",
+          "lens": "Quality",
+          "core": true,
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "presentation",
+      "label": "Narrativa de presentación",
+      "blueprint": "SlideStory",
+      "format": "guion de diapositivas",
+      "quality": [
+        "decisión de audiencia clara",
+        "una función por slide",
+        "evidencia visible",
+        "cierre accionable"
+      ],
+      "forbidden": [
+        "documento partido en diapositivas"
+      ],
+      "candidates": [
+        {
+          "label": "cambio buscado en la audiencia",
+          "reason": "Define qué debe entender, creer o decidir.",
+          "lens": "Audience",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "arco narrativo",
+          "reason": "Ordena tensión, evidencia y resolución.",
+          "lens": "Story",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "función de cada diapositiva",
+          "reason": "Impide slides sin propósito.",
+          "lens": "Story",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "evidencia y visualización",
+          "reason": "Asigna datos al formato visual apropiado.",
+          "lens": "Evidence",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "densidad y jerarquía",
+          "reason": "Evita páginas de Word.",
+          "lens": "Visual design",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "apertura y cierre",
+          "reason": "Crea contexto y termina con decisión.",
+          "lens": "Story",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "notas del presentador",
+          "reason": "Separa explicación oral del contenido visible.",
+          "lens": "Delivery",
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "marketing",
+      "label": "Estrategia de marketing",
+      "blueprint": "CampaignBrief",
+      "format": "campaign brief",
+      "quality": [
+        "segmento concreto",
+        "mensaje acorde a awareness",
+        "prueba creíble",
+        "objetivo medible"
+      ],
+      "forbidden": [
+        "campaña profesional genérica"
+      ],
+      "candidates": [
+        {
+          "label": "segmento objetivo",
+          "reason": "Evita hablar a todo el mercado.",
+          "lens": "Audience",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "problema, deseo y awareness",
+          "reason": "Determina qué mensaje es creíble.",
+          "lens": "Positioning",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "posicionamiento y promesa",
+          "reason": "Explica por qué elegir la oferta.",
+          "lens": "Positioning",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "oferta y fricción",
+          "reason": "Define qué obtiene la persona y qué le impide actuar.",
+          "lens": "Offer",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "canal y formato nativo",
+          "reason": "Adapta creatividad a la plataforma.",
+          "lens": "Channel",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "hook y mensaje principal",
+          "reason": "Gana atención con una idea dominante.",
+          "lens": "Creative",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "prueba y objeciones",
+          "reason": "Sustenta la promesa.",
+          "lens": "Conversion",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "CTA y objetivo de conversión",
+          "reason": "Conecta con la acción medible.",
+          "lens": "Conversion",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "métrica e iteración",
+          "reason": "Permite aprender y corregir.",
+          "lens": "Measurement",
+          "core": true,
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "social",
+      "label": "Contenido social",
+      "blueprint": "PlatformContent",
+      "format": "brief nativo de plataforma",
+      "quality": [
+        "formato nativo",
+        "hook apropiado",
+        "retención",
+        "CTA natural"
+      ],
+      "forbidden": [
+        "misma pieza para todas las redes"
+      ],
+      "candidates": [
+        {
+          "label": "plataforma y comportamiento nativo",
+          "reason": "Cada red premia formatos distintos.",
+          "lens": "Platform",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "audiencia y contexto de consumo",
+          "reason": "Determina lenguaje y ritmo.",
+          "lens": "Audience",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "hook",
+          "reason": "Debe detener el scroll.",
+          "lens": "Creative",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "estructura de retención",
+          "reason": "Mantiene interés hasta el valor.",
+          "lens": "Retention",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "apoyo visual o pacing",
+          "reason": "Adapta la pieza al canal.",
+          "lens": "Format",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "credibilidad y conversación",
+          "reason": "Es central en LinkedIn.",
+          "lens": "Trust",
+          "when": {
+            "pattern": "linkedin",
+            "flags": ""
+          },
+          "unless": null
+        },
+        {
+          "label": "brevedad y compartibilidad",
+          "reason": "Es central en X.",
+          "lens": "Format",
+          "when": {
+            "pattern": "\\bx\\b|twitter|tweet",
+            "flags": ""
+          },
+          "unless": null
+        },
+        {
+          "label": "CTA y engagement",
+          "reason": "Debe ser natural.",
+          "lens": "Conversion",
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "learning",
+      "label": "Diseño de aprendizaje",
+      "blueprint": "LearningProgram",
+      "format": "programa de aprendizaje",
+      "quality": [
+        "secuencia por prerrequisitos",
+        "práctica activa",
+        "feedback",
+        "progreso medible"
+      ],
+      "forbidden": [
+        "lista enciclopédica"
+      ],
+      "candidates": [
+        {
+          "label": "nivel inicial [NIVEL ACTUAL] y meta observable",
+          "reason": "Define la distancia real.",
+          "lens": "Diagnosis",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "tiempo y contexto de uso",
+          "reason": "Determina ritmo y actividades.",
+          "lens": "Planning",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "prerrequisitos y secuencia",
+          "reason": "Evita saltos bloqueantes.",
+          "lens": "Curriculum",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "explicación breve y modelado",
+          "reason": "Prepara la práctica.",
+          "lens": "Instruction",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "práctica guiada e independiente",
+          "reason": "Transfiere control al alumno.",
+          "lens": "Practice",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "feedback y corrección",
+          "reason": "Impide consolidar errores.",
+          "lens": "Feedback",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "recuperación y repetición espaciada",
+          "reason": "Mejora retención.",
+          "lens": "Memory",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "evaluación y progresión",
+          "reason": "Mide dominio.",
+          "lens": "Assessment",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "aplicación real",
+          "reason": "Conecta conocimiento y objetivo.",
+          "lens": "Transfer",
+          "core": true,
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "fitness",
+      "label": "Programación de entrenamiento",
+      "blueprint": "TrainingPlan",
+      "format": "programación de entrenamiento",
+      "quality": [
+        "datos críticos respetados",
+        "volumen recuperable",
+        "progresión concreta",
+        "sin diagnóstico inventado"
+      ],
+      "forbidden": [
+        "diagnóstico médico",
+        "lesiones inventadas"
+      ],
+      "candidates": [
+        {
+          "label": "objetivo [OBJETIVO] y experiencia",
+          "reason": "Condicionan ejercicios y volumen.",
+          "lens": "Programming",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "días y duración",
+          "reason": "Define el presupuesto semanal.",
+          "lens": "Schedule",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "equipamiento disponible",
+          "reason": "Limita selección.",
+          "lens": "Exercise selection",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "capacidad y limitaciones declaradas",
+          "reason": "Permite adaptar sin inventar.",
+          "lens": "Safety",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "frecuencia y volumen",
+          "reason": "Distribuye estímulo recuperable.",
+          "lens": "Programming",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "intensidad y RIR/RPE",
+          "reason": "Controla esfuerzo cuando aporta claridad.",
+          "lens": "Load management",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "progresión",
+          "reason": "Explica cómo avanzar.",
+          "lens": "Progression",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "descanso y recuperación",
+          "reason": "Hace sostenible el plan.",
+          "lens": "Recovery",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "registro y ajuste",
+          "reason": "Permite modificar carga.",
+          "lens": "Tracking",
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "automation",
+      "label": "Diseño de automatización",
+      "blueprint": "AutomationFlow",
+      "format": "flujo operacional",
+      "quality": [
+        "trigger inequívoco",
+        "idempotencia",
+        "recuperación",
+        "observabilidad"
+      ],
+      "forbidden": [
+        "acciones sin destino"
+      ],
+      "candidates": [
+        {
+          "label": "trigger y frecuencia",
+          "reason": "Define cuándo empieza.",
+          "lens": "Orchestration",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "fuente, input y transformación",
+          "reason": "Especifica qué datos recorren el flujo.",
+          "lens": "Data",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "condiciones y ramas",
+          "reason": "Controla cuándo actuar.",
+          "lens": "Logic",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "acción y destino",
+          "reason": "Define el efecto.",
+          "lens": "Action",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "deduplicación e idempotencia",
+          "reason": "Evita dobles acciones.",
+          "lens": "Reliability",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "reintentos y fallos",
+          "reason": "Distingue errores recuperables.",
+          "lens": "Reliability",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "logging y notificación",
+          "reason": "Permite saber qué ocurrió.",
+          "lens": "Observability",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "override manual",
+          "reason": "Mantiene control humano.",
+          "lens": "Operations",
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "agent",
+      "label": "Arquitectura de agente",
+      "blueprint": "AgentLoop",
+      "format": "especificación de agente",
+      "quality": [
+        "misión acotada",
+        "permisos explícitos",
+        "validación",
+        "parada segura",
+        "evaluación observable"
+      ],
+      "forbidden": [
+        "autonomía ilimitada",
+        "permisos implícitos"
+      ],
+      "candidates": [
+        {
+          "label": "misión y resultado",
+          "reason": "Acota qué optimiza.",
+          "lens": "Mission",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "entorno, entradas y salidas",
+          "reason": "Define el contrato.",
+          "lens": "Interface",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "herramientas y permisos",
+          "reason": "Limita acciones.",
+          "lens": "Safety",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "memoria y estado",
+          "reason": "Determina continuidad.",
+          "lens": "State",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "planificación y ejecución",
+          "reason": "Explica cómo decide y actúa.",
+          "lens": "Control",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "validación y aprobación humana",
+          "reason": "Impide acciones irreversibles.",
+          "lens": "Safety",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "condición de parada",
+          "reason": "Evita loops.",
+          "lens": "Control",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "recuperación y observabilidad",
+          "reason": "Hace diagnosticables los fallos.",
+          "lens": "Operations",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "evaluación",
+          "reason": "Mide precisión, coste y seguridad.",
+          "lens": "Quality",
+          "core": true,
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "email",
+      "label": "Comunicación",
+      "blueprint": "MessageBrief",
+      "format": "encargo breve de redacción",
+      "quality": [
+        "propósito claro",
+        "tono relacional",
+        "petición concreta",
+        "brevedad"
+      ],
+      "forbidden": [
+        "arquitectura",
+        "features",
+        "testing",
+        "Definition of Done"
+      ],
+      "candidates": [
+        {
+          "label": "relación remitente-destinatario",
+          "reason": "Ajusta cercanía y autoridad.",
+          "lens": "Relationship",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "propósito y resultado",
+          "reason": "Evita mensajes sin objetivo.",
+          "lens": "Purpose",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "contexto mínimo",
+          "reason": "Da razones sin justificarse de más.",
+          "lens": "Context",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "evidencia de valor",
+          "reason": "Sustenta peticiones sensibles.",
+          "lens": "Persuasion",
+          "when": {
+            "pattern": "subida|aumento|promoci[oó]n",
+            "flags": ""
+          },
+          "unless": null
+        },
+        {
+          "label": "petición o CTA",
+          "reason": "Cierra con el siguiente paso.",
+          "lens": "Action",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "tono y sensibilidad",
+          "reason": "Protege la relación.",
+          "lens": "Tone",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "longitud proporcional",
+          "reason": "Facilita leer y responder.",
+          "lens": "Editing",
+          "core": true,
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "document",
+      "label": "Diseño documental",
+      "blueprint": "DocumentSpec",
+      "format": "especificación documental",
+      "quality": [
+        "subtipo correcto",
+        "audiencia y evidencia",
+        "estructura funcional",
+        "formato final"
+      ],
+      "forbidden": [
+        "estructura única"
+      ],
+      "candidates": [
+        {
+          "label": "subtipo documental",
+          "reason": "Memo, informe, propuesta, manual y especificación requieren estructuras distintas.",
+          "lens": "Genre",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "audiencia y decisión",
+          "reason": "Define detalle y orden.",
+          "lens": "Audience",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "evidencia y referencias",
+          "reason": "Sustenta afirmaciones.",
+          "lens": "Evidence",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "secciones funcionales",
+          "reason": "Cada sección cumple una función.",
+          "lens": "Structure",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "tablas y figuras",
+          "reason": "Condensan relaciones.",
+          "lens": "Visual communication",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "formato y longitud",
+          "reason": "Alinea la entrega con su uso.",
+          "lens": "Delivery",
+          "core": true,
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "data",
+      "label": "Análisis de datos",
+      "blueprint": "AnalysisPlan",
+      "format": "plan analítico",
+      "quality": [
+        "pregunta-método alineados",
+        "calidad trazable",
+        "interpretación prudente",
+        "salida útil"
+      ],
+      "forbidden": [
+        "causalidad no demostrada"
+      ],
+      "candidates": [
+        {
+          "label": "pregunta y unidad de análisis",
+          "reason": "Define qué observación responde a qué pregunta.",
+          "lens": "Research",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "variables y tipos",
+          "reason": "Determina métodos válidos.",
+          "lens": "Data",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "faltantes, duplicados y outliers",
+          "reason": "Evita conclusiones defectuosas.",
+          "lens": "Quality",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "transformaciones trazables",
+          "reason": "Permite reproducir.",
+          "lens": "Method",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "métricas y método",
+          "reason": "Alinea cálculo y pregunta.",
+          "lens": "Method",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "visualización",
+          "reason": "Hace visibles patrones.",
+          "lens": "Communication",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "limitaciones e interpretación",
+          "reason": "Separa asociación y causalidad.",
+          "lens": "Inference",
+          "core": true,
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "business",
+      "label": "Estrategia de negocio",
+      "blueprint": "BusinessModel",
+      "format": "brief estratégico",
+      "quality": [
+        "cliente-problema claro",
+        "economía coherente",
+        "supuestos visibles",
+        "validación práctica"
+      ],
+      "forbidden": [
+        "software no solicitado",
+        "proyecciones inventadas"
+      ],
+      "candidates": [
+        {
+          "label": "cliente y problema",
+          "reason": "Un negocio existe para resolver un problema concreto a alguien.",
+          "lens": "Customer",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "propuesta de valor",
+          "reason": "Explica por qué elegir la oferta frente a alternativas.",
+          "lens": "Positioning",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "mercado y competidores",
+          "reason": "Sitúa demanda, sustitutos y diferenciación.",
+          "lens": "Market",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "modelo de ingresos y precios",
+          "reason": "Define cómo captura valor.",
+          "lens": "Economics",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "costes y recursos críticos",
+          "reason": "Determina viabilidad operativa.",
+          "lens": "Economics",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "adquisición y distribución",
+          "reason": "Explica cómo llega al cliente.",
+          "lens": "Go to market",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "riesgos y supuestos",
+          "reason": "Hace visible qué puede fallar.",
+          "lens": "Risk",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "validación y métricas",
+          "reason": "Prueba hipótesis antes de escalar.",
+          "lens": "Validation",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "unit economics",
+          "reason": "Comprueba sostenibilidad cuando hay datos.",
+          "lens": "Economics",
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "planning",
+      "label": "Planificación operativa",
+      "blueprint": "OperationalPlan",
+      "format": "plan ejecutable",
+      "quality": [
+        "objetivo definido",
+        "secuencia viable",
+        "recursos coordinados",
+        "contingencias proporcionadas"
+      ],
+      "forbidden": [
+        "disciplina inventada",
+        "agenda imposible"
+      ],
+      "candidates": [
+        {
+          "label": "resultado y formato del plan",
+          "reason": "Define qué debe estar conseguido al terminar.",
+          "lens": "Planning",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "participantes y restricciones",
+          "reason": "Condiciona capacidad, ritmo y coordinación.",
+          "lens": "Context",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "secuencia y dependencias",
+          "reason": "Ordena actividades que comparten entradas o recursos.",
+          "lens": "Planning",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "tiempo y recursos disponibles",
+          "reason": "Evita planes que no pueden ejecutarse.",
+          "lens": "Feasibility",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "criterios de decisión",
+          "reason": "Aclara cómo resolver alternativas o prioridades.",
+          "lens": "Decision",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "comunicación y confirmación",
+          "reason": "Mantiene alineadas a las personas implicadas.",
+          "lens": "Operations",
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "contingencias",
+          "reason": "Define alternativas para fallos previsibles.",
+          "lens": "Risk",
+          "when": null,
+          "unless": null
+        }
+      ]
+    },
+    {
+      "id": "general",
+      "label": "Resolución general",
+      "blueprint": "GeneralTask",
+      "format": "instrucción directa",
+      "quality": [
+        "claridad",
+        "relevancia",
+        "fidelidad"
+      ],
+      "forbidden": [
+        "estructura irrelevante"
+      ],
+      "candidates": [
+        {
+          "label": "resultado esperado",
+          "reason": "Centra la respuesta.",
+          "lens": "General",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "restricciones explícitas",
+          "reason": "Preserva lo fijado.",
+          "lens": "General",
+          "core": true,
+          "when": null,
+          "unless": null
+        },
+        {
+          "label": "formato útil",
+          "reason": "Alinea la entrega.",
+          "lens": "General",
+          "when": null,
+          "unless": null
+        }
+      ]
+    }
+  ],
+  "aliases": [
+    {
+      "id": "comparison",
+      "base": "shopping"
+    },
+    {
+      "id": "video",
+      "base": "image"
+    },
+    {
+      "id": "writing",
+      "base": "document"
+    },
+    {
+      "id": "work",
+      "base": "general"
+    },
+    {
+      "id": "continuation",
+      "base": "app"
+    },
+    {
+      "id": "summarization",
+      "base": "document"
+    },
+    {
+      "id": "file_analysis",
+      "base": "data"
+    }
+  ]
+}

@@ -1,0 +1,275 @@
+{
+  "schema": 3,
+  "relationships": [
+    {
+      "from": "SIZE_FIT",
+      "type": "depends_on",
+      "to": "RIDER_FIT"
+    },
+    {
+      "from": "CURRENTNESS",
+      "type": "validated_by",
+      "to": "SOURCE_PROVENANCE"
+    },
+    {
+      "from": "TRADE_OFFS",
+      "type": "depends_on",
+      "to": "DECISION_CRITERIA"
+    },
+    {
+      "from": "AVAILABILITY",
+      "type": "depends_on",
+      "to": "MARKET_LOCATION"
+    },
+    {
+      "from": "TOTAL_COST",
+      "type": "derived_from",
+      "to": "DELIVERY_RETURNS"
+    },
+    {
+      "from": "TOTAL_COST",
+      "type": "derived_from",
+      "to": "MAINTENANCE"
+    },
+    {
+      "from": "CONDITION_HISTORY",
+      "type": "influences",
+      "to": "MAINTENANCE"
+    },
+    {
+      "from": "INSTALLATION_REQUIREMENTS",
+      "type": "depends_on",
+      "to": "SPACE_DIMENSIONS"
+    },
+    {
+      "from": "SHOPPING_LIST",
+      "type": "derived_from",
+      "to": "MEAL_SEQUENCE"
+    },
+    {
+      "from": "MEAL_SEQUENCE",
+      "type": "depends_on",
+      "to": "INGREDIENT_CONSTRAINTS"
+    },
+    {
+      "from": "PREP_STORAGE",
+      "type": "supports",
+      "to": "MEAL_SEQUENCE"
+    },
+    {
+      "from": "PAYMENT_OBLIGATIONS",
+      "type": "depends_on",
+      "to": "PARTIES_ROLES"
+    },
+    {
+      "from": "TERMINATION",
+      "type": "depends_on",
+      "to": "DATES_DEADLINES"
+    },
+    {
+      "from": "CLAUSE_RISK",
+      "type": "validated_by",
+      "to": "SOURCE_BOUNDARY"
+    },
+    {
+      "from": "SCHEDULE_FORMAT",
+      "type": "depends_on",
+      "to": "PARTICIPANTS"
+    },
+    {
+      "from": "SCHEDULE_FORMAT",
+      "type": "depends_on",
+      "to": "VENUE_RESOURCES"
+    },
+    {
+      "from": "RESOURCE_ALLOCATION",
+      "type": "depends_on",
+      "to": "SCHEDULE_FORMAT"
+    },
+    {
+      "from": "RULES_SCORING",
+      "type": "supports",
+      "to": "EVENT_OBJECTIVE"
+    },
+    {
+      "from": "INSPECTION_RECORD",
+      "type": "depends_on",
+      "to": "ASSET_REGISTRY"
+    },
+    {
+      "from": "EVENT_HISTORY",
+      "type": "depends_on",
+      "to": "ASSET_REGISTRY"
+    },
+    {
+      "from": "CURRENT_STATE",
+      "type": "derived_from",
+      "to": "EVENT_HISTORY"
+    },
+    {
+      "from": "STATUS_LIFECYCLE",
+      "type": "supports",
+      "to": "CURRENT_STATE"
+    },
+    {
+      "from": "ACTION_ALERT",
+      "type": "depends_on",
+      "to": "THRESHOLD"
+    },
+    {
+      "from": "ACTION_ALERT",
+      "type": "depends_on",
+      "to": "CURRENT_STATE"
+    },
+    {
+      "from": "AUDIT_TRAIL",
+      "type": "supports",
+      "to": "ACCESS_ROLES"
+    },
+    {
+      "from": "OFFLINE_FIELD_USE",
+      "type": "requires",
+      "to": "BACKUP_RECOVERY"
+    },
+    {
+      "from": "PRIMARY_CTA",
+      "type": "depends_on",
+      "to": "VALUE_PROPOSITION"
+    },
+    {
+      "from": "SOCIAL_PROOF",
+      "type": "supports",
+      "to": "VALUE_PROPOSITION"
+    },
+    {
+      "from": "OBJECTION_HANDLING",
+      "type": "supports",
+      "to": "PRIMARY_CTA"
+    },
+    {
+      "from": "CONVERSION_METRIC",
+      "type": "validated_by",
+      "to": "PRIMARY_CTA"
+    },
+    {
+      "from": "SLIDE_PURPOSE",
+      "type": "depends_on",
+      "to": "SLIDE_STORY_ARC"
+    },
+    {
+      "from": "VISUAL_EVIDENCE",
+      "type": "supports",
+      "to": "SLIDE_PURPOSE"
+    },
+    {
+      "from": "METHOD_FIT",
+      "type": "depends_on",
+      "to": "USER_OUTCOME"
+    },
+    {
+      "from": "UNCERTAINTY",
+      "type": "derived_from",
+      "to": "DATA_QUALITY"
+    },
+    {
+      "from": "ASSESSMENT",
+      "type": "validated_by",
+      "to": "LEARNING_TARGET"
+    },
+    {
+      "from": "PROGRESSION",
+      "type": "depends_on",
+      "to": "BASELINE"
+    },
+    {
+      "from": "RETRIEVAL_PRACTICE",
+      "type": "supports",
+      "to": "ASSESSMENT"
+    },
+    {
+      "from": "VOLUME_INTENSITY",
+      "type": "depends_on",
+      "to": "TRAINING_SCHEDULE"
+    },
+    {
+      "from": "PROGRESSION",
+      "type": "depends_on",
+      "to": "RECOVERY"
+    },
+    {
+      "from": "ROOT_CAUSE_EVIDENCE",
+      "type": "depends_on",
+      "to": "ERROR_REPRODUCTION"
+    },
+    {
+      "from": "REGRESSION_TEST",
+      "type": "validated_by",
+      "to": "EXPECTED_ACTUAL"
+    },
+    {
+      "from": "FAILURE_RECOVERY",
+      "type": "supports",
+      "to": "OBSERVABILITY"
+    },
+    {
+      "from": "STOP_CONDITION",
+      "type": "supports",
+      "to": "PERMISSION_BOUNDARY"
+    },
+    {
+      "from": "HUMAN_APPROVAL",
+      "type": "supports",
+      "to": "PERMISSION_BOUNDARY"
+    },
+    {
+      "from": "EVALUATION_CASES",
+      "type": "validated_by",
+      "to": "USER_OUTCOME"
+    },
+    {
+      "from": "CAMERA_NEED",
+      "type": "irrelevant_when",
+      "to": "USE_CONTEXT"
+    },
+    {
+      "from": "OFFLINE_FIELD_USE",
+      "type": "irrelevant_when",
+      "to": "PRIMARY_CTA"
+    },
+    {
+      "from": "IMPORT_EXPORT",
+      "type": "alternative_to",
+      "to": "BACKUP_RECOVERY"
+    },
+    {
+      "from": "CURRENT_STATE",
+      "type": "requires",
+      "to": "EVENT_HISTORY"
+    },
+    {
+      "from": "THRESHOLD",
+      "type": "requires",
+      "to": "CURRENT_STATE"
+    },
+    {
+      "from": "ACTION_ALERT",
+      "type": "requires",
+      "to": "CURRENT_STATE"
+    },
+    {
+      "from": "ACTION_ALERT",
+      "type": "requires",
+      "to": "THRESHOLD"
+    },
+    {
+      "from": "PROGRESSION",
+      "type": "requires",
+      "to": "BASELINE"
+    },
+    {
+      "from": "RIDER_FIT",
+      "type": "influences",
+      "to": "SIZE_FIT"
+    }
+  ]
+}
