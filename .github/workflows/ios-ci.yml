@@ -2,6 +2,8 @@ name: Idevero iOS CI
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
   pull_request:
     paths: ["Idevero/**", "IdeveroTests/**", "Idevero.xcodeproj/**", ".github/workflows/ios-ci.yml"]
 
