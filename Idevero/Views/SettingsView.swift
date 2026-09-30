@@ -12,7 +12,7 @@ struct SettingsView: View {
                 Label("Historial guardado en el dispositivo", systemImage: "iphone")
                 Label("Sin cuenta ni backend", systemImage: "lock")
             }
-            Section("Versión") { LabeledContent("Idevero", value: "0.2.1") }
+            Section("Versión") { LabeledContent("Idevero", value: "0.2.2") }
         }
         .navigationTitle("Ajustes")
     }
