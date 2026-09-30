@@ -750,7 +750,7 @@
       },
       "signals": [
         {
-          "pattern": "organiza|organizar|evento|torneo|competici[oó]n|jornada|festival|boda",
+          "pattern": "evento|torneo|competici[oó]n|jornada|festival|boda",
           "flags": "i"
         }
       ],
