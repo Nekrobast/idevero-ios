@@ -17,9 +17,10 @@ final class ResponsiveLayoutUITests: XCTestCase {
         XCTAssertTrue(app.keyboards.element.waitForExistence(timeout: 3), "The software keyboard must be present during the layout check.")
 
         let createButton = app.buttons["createPromptButton"]
-        if !createButton.isHittable { app.swipeUp() }
-        XCTAssertTrue(createButton.isHittable, "Create prompt must remain reachable while the keyboard is visible.")
-        createButton.tap()
+        let keyboardCreateButton = app.buttons["keyboardCreatePromptButton"]
+        let visibleCreateButton = createButton.isHittable ? createButton : keyboardCreateButton
+        XCTAssertTrue(visibleCreateButton.isHittable, "Create prompt must remain reachable while the keyboard is visible.")
+        visibleCreateButton.tap()
 
         let resultHeader = app.staticTexts["Prompt generado"]
         XCTAssertTrue(resultHeader.waitForExistence(timeout: 20), "Generation must reveal the result header.")

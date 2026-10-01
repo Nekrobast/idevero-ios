@@ -27,12 +27,7 @@ struct CreateView: View {
                     AdaptiveIdeaEditor(text: $model.idea, isFocused: $isIdeaFocused)
                         .id(ScrollAnchor.editor)
 
-                    Button {
-                        isIdeaFocused = false
-                        Task {
-                            await model.generate()
-                        }
-                    } label: {
+                    Button(action: submit) {
                         HStack(spacing: 8) {
                             if model.isGenerating { ProgressView().tint(.white) }
                             Text(model.isGenerating ? "Analizando" : "Crear prompt")
@@ -89,6 +84,20 @@ struct CreateView: View {
         }
         .navigationTitle("Idevero")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Crear prompt", action: submit)
+                    .fontWeight(.semibold)
+                    .disabled(model.isGenerating || model.idea.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .accessibilityIdentifier("keyboardCreatePromptButton")
+            }
+        }
+    }
+
+    private func submit() {
+        isIdeaFocused = false
+        Task { await model.generate() }
     }
 }
 
