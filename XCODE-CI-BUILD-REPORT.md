@@ -4,7 +4,8 @@
 
 - Version: 0.2.2 (build 4)
 - Repository: private `Nekrobast/idevero-ios`
-- Validated run: [36758008581](https://github.com/Nekrobast/idevero-ios/actions/runs/36758008581)
+- Definitive validated run: [36759276604](https://github.com/Nekrobast/idevero-ios/actions/runs/36759276604)
+- Validated commit: `02e6a00fb4918dd0bdfd0fae28a24d68f99cef72`
 - Runner: standard GitHub-hosted `macos-26` / `macos-26-arm64`
 - macOS: 26.6.2 (25G83)
 - Xcode: 26.6 (17F113)
@@ -14,7 +15,8 @@
 - Destination: iPhone 17 Pro simulator, iOS 26.4.1
 - Deployment target: iOS 17.0
 - Signing: disabled for CI
-- Final result: **PASS**
+- Build/test job: **PASS**
+- Simulator launch smoke test: **PASS** (`com.aitor93.idevero` launched successfully)
 
 ## Compiler-first corrections
 
@@ -34,4 +36,5 @@
 
 ## Notes
 
-The successful `clean test` command builds the iOS 17-compatible local path and then runs the test bundle. App Store signing, TestFlight, physical-device execution and Apple Intelligence runtime were intentionally not attempted.
+The definitive run checked out commit `02e6a00`, ran `clean test`, launched the built app in Simulator and uploaded the validated package, build log and `.xcresult`. App Store signing, TestFlight, physical-device execution and Apple Intelligence runtime were intentionally not attempted.
+

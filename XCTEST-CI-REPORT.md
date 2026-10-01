@@ -2,7 +2,8 @@
 
 ## Validated execution
 
-- Run: [36758008581](https://github.com/Nekrobast/idevero-ios/actions/runs/36758008581)
+- Definitive run: [36759276604](https://github.com/Nekrobast/idevero-ios/actions/runs/36759276604)
+- Validated commit: `02e6a00fb4918dd0bdfd0fae28a24d68f99cef72`
 - Total: **21**
 - Passed: **20**
 - Failed: **0**
@@ -35,4 +36,5 @@
 
 ## Skipped test
 
-`testRealFoundationModelOnCompatibleDeviceOnly` is intentionally skipped on Simulator. The Foundation Models framework compiles, but real model assets require a compatible physical Apple Intelligence device.
+`testRealFoundationModelOnCompatibleDeviceOnly` is skipped only under `targetEnvironment(simulator)`. On physical hardware it checks actual availability and, when ready, invokes `LanguageModelSession` through `FoundationModelsProvider`, verifies Apple-augmented mode and requires at least one Apple-provenance discovery.
+
