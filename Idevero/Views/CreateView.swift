@@ -31,10 +31,6 @@ struct CreateView: View {
                         isIdeaFocused = false
                         Task {
                             await model.generate()
-                            guard model.analysis != nil else { return }
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                proxy.scrollTo(ScrollAnchor.result, anchor: .top)
-                            }
                         }
                     } label: {
                         HStack(spacing: 8) {
@@ -80,6 +76,16 @@ struct CreateView: View {
             }
             .scrollDismissesKeyboard(.interactively)
             .scrollIndicators(.visible)
+            .onChange(of: model.analysis?.analysisID) { _, analysisID in
+                guard analysisID != nil else { return }
+                isIdeaFocused = false
+                Task { @MainActor in
+                    await Task.yield()
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        proxy.scrollTo(ScrollAnchor.result, anchor: .top)
+                    }
+                }
+            }
         }
         .navigationTitle("Idevero")
         .navigationBarTitleDisplayMode(.inline)
@@ -89,8 +95,8 @@ struct CreateView: View {
 private struct AdaptiveIdeaEditor: View {
     @Binding var text: String
     let isFocused: FocusState<Bool>.Binding
-    @ScaledMetric(relativeTo: .body) private var minimumHeight: CGFloat = 96
-    @ScaledMetric(relativeTo: .body) private var maximumHeight: CGFloat = 184
+    private let minimumHeight: CGFloat = 96
+    private let maximumHeight: CGFloat = 184
     @State private var measuredTextHeight: CGFloat = 0
 
     private var editorHeight: CGFloat {
