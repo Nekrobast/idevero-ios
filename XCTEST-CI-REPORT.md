@@ -2,10 +2,10 @@
 
 ## Validated execution
 
-- Definitive run: [36855967629](https://github.com/Nekrobast/idevero-ios/actions/runs/36855967629)
-- Validated commit: `634abd533767ef05b5abe00adab4a7a9f452271f`
-- Unit total: **30**
-- Unit passed: **29**
+- Definitive run: [36857366049](https://github.com/Nekrobast/idevero-ios/actions/runs/36857366049)
+- Validated commit: `1c28e35c381b0b61b7e2b88c2ba2436f6f7fb1c5`
+- Unit total: **31**
+- Unit passed: **30**
 - Failed: **0**
 - Skipped: **1**
 - UI tests: **2 PASS** (one per simulator profile)
@@ -16,7 +16,7 @@
 | Suite | Total | Passed | Failed | Skipped |
 |---|---:|---:|---:|---:|
 | FoundationModelsDeviceTests | 1 | 0 | 0 | 1 |
-| FoundationQualityV2Tests | 4 | 4 | 0 | 0 |
+| FoundationQualityV2Tests | 5 | 5 | 0 | 0 |
 | LocalExpertProviderTests | 16 | 16 | 0 | 0 |
 | RegexCompatibilityTests | 1 | 1 | 0 | 0 |
 | SemanticDeduplicationTests | 8 | 8 | 0 | 0 |
@@ -39,6 +39,7 @@
 - Final discovery action scrolls above the bottom tab bar on large and small iPhones.
 - **67/67** exported NSRegularExpression vectors compiled and matched their positive/negative controls.
 - Ambiguous fragments no longer invent an event domain.
+- Settings obtains version `0.2.4` and build `6` from runtime bundle metadata.
 
 ## Skipped test
 

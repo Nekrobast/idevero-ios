@@ -3,8 +3,8 @@
 ## Resultado definitivo
 
 - Repository: private `Nekrobast/idevero-ios`
-- Validated run: [36855967629](https://github.com/Nekrobast/idevero-ios/actions/runs/36855967629)
-- Validated commit: `634abd533767ef05b5abe00adab4a7a9f452271f`
+- Validated run: [36857366049](https://github.com/Nekrobast/idevero-ios/actions/runs/36857366049)
+- Validated commit: `1c28e35c381b0b61b7e2b88c2ba2436f6f7fb1c5`
 - Runner: standard GitHub-hosted `macos-26`
 - macOS: 26.6.2 (25G83)
 - Xcode: 26.6
@@ -29,7 +29,7 @@ The first Quality V2 run compiled but exposed two test failures. A known one-wor
 
 ## IPA
 
-- Artifact: `idevero-device-build-0.2.4` (`11159008330`)
+- Artifact: `idevero-device-build-0.2.4` (`11160155962`)
 - File: `Idevero-iOS-0.2.4-DeviceUnsigned.ipa`
-- SHA-256: `e3f28e6a1417f1b8c1b3baad63496ee0a18db14ad8a0e66362856e186dd85b12`
+- SHA-256: `030b3b06953ccd1eeabc421b7d849ffd64c14ee3c709cb8843a623543cdcf59d`
 - Integrity, ARM64, iPhoneOS, version/build, unsigned state and re-signability: **PASS**.

@@ -1,6 +1,6 @@
 # Mañana: instalar IDEVERO en el iPhone
 
-1. Abre el run privado `36855967629` de GitHub Actions y descarga `idevero-device-build-0.2.4` (artifact `11159008330`).
+1. Abre el run privado `36857366049` de GitHub Actions y descarga `idevero-device-build-0.2.4` (artifact `11160155962`).
 2. Extrae el ZIP. Debe aparecer `Idevero-iOS-0.2.4-DeviceUnsigned.ipa`.
 3. Descarga también `Tools/Verify-IdeveroIPA.ps1` desde el repositorio y déjalo junto al IPA. Verifica desde PowerShell:
 
@@ -14,7 +14,7 @@
    Get-FileHash .\Idevero-iOS-0.2.4-DeviceUnsigned.ipa -Algorithm SHA256
    ```
 
-   Debe dar `e3f28e6a1417f1b8c1b3baad63496ee0a18db14ad8a0e66362856e186dd85b12`.
+   Debe dar `030b3b06953ccd1eeabc421b7d849ffd64c14ee3c709cb8843a623543cdcf59d`.
 
 4. Instala iTunes e iCloud desde Apple —no Microsoft Store— y AltServer desde `https://altstore.io/`.
 5. Ejecuta AltServer como administrador.

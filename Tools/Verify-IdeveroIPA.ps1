@@ -4,7 +4,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$ExpectedHash = "e3f28e6a1417f1b8c1b3baad63496ee0a18db14ad8a0e66362856e186dd85b12"
+$ExpectedHash = "030b3b06953ccd1eeabc421b7d849ffd64c14ee3c709cb8843a623543cdcf59d"
 $ExpectedName = "Idevero-iOS-0.2.4-DeviceUnsigned.ipa"
 
 function Fail([string]$Message) {
