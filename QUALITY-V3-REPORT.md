@@ -26,3 +26,14 @@ Local Expert still owns task, intent, domain, target, locks, exclusions, priorit
 ## Physical status
 
 Quality V3 model output is not claimed before the 0.2.5 physical retest. CI validates the contract, gate, merge, compiler, regressions and iPhoneOS compilation.
+
+## Validated CI baseline
+
+- Commit: `f9afc273c12a293b0d5d54ea20e86678fa57d4d3`
+- GitHub Actions run: `36862684183`
+- XCTest: 40 passed, 0 failed, 1 physical-device-only test skipped
+- UI tests: 2 passed
+- Regex: 67/67 passed
+- Generic iPhoneOS ARM64 build: PASS
+- Foundation Models Simulator and iPhoneOS compilation: PASS
+- Physical Quality V3 output and latency: awaiting iPhone retest

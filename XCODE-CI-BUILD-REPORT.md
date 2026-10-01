@@ -1,35 +1,46 @@
-# IDEVERO 0.2.4 build 6 — Xcode CI Build Report
+# IDEVERO 0.2.5 build 7 — Xcode CI report
 
-## Resultado definitivo
+## Validated baseline
 
-- Repository: private `Nekrobast/idevero-ios`
-- Validated run: [36857366049](https://github.com/Nekrobast/idevero-ios/actions/runs/36857366049)
-- Validated commit: `1c28e35c381b0b61b7e2b88c2ba2436f6f7fb1c5`
-- Runner: standard GitHub-hosted `macos-26`
-- macOS: 26.6.2 (25G83)
+- Repository: `Nekrobast/idevero-ios` (private)
+- Commit tested: `f9afc273c12a293b0d5d54ea20e86678fa57d4d3`
+- GitHub Actions run: `36862684183`
+- Result: PASS
+
+## Environment
+
+- Runner class: standard GitHub-hosted macOS runner
+- macOS: 26.6.2
 - Xcode: 26.6
-- Swift: 6.3.3 (swiftlang-6.3.3.1.3, clang-2100.1.1.101)
-- iOS SDK: 26.5; deployment target: iOS 17.0
-- Simulators: iPhone 17 Pro Max and iPhone 16e with Accessibility Large Dynamic Type
-- Simulator build/test and both UI validations: **PASS**
-- Generic iPhoneOS ARM64 build: **PASS**
-- Foundation Models simulator/iPhoneOS compile: **PASS**
-- Signing: intentionally disabled for CI
-- Disposable-copy ad-hoc structural codesign: **PASS**
+- Swift: 6.3.3
+- iOS SDK: 26.5
+- Minimum deployment target: iOS 17.0
 
-## Compiler-first corrections
+## Validations
 
-The first Quality V2 run compiled but exposed two test failures. A known one-word canonical alias was incorrectly rejected by the specificity gate; known concepts now bypass only the two-token form check. An explicit app request containing the generic domain word `empresa` was routed as BUSINESS; explicit APPLICATION/WEB format now takes precedence. No sector-specific vocabulary was added.
+- iPhone Simulator build: PASS
+- Large-device UI run (iPhone 17 Pro Max): PASS
+- Compact-device accessibility UI run (iPhone 16e, Accessibility Large): PASS
+- Generic iPhoneOS build: PASS
+- Device target: `arm64-apple-ios17.0`
+- Foundation Models Simulator compile: PASS
+- Foundation Models iPhoneOS compile: PASS
+- Version metadata: `0.2.5` / build `7`
+- Unsigned IPA creation and ZIP integrity: PASS
+- Disposable-copy ad-hoc codesign structural verification: PASS
 
-## Foundation Models
+## Build iterations
 
-- `SystemLanguageModel`, `LanguageModelSession`, `@Generable`, nested structured output and `@Guide`: **COMPILE PASS**.
-- Runtime Quality V2 inference: **AWAITING PHYSICAL RETEST**.
-- Physical 0.2.3 baseline: provider, Apple provenance, dedupe and Apple-only discovery **PASS** on iPhone 17 Pro Max.
+The first Quality V3 run (`36861724976`) exposed one UI-test selection issue on the compact accessibility configuration: the test attempted the primary create button while the keyboard-specific action was active. The product code and the other build/test paths passed. The test was corrected to select the action actually exposed by the current keyboard state. No product behavior was changed.
 
-## IPA
+Final run `36862684183` passed all build, unit, UI and iPhoneOS jobs.
 
-- Artifact: `idevero-device-build-0.2.4` (`11160155962`)
-- File: `Idevero-iOS-0.2.4-DeviceUnsigned.ipa`
-- SHA-256: `030b3b06953ccd1eeabc421b7d849ffd64c14ee3c709cb8843a623543cdcf59d`
-- Integrity, ARM64, iPhoneOS, version/build, unsigned state and re-signability: **PASS**.
+## Artifacts
+
+- Xcode results: `idevero-xcode-results-0.2.5` (artifact `11162522603`)
+- Device package: `idevero-device-build-0.2.5` (artifact `11163107180`)
+- Device IPA SHA-256: `120d858fe4757564c3f7d496c4cb3ce09aa0f840504e4e75111bc511f68a3f87`
+
+## Runtime boundary
+
+Foundation Models compiles for Simulator and iPhoneOS. Quality V3 model behavior and latency still require a physical-device retest; CI does not claim that runtime result.
