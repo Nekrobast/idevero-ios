@@ -2,6 +2,7 @@ import XCTest
 @testable import Idevero
 
 final class FoundationQualityV5Tests: XCTestCase {
+    // CI contract for deterministic Quality V5 gates; physical semantics remain device evidence.
     private let provider = LocalExpertProvider()
 
     private func frame(status: String = "UNDERSPECIFIED", items: [SemanticDomainItem] = []) -> SemanticDomainFrame {
@@ -44,7 +45,7 @@ final class FoundationQualityV5Tests: XCTestCase {
         XCTAssertTrue(prompt.contains("Conocimiento sectorial fiable"))
         XCTAssertTrue(prompt.contains("Patrones que dependen del caso"))
         XCTAssertTrue(prompt.contains("Puede ser relevante, según el objetivo elegido"))
-        XCTAssertFalse(prompt.contains("coordinar trabajos con proveedores externos\n\nTrabajo principal"))
+        XCTAssertFalse(prompt.contains("\n- coordinar trabajos con proveedores externos"))
     }
 
     func testGenericRequirementWithDomainNounIsRejected() throws {
