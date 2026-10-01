@@ -32,6 +32,6 @@ IDEVERO 0.2.3 build 5 fue instalado y ejecutado en un iPhone 17 Pro Max. Foundat
 
 ## Validación
 
-CI cubre rejection de findings genéricos, aceptación de findings materiales, deduplicación, provenance, preservación selectiva de una razón Apple más profunda, locks/exclusions, frase natural, jerarquía sectorial, routing de 12 holdouts y compactación del email simple.
+El run definitivo `36855967629` cubre rejection de findings genéricos, aceptación de findings materiales, deduplicación, provenance, preservación selectiva de una razón Apple más profunda, locks/exclusions, frase natural, jerarquía sectorial, routing de 12 holdouts y compactación del email simple. Resultado: 30 unit tests, 29 PASS, 0 FAIL, 1 SKIPPED; 2 UI tests PASS.
 
 La calidad semántica real de V2 debe volver a probarse en el iPhone físico. El Simulator valida estructura y regresión, pero no ejecuta Foundation Models.

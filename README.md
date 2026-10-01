@@ -1,4 +1,4 @@
-# Idevero iOS 0.2.4 — Physical UI iteration
+# Idevero iOS 0.2.4 — Foundation Models Quality V2
 
 Aplicación SwiftUI nativa que transforma una idea breve en un prompt profesional. No usa WebView, backend ni API de pago.
 
@@ -10,6 +10,7 @@ Aplicación SwiftUI nativa que transforma una idea breve en un prompt profesiona
 - Provenance: USER EXPLICIT, LOCAL KNOWLEDGE, APPLE MODEL INFERENCE, USER ACCEPTED, USER LOCKED y PLACEHOLDER.
 - Compiladores especializados para producto/web, imagen, edición visual, hojas de cálculo, viajes, investigación/compras, email y fallback estructurado.
 - Apple Foundation Models es una mejora opcional; Local Expert es el fallback completo.
+- Quality V2 pide workflows, entidades, relaciones, decisiones, datos, restricciones y fallos propios del dominio; filtra hallazgos genéricos y conserva razonamiento Apple material durante el merge.
 
 ## Requisitos
 
