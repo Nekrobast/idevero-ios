@@ -2,6 +2,7 @@ import XCTest
 @testable import Idevero
 
 final class FoundationQualityV4Tests: XCTestCase {
+    // This suite is the CI contract for the user-facing Foundation Quality V4 boundary.
     private let provider = LocalExpertProvider()
 
     private var naturalFrame: SemanticDomainFrame {
