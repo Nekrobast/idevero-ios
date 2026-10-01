@@ -31,13 +31,15 @@ jobs:
             "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/11139991371/zip"
           mkdir OriginalArtifact
           unzip -q original-artifact.zip -d OriginalArtifact
-          test -f OriginalArtifact/Idevero-iOS-0.2.2-DeviceUnsigned.ipa
+          IPA_PATH="$(find OriginalArtifact -type f -name 'Idevero-iOS-0.2.2-DeviceUnsigned.ipa' -print -quit)"
+          test -n "$IPA_PATH"
+          echo "IPA_PATH=$IPA_PATH" >> "$GITHUB_ENV"
 
       - name: Audit exact unsigned IPA
         shell: bash
         run: |
           set -euo pipefail
-          IPA="OriginalArtifact/Idevero-iOS-0.2.2-DeviceUnsigned.ipa"
+          IPA="$IPA_PATH"
           EXPECTED="bcc26abf2266f81afa251077507957e453220b81dc9a04be178296221e7aaaad"
           ACTUAL="$(shasum -a 256 "$IPA" | cut -d ' ' -f 1)"
           test "$ACTUAL" = "$EXPECTED"
@@ -116,7 +118,7 @@ jobs:
           codesign --verify --deep --strict --verbose=2 AdHocTest/Idevero.app 2>&1 | tee adhoc-codesign.log
           codesign -d --entitlements :- AdHocTest/Idevero.app > adhoc-entitlements.plist 2>adhoc-display.log || true
           test -d AdHocTest/Idevero.app/_CodeSignature
-          test "$(shasum -a 256 OriginalArtifact/Idevero-iOS-0.2.2-DeviceUnsigned.ipa | cut -d ' ' -f 1)" = \
+          test "$(shasum -a 256 "$IPA_PATH" | cut -d ' ' -f 1)" = \
             "bcc26abf2266f81afa251077507957e453220b81dc9a04be178296221e7aaaad"
 
       - name: Create real preflight report
@@ -178,4 +180,3 @@ jobs:
             ipa-integrity.log
           if-no-files-found: error
           retention-days: 7
-
