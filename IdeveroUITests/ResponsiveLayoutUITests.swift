@@ -18,7 +18,8 @@ final class ResponsiveLayoutUITests: XCTestCase {
 
         let createButton = app.buttons["createPromptButton"]
         let keyboardCreateButton = app.buttons["keyboardCreatePromptButton"]
-        let visibleCreateButton = createButton.isHittable ? createButton : keyboardCreateButton
+        let keyboardActionIsReady = keyboardCreateButton.waitForExistence(timeout: 2) && keyboardCreateButton.isHittable
+        let visibleCreateButton = keyboardActionIsReady ? keyboardCreateButton : createButton
         XCTAssertTrue(visibleCreateButton.isHittable, "Create prompt must remain reachable while the keyboard is visible.")
         visibleCreateButton.tap()
 
