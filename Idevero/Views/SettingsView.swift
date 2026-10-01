@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct SettingsView: View {
+    private var version: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—" }
+    private var build: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—" }
+
     var body: some View {
         List {
             Section("Inteligencia") {
@@ -12,7 +15,10 @@ struct SettingsView: View {
                 Label("Historial guardado en el dispositivo", systemImage: "iphone")
                 Label("Sin cuenta ni backend", systemImage: "lock")
             }
-            Section("Versión") { LabeledContent("Idevero", value: "0.2.2") }
+            Section("Versión") {
+                LabeledContent("Versión", value: version)
+                LabeledContent("Build", value: build)
+            }
         }
         .navigationTitle("Ajustes")
     }

@@ -15,17 +15,26 @@ struct SpecializedCompiler {
         }
     }
     private func bullets(_ values: [Discovery]) -> String { values.map { "- \($0.concept): \($0.reason)" }.joined(separator: "\n") }
+    private func section(_ title: String, _ values: [Discovery]) -> String {
+        guard !values.isEmpty else { return "" }
+        return "\n\n\(title)\n\(bullets(values))"
+    }
     private func unknowns(_ a: PromptAnalysis) -> String { a.unknowns.isEmpty ? "" : "\n\nDatos por confirmar — conserva los marcadores y no inventes valores:\n" + a.unknowns.map { "- \($0)" }.joined(separator: "\n") }
-    private func product(_ a: PromptAnalysis, _ ds: [Discovery]) -> String { """
-    Diseña y especifica \(a.input) como un producto \(a.task == "WEB" ? "web" : "digital") centrado en este resultado: \(a.outcome)
+    private func product(_ a: PromptAnalysis, _ ds: [Discovery]) -> String {
+        let domain = ds.filter { ($0.sourceProvenance ?? [$0.provenance]).contains(.appleModel) }
+        let core = ds.filter { !($0.sourceProvenance ?? [$0.provenance]).contains(.appleModel) }
+        return """
+        Encargo original: «\(a.input)».
 
-    Empieza por la acción o decisión principal y construye alrededor de ella un flujo completo. Define únicamente pantallas, navegación, datos, estados, persistencia, validaciones y requisitos técnicos justificados por ese flujo.
+        Diseña y especifica \(a.task == "WEB" ? "un producto web" : "una aplicación") que consiga este resultado: \(a.outcome)
 
-    Requisitos priorizados
-    \(bullets(ds))\(unknowns(a))
+        Objetivo y flujo principal
+        Empieza por la acción o decisión real del usuario y construye alrededor de ella un flujo completo. Define solo las pantallas, navegación, datos, estados, persistencia y validaciones justificadas por ese flujo.\(section("Contexto y requisitos específicos del dominio", domain))\(section("Requisitos esenciales del producto", core))\(unknowns(a))
 
-    Distingue el alcance inicial de ampliaciones opcionales. Incluye estados vacío, carga, error y recuperación cuando procedan; criterios de aceptación observables; privacidad, accesibilidad, rendimiento y pruebas en proporción al riesgo. No añadas IA, gamificación, integraciones, cuentas ni funciones sociales sin una razón material.\(work(a))
-    """ }
+        Alcance y calidad
+        Separa el MVP de ampliaciones opcionales. Explica las relaciones y dependencias entre datos o pasos cuando afecten al funcionamiento. Incluye fallos y recuperación propios del flujo, junto con criterios de aceptación observables. Aplica privacidad, accesibilidad, rendimiento y pruebas en proporción al riesgo. No añadas IA, gamificación, integraciones, cuentas ni funciones sociales sin una razón material.\(work(a))
+        """
+    }
     private func image(_ a: PromptAnalysis, _ ds: [Discovery]) -> String { "\(a.input). Elige una única dirección artística coherente y descríbela como lo que debe verse: sujeto y acción inequívocos, composición y encuadre intencionales, punto de vista, planos, atmósfera, luz motivada, paleta, materiales y movimiento físicamente compatibles. \(bullets(ds)) Evita mezclar épocas, estilos o condiciones de luz contradictorias. Indica relación de aspecto solo si sirve al uso final." }
     private func imageEdit(_ a: PromptAnalysis, _ ds: [Discovery]) -> String { "Edita la imagen según esta petición: \(a.input). Prioridad 1: conserva idénticos rostros, identidad, pose, ropa, proporciones, perspectiva, encuadre, estilo y resolución fuera del área indicada. Prioridad 2: realiza únicamente el cambio solicitado. Prioridad 3: reconstruye fondo, sombras, reflejos, grano y luz solo lo necesario para integrarlo. No reinterpretar ni embellecer otras zonas. \(bullets(ds))" }
     private func spreadsheet(_ a: PromptAnalysis, _ ds: [Discovery]) -> String { """

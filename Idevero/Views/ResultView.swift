@@ -146,6 +146,7 @@ private struct DiscoveryRow: View {
         }
         .padding(.vertical, 10)
         .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("discoveryRow")
     }
 
     private var priorityBadge: some View {

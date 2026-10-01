@@ -67,7 +67,8 @@ struct CreateView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
-                .padding(.bottom, 32)
+                .safeAreaPadding(.bottom)
+                .padding(.bottom, 24)
             }
             .scrollDismissesKeyboard(.interactively)
             .scrollIndicators(.visible)

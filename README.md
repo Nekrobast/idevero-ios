@@ -1,4 +1,4 @@
-# Idevero iOS 0.2.3 — Physical UI iteration
+# Idevero iOS 0.2.4 — Physical UI iteration
 
 Aplicación SwiftUI nativa que transforma una idea breve en un prompt profesional. No usa WebView, backend ni API de pago.
 

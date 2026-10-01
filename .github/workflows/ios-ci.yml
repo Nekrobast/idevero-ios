@@ -98,7 +98,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo '# IDEVERO 0.2.3 build 5 — responsive UI validation'
+            echo '# IDEVERO 0.2.4 build 6 — responsive UI validation'
             echo
             echo "- Commit: \`$GITHUB_SHA\`"
             echo "- Run: \`$GITHUB_RUN_ID\`"
@@ -114,7 +114,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: idevero-xcode-results-0.2.3
+          name: idevero-xcode-results-0.2.4
           path: |
             xcodebuild-large.log
             xcodebuild-small.log
@@ -168,8 +168,8 @@ jobs:
           EXECUTABLE="$APP/Idevero"
           test -d "$APP" && test -f "$INFO" && test -f "$EXECUTABLE"
           test "$(plutil -extract CFBundleIdentifier raw "$INFO")" = "com.aitor93.idevero"
-          test "$(plutil -extract CFBundleShortVersionString raw "$INFO")" = "0.2.3"
-          test "$(plutil -extract CFBundleVersion raw "$INFO")" = "5"
+          test "$(plutil -extract CFBundleShortVersionString raw "$INFO")" = "0.2.4"
+          test "$(plutil -extract CFBundleVersion raw "$INFO")" = "6"
           test "$(plutil -extract MinimumOSVersion raw "$INFO")" = "17.0"
           lipo -archs "$EXECUTABLE" | grep -qw arm64
           xcrun vtool -show-build "$EXECUTABLE" | tee device-platform.log
@@ -181,9 +181,9 @@ jobs:
           mkdir -p DeviceArtifact/Payload
           ditto "$APP" DeviceArtifact/Payload/Idevero.app
           cd DeviceArtifact
-          /usr/bin/zip -qry Idevero-iOS-0.2.3-DeviceUnsigned.ipa Payload
-          unzip -t Idevero-iOS-0.2.3-DeviceUnsigned.ipa | tee ipa-integrity.log
-          shasum -a 256 Idevero-iOS-0.2.3-DeviceUnsigned.ipa | tee Idevero-iOS-0.2.3-DeviceUnsigned.ipa.sha256
+          /usr/bin/zip -qry Idevero-iOS-0.2.4-DeviceUnsigned.ipa Payload
+          unzip -t Idevero-iOS-0.2.4-DeviceUnsigned.ipa | tee ipa-integrity.log
+          shasum -a 256 Idevero-iOS-0.2.4-DeviceUnsigned.ipa | tee Idevero-iOS-0.2.4-DeviceUnsigned.ipa.sha256
 
       - name: Verify re-signability on a disposable copy
         shell: bash
@@ -197,16 +197,16 @@ jobs:
       - name: Download responsive UI validation evidence
         uses: actions/download-artifact@v4
         with:
-          name: idevero-xcode-results-0.2.3
+          name: idevero-xcode-results-0.2.4
           path: SimulatorEvidence
 
       - name: Create device build report
         shell: bash
         run: |
           set -euo pipefail
-          SHA256="$(cut -d ' ' -f 1 DeviceArtifact/Idevero-iOS-0.2.3-DeviceUnsigned.ipa.sha256)"
+          SHA256="$(cut -d ' ' -f 1 DeviceArtifact/Idevero-iOS-0.2.4-DeviceUnsigned.ipa.sha256)"
           {
-            echo '# IDEVERO 0.2.3 build 5 — iPhoneOS unsigned build'
+            echo '# IDEVERO 0.2.4 build 6 — iPhoneOS unsigned build'
             echo
             echo "- Commit: \`$GITHUB_SHA\`"
             echo "- Run: \`$GITHUB_RUN_ID\`"
@@ -218,16 +218,19 @@ jobs:
             echo "- SHA-256: \`$SHA256\`"
           } > DeviceArtifact/DEVICE-BUILD-REPORT.md
           cp SimulatorEvidence/UI-VALIDATION-REPORT.md DeviceArtifact/
+          cp QUALITY-V2-REPORT.md BEFORE-AFTER-QUALITY.md DeviceArtifact/
 
-      - name: Upload private 0.2.3 device artifact
+      - name: Upload private 0.2.4 device artifact
         uses: actions/upload-artifact@v4
         with:
-          name: idevero-device-build-0.2.3
+          name: idevero-device-build-0.2.4
           path: |
-            DeviceArtifact/Idevero-iOS-0.2.3-DeviceUnsigned.ipa
-            DeviceArtifact/Idevero-iOS-0.2.3-DeviceUnsigned.ipa.sha256
+            DeviceArtifact/Idevero-iOS-0.2.4-DeviceUnsigned.ipa
+            DeviceArtifact/Idevero-iOS-0.2.4-DeviceUnsigned.ipa.sha256
             DeviceArtifact/DEVICE-BUILD-REPORT.md
             DeviceArtifact/UI-VALIDATION-REPORT.md
+            DeviceArtifact/QUALITY-V2-REPORT.md
+            DeviceArtifact/BEFORE-AFTER-QUALITY.md
             device-xcodebuild.log
             device-environment.log
             device-platform.log

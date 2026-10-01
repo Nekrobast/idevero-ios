@@ -22,8 +22,10 @@
     "synchronizedResources": true,
     "sharedScheme": true,
     "testTarget": true,
+    "uiTestTarget": true,
     "deployment17": true,
-    "version022": true,
+    "version024": true,
+    "build6": true,
     "iosPlatforms": true,
     "foundationConditional": true,
     "developmentIcon": true,
@@ -43,6 +45,6 @@
     "danglingParents": [],
     "danglingAliases": [],
     "fileCount": 38,
-    "testFiles": 4
+    "testFiles": 5
   }
 }

@@ -42,6 +42,20 @@ final class LocalExpertProviderTests: XCTestCase {
         XCTAssertEqual(result.elaboration, .light); XCTAssertLessThan(result.prompt.count, 650)
     }
 
+    func testProductCompilerUsesNaturalRequestFraming() throws {
+        let result = try provider.analyze("Quiero crear una app para apicultores", decisions: .init())
+        XCTAssertTrue(result.prompt.contains("Encargo original: «Quiero crear una app para apicultores»"))
+        XCTAssertFalse(result.prompt.contains("Diseña y especifica Quiero"))
+    }
+
+    func testAppleOnlyFindingsReceiveDomainSection() throws {
+        var analysis = try provider.analyze("app para trabajo de campo", decisions: .init())
+        analysis.discoveries.append(Discovery(id: "APPLE_TEST", concept: "Historial de inspecciones por unidad", reason: "Relaciona cada revisión con el estado de la unidad y las incidencias detectadas.", lens: "Dominio operativo", priority: .highValue, provenance: .appleModel, state: .included, dependencies: [], confidence: "HIGH", sourceProvenance: [.appleModel]))
+        let prompt = SpecializedCompiler().compile(analysis)
+        XCTAssertTrue(prompt.contains("Contexto y requisitos específicos del dominio"))
+        XCTAssertTrue(prompt.contains("Historial de inspecciones por unidad"))
+    }
+
     func testSpreadsheetUsesSpecializedCompiler() throws {
         let result = try provider.analyze("Excel stock", decisions: .init())
         XCTAssertTrue(result.prompt.contains("libro de cálculo")); XCTAssertTrue(result.prompt.contains("fórmulas"))

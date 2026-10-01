@@ -31,7 +31,7 @@ jobs:
             "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/11139991371/zip"
           mkdir OriginalArtifact
           unzip -q original-artifact.zip -d OriginalArtifact
-          IPA_PATH="$(find OriginalArtifact -type f -name 'Idevero-iOS-0.2.2-DeviceUnsigned.ipa' -print -quit)"
+          IPA_PATH="$(find OriginalArtifact -type f -name 'Idevero-iOS-0.2.4-DeviceUnsigned.ipa' -print -quit)"
           test -n "$IPA_PATH"
           echo "IPA_PATH=$IPA_PATH" >> "$GITHUB_ENV"
 
@@ -59,8 +59,8 @@ jobs:
           DT_SDK="$(plutil -extract DTSDKName raw "$INFO")"
           ARCHS="$(lipo -archs "$EXECUTABLE")"
           test "$BUNDLE_ID" = "com.aitor93.idevero"
-          test "$VERSION" = "0.2.2"
-          test "$BUILD" = "4"
+          test "$VERSION" = "0.2.4"
+          test "$BUILD" = "6"
           test "$MIN_IOS" = "17.0"
           test "$DT_PLATFORM" = "iphoneos"
           echo "$DT_SDK" | grep -q '^iphoneos'
