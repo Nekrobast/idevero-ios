@@ -50,9 +50,9 @@ final class LocalExpertProviderTests: XCTestCase {
 
     func testAppleOnlyFindingsReceiveDomainSection() throws {
         var analysis = try provider.analyze("app para trabajo de campo", decisions: .init())
-        analysis.discoveries.append(Discovery(id: "APPLE_TEST", concept: "Historial de inspecciones por unidad", reason: "Relaciona cada revisión con el estado de la unidad y las incidencias detectadas.", lens: "Dominio operativo", priority: .highValue, provenance: .appleModel, state: .included, dependencies: [], confidence: "HIGH", sourceProvenance: [.appleModel]))
+        analysis.discoveries.append(Discovery(id: "APPLE_TEST", concept: "Historial de inspecciones por unidad", reason: "Relaciona cada revisión con el estado de la unidad y las incidencias detectadas.", lens: "Dominio operativo", priority: .highValue, provenance: .appleModel, state: .included, dependencies: [], confidence: "HIGH", sourceProvenance: [.appleModel], semanticRole: SemanticRole.coreWorkflow.rawValue, anchor: "inspecciones"))
         let prompt = SpecializedCompiler().compile(analysis)
-        XCTAssertTrue(prompt.contains("Contexto y requisitos específicos del dominio"))
+        XCTAssertTrue(prompt.contains("Marco del dominio"))
         XCTAssertTrue(prompt.contains("Historial de inspecciones por unidad"))
     }
 

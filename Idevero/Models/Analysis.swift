@@ -13,6 +13,8 @@ struct Discovery: Identifiable, Codable, Hashable, Sendable {
     var priority: RequirementPriority; var provenance: DiscoveryProvenance; var state: DiscoveryState
     let dependencies: [String]; var confidence: String
     var sourceProvenance: [DiscoveryProvenance]? = nil
+    var semanticRole: String? = nil
+    var anchor: String? = nil
 }
 
 struct PromptAnalysis: Codable, Sendable {

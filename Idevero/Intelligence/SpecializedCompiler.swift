@@ -22,18 +22,38 @@ struct SpecializedCompiler {
     private func unknowns(_ a: PromptAnalysis) -> String { a.unknowns.isEmpty ? "" : "\n\nDatos por confirmar — conserva los marcadores y no inventes valores:\n" + a.unknowns.map { "- \($0)" }.joined(separator: "\n") }
     private func product(_ a: PromptAnalysis, _ ds: [Discovery]) -> String {
         let domain = ds.filter { ($0.sourceProvenance ?? [$0.provenance]).contains(.appleModel) }
-        let core = ds.filter { !($0.sourceProvenance ?? [$0.provenance]).contains(.appleModel) }
+        let primitives = domain.filter { $0.semanticRole == SemanticRole.domainPrimitive.rawValue }
+        let workflows = domain.filter { $0.semanticRole == SemanticRole.coreWorkflow.rawValue }
+        let decisions = domain.filter { [SemanticRole.decisionInput.rawValue, SemanticRole.constraint.rawValue, SemanticRole.failureMode.rawValue].contains($0.semanticRole ?? "") }
+        let groupedIDs = Set((primitives + workflows + decisions).map(\.id))
+        let remaining = domain.filter { !groupedIDs.contains($0.id) }
+        let domainIDs = Set(domain.map(\.id))
+        let explicit = ds.filter { [.userExplicit, .userAccepted, .userLocked].contains($0.provenance) && !domainIDs.contains($0.id) }
+        let domainBlock = domain.isEmpty ? "" : """
+
+
+        Marco del dominio
+        \(sectionBody("Entidades y relaciones", primitives))\(sectionBody("Flujos centrales", workflows))\(sectionBody("Decisiones, restricciones y fallos", decisions))\(sectionBody("Otros hallazgos confirmados", remaining))
+        """
+        let explicitBlock = explicit.isEmpty ? "" : "\n\nRequisitos expresos o bloqueados\n" + bullets(explicit)
         return """
         Encargo original: «\(a.input)».
 
         Diseña y especifica \(a.task == "WEB" ? "un producto web" : "una aplicación") que consiga este resultado: \(a.outcome)
 
-        Objetivo y flujo principal
-        Empieza por la acción o decisión real del usuario y construye alrededor de ella un flujo completo. Define solo las pantallas, navegación, datos, estados, persistencia y validaciones justificadas por ese flujo.\(section("Contexto y requisitos específicos del dominio", domain))\(section("Requisitos esenciales del producto", core))\(unknowns(a))
+        Enfoque
+        Si el trabajo principal no está definido, no elijas silenciosamente uno: presenta las alternativas de alto nivel y utiliza los datos por confirmar para fijar el alcance.\(domainBlock)\(explicitBlock)\(unknowns(a))
+
+        Diseño del producto
+        Una vez elegido el problema principal, define de forma proporcional el flujo, modelo de información, navegación, persistencia, estados, validaciones y criterios de aceptación que ese problema necesite. No conviertas entidades del dominio en dashboards, alertas, automatizaciones o integraciones salvo que un workflow confirmado lo justifique.
 
         Alcance y calidad
         Separa el MVP de ampliaciones opcionales. Explica las relaciones y dependencias entre datos o pasos cuando afecten al funcionamiento. Incluye fallos y recuperación propios del flujo, junto con criterios de aceptación observables. Aplica privacidad, accesibilidad, rendimiento y pruebas en proporción al riesgo. No añadas IA, gamificación, integraciones, cuentas ni funciones sociales sin una razón material.\(work(a))
         """
+    }
+    private func sectionBody(_ title: String, _ values: [Discovery]) -> String {
+        guard !values.isEmpty else { return "" }
+        return "\n\n\(title)\n\(bullets(values))"
     }
     private func image(_ a: PromptAnalysis, _ ds: [Discovery]) -> String { "\(a.input). Elige una única dirección artística coherente y descríbela como lo que debe verse: sujeto y acción inequívocos, composición y encuadre intencionales, punto de vista, planos, atmósfera, luz motivada, paleta, materiales y movimiento físicamente compatibles. \(bullets(ds)) Evita mezclar épocas, estilos o condiciones de luz contradictorias. Indica relación de aspecto solo si sirve al uso final." }
     private func imageEdit(_ a: PromptAnalysis, _ ds: [Discovery]) -> String { "Edita la imagen según esta petición: \(a.input). Prioridad 1: conserva idénticos rostros, identidad, pose, ropa, proporciones, perspectiva, encuadre, estilo y resolución fuera del área indicada. Prioridad 2: realiza únicamente el cambio solicitado. Prioridad 3: reconstruye fondo, sombras, reflejos, grano y luz solo lo necesario para integrarlo. No reinterpretar ni embellecer otras zonas. \(bullets(ds))" }

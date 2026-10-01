@@ -26,10 +26,12 @@ struct FoundationModelsProvider: IntelligenceProvider {
         #if canImport(FoundationModels)
         if #available(iOS 26.0, *), case .ready = await availability() {
             let session = LanguageModelSession(instructions: """
-            Eres el especialista de dominio bajo demanda de IDEVERO. No escribas ni reescribas el prompt final.
-            Complementa Local Expert con lo que una persona competente en el dominio sabría y el marco genérico no contiene: workflows, entidades, relaciones, decisiones, contexto operativo, datos materiales, restricciones, fallos, riesgos, criterios de aceptación y desconocidos que cambian el alcance.
-            Cada hallazgo debe ser concreto, operativo y útil para esta tarea. Si al quitar el nombre del sector serviría igual para cualquier industria, omítelo. No repitas ni parafrasees la petición o los hallazgos locales. No propongas tecnología, integraciones o funciones sin una necesidad material.
-            No conviertas posibilidades en hechos. Si una normativa, integración, dispositivo o condición depende del usuario, trátala como dato por confirmar y explica su impacto. Prioriza entre tres y seis hallazgos excelentes; usa menos si la tarea es simple.
+            Eres el especialista de dominio bajo demanda de IDEVERO. No escribas el prompt final ni diseñes la solución.
+            Primero construye un Domain Frame: qué actores y entidades existen, qué relaciones los conectan, qué workflows son habituales, qué decisiones materiales toman y qué restricciones condicionan el trabajo. Después devuelve solo requisitos anclados explícitamente a ese frame.
+            Distingue conocimiento que define el dominio de una posible feature. Prioriza DOMAIN_PRIMITIVE, CORE_WORKFLOW, DECISION_INPUT, CONSTRAINT y FAILURE_MODE. Marca como CONTEXT_DEPENDENT u OPTIONAL_FEATURE lo que solo sirve para un objetivo concreto. Marca como BUSINESS_OPPORTUNITY cualquier expansión comercial que no esté pedida.
+            Si la petición admite productos materialmente distintos, usa primaryJobStatus UNDERSPECIFIED, enumera dos o tres trabajos plausibles de alto nivel y no elijas uno silenciosamente. Un supuesto fuerte requiere confirmación y nunca es un hecho.
+            Cada finding debe indicar un anchor literal presente en el Domain Frame. Sin workflow, entidad, decisión, restricción o dato que lo necesite, no propongas integraciones, dispositivos, automatización ni funciones periféricas.
+            Complementa Local Expert: omite universales de producto y cualquier reformulación de la petición. Calidad antes que cantidad; dos a cuatro hallazgos centrales son suficientes.
             """)
             let packet = """
             Petición: \(request)
@@ -41,7 +43,7 @@ struct FoundationModelsProvider: IntelligenceProvider {
             Descubrimientos locales: \(local.discoveries.map(\.concept).joined(separator: ", "))
             Desconocidos locales: \(local.unknowns.joined(separator: ", "))
 
-            Descubre solo conocimiento adicional que cambie materialmente el prompt. Respeta la forma de la tarea: conocimiento visual para IMAGE, operativo y relacional para SPREADSHEET, decisiones y restricciones para TRAVEL/SHOPPING/RESEARCH, y workflows/datos/relaciones para APPLICATION/WEB. Una tarea LIGHT debe permanecer compacta.
+            Descubre solo conocimiento adicional que cambie materialmente el prompt. Respeta la tarea: lenguaje visual para IMAGE; operación y relaciones para SPREADSHEET; decisiones y restricciones para TRAVEL/SHOPPING/RESEARCH; estructura de dominio, workflows y decisiones para APPLICATION/WEB. Una tarea LIGHT debe permanecer compacta.
             """
             let inferenceStarted = Date.timeIntervalSinceReferenceDate
             let response = try await session.respond(to: packet, generating: ModelFindings.self)
@@ -58,20 +60,51 @@ struct FoundationModelsProvider: IntelligenceProvider {
     #if canImport(FoundationModels)
     @available(iOS 26.0, *)
     @Generable
+    struct ModelDomainFrame {
+        @Guide(description: "Primary job status: DEFINED or UNDERSPECIFIED")
+        var primaryJobStatus: String
+        @Guide(description: "Two or three materially different plausible jobs only when underspecified", .maximumCount(3))
+        var primaryJobCandidates: [String]
+        @Guide(description: "Domain actors, at most four", .maximumCount(4))
+        var actors: [String]
+        @Guide(description: "Objects, records or units that exist in the domain, at most six", .maximumCount(6))
+        var entities: [String]
+        @Guide(description: "Material relationships between domain elements, at most five", .maximumCount(5))
+        var relationships: [String]
+        @Guide(description: "Common domain workflows, not product features, at most four", .maximumCount(4))
+        var workflows: [String]
+        @Guide(description: "Material practitioner decisions, at most four", .maximumCount(4))
+        var decisions: [String]
+        @Guide(description: "Operational constraints that shape the work, at most four", .maximumCount(4))
+        var constraints: [String]
+    }
+
+    @available(iOS 26.0, *)
+    @Generable
     struct ModelFinding {
-        @Guide(description: "Short domain concept absent from the local discoveries")
+        @Guide(description: "Short domain concept absent from local discoveries")
         var concept: String
-        @Guide(description: "One concise reason explaining material value")
+        @Guide(description: "Concise causal reason explaining why this changes the task")
         var reason: String
         @Guide(description: "Expert perspective that produced the finding")
         var lens: String
-        @Guide(description: "Finding type: WORKFLOW, ENTITY, RELATIONSHIP, DECISION, DOMAIN_DATA, CONSTRAINT, FAILURE_MODE, RISK, ACCEPTANCE_CRITERION, or OPERATIONAL_CONTEXT")
-        var kind: String
-        @Guide(description: "Material impact if omitted: HIGH, MEDIUM, or LOW")
+        @Guide(description: "DOMAIN_PRIMITIVE, CORE_WORKFLOW, DECISION_INPUT, CONSTRAINT, FAILURE_MODE, CONTEXT_DEPENDENT, OPTIONAL_FEATURE, or BUSINESS_OPPORTUNITY")
+        var semanticRole: String
+        @Guide(description: "Exact actor, entity, relationship, workflow, decision or constraint from the Domain Frame that justifies this finding")
+        var anchor: String
+        @Guide(description: "Assumption level: LOW, MEDIUM, or HIGH")
+        var assumptionLevel: String
+        @Guide(description: "True when the finding cannot be treated as fact without the user's choice")
+        var requiresConfirmation: Bool
+        @Guide(description: "Scope dependency: CORE, CONTEXT_DEPENDENT, or OPTIONAL")
+        var scopeDependency: String
+        @Guide(description: "Impact on a material decision: HIGH, MEDIUM, or LOW")
+        var decisionImpact: String
+        @Guide(description: "Model claim about material impact: HIGH, MEDIUM, or LOW")
         var materiality: String
-        @Guide(description: "Fit with the user's stated intent: HIGH, MEDIUM, or LOW")
+        @Guide(description: "Model claim about user-intent fit: HIGH, MEDIUM, or LOW")
         var userIntentFit: String
-        @Guide(description: "Risk of unjustified scope expansion: LOW, MEDIUM, or HIGH")
+        @Guide(description: "Model claim about unjustified scope expansion: LOW, MEDIUM, or HIGH")
         var scopeRisk: String
     }
 
@@ -80,37 +113,64 @@ struct FoundationModelsProvider: IntelligenceProvider {
     struct ModelUnknown {
         @Guide(description: "Specific fact to confirm, phrased as a semantic placeholder or concise question")
         var question: String
-        @Guide(description: "Why the answer changes architecture, workflow, or scope")
+        @Guide(description: "Why the answer materially changes the product")
         var reason: String
-        @Guide(description: "Decision impact: HIGH, MEDIUM, or LOW")
-        var impact: String
+        @Guide(description: "Architecture impact: HIGH, MEDIUM, or LOW")
+        var architectureImpact: String
+        @Guide(description: "Primary-workflow impact: HIGH, MEDIUM, or LOW")
+        var workflowImpact: String
+        @Guide(description: "Scope impact: HIGH, MEDIUM, or LOW")
+        var scopeImpact: String
     }
 
     @available(iOS 26.0, *)
     @Generable
     struct ModelFindings {
-        @Guide(description: "At most six material, domain-specific, non-duplicative findings", .maximumCount(6))
+        @Guide(description: "Domain understanding built before proposing findings")
+        var domainFrame: ModelDomainFrame
+        @Guide(description: "At most four anchored, material and non-duplicative findings", .maximumCount(4))
         var discoveries: [ModelFinding]
-        @Guide(description: "At most three unknowns whose answers materially change the result", .maximumCount(3))
+        @Guide(description: "At most three unknowns whose answers change architecture, primary workflow or scope", .maximumCount(3))
         var unknowns: [ModelUnknown]
     }
 
     @available(iOS 26.0, *)
     private func merge(local: PromptAnalysis, findings: ModelFindings) -> PromptAnalysis {
         guard let store = try? KnowledgeStore.load() else { return local }
+        let frame = SemanticDomainFrame(
+            primaryJobStatus: findings.domainFrame.primaryJobStatus,
+            primaryJobCandidates: findings.domainFrame.primaryJobCandidates,
+            actors: findings.domainFrame.actors,
+            entities: findings.domainFrame.entities,
+            relationships: findings.domainFrame.relationships,
+            workflows: findings.domainFrame.workflows,
+            decisions: findings.domainFrame.decisions,
+            constraints: findings.domainFrame.constraints
+        )
         let structured = findings.discoveries.map {
-            SemanticFinding(concept: $0.concept, reason: $0.reason, lens: $0.lens, kind: $0.kind, materiality: $0.materiality, userIntentFit: $0.userIntentFit, scopeRisk: $0.scopeRisk)
+            SemanticFinding(
+                concept: $0.concept,
+                reason: $0.reason,
+                lens: $0.lens,
+                semanticRole: $0.semanticRole,
+                anchor: $0.anchor,
+                assumptionLevel: $0.assumptionLevel,
+                requiresConfirmation: $0.requiresConfirmation,
+                scopeDependency: $0.scopeDependency,
+                decisionImpact: $0.decisionImpact,
+                materiality: $0.materiality,
+                userIntentFit: $0.userIntentFit,
+                scopeRisk: $0.scopeRisk
+            )
         }
         let mergeStarted = Date.timeIntervalSinceReferenceDate
-        let combined = AppleDiscoveryMerger(store: store).merge(local: local.discoveries, findings: structured, request: local.input)
-        let appleUnknowns = findings.unknowns.compactMap { item -> String? in
-            let question = item.question.trimmingCharacters(in: .whitespacesAndNewlines)
-            let reason = item.reason.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard item.impact.uppercased() == "HIGH", question.count >= 8, reason.count >= 24 else { return nil }
-            return question
+        let combined = AppleDiscoveryMerger(store: store).merge(local: local.discoveries, findings: structured, request: local.input, frame: frame)
+        let semanticUnknowns = findings.unknowns.map {
+            SemanticUnknown(question: $0.question, reason: $0.reason, architectureImpact: $0.architectureImpact, workflowImpact: $0.workflowImpact, scopeImpact: $0.scopeImpact)
         }
-        let uniqueUnknowns: [String] = Array(Set(local.unknowns + appleUnknowns))
-        let unknowns: [String] = Array(uniqueUnknowns.prefix(5))
+        let appleUnknowns = AppleUnknownSelector().select(semanticUnknowns, frame: frame, findings: structured)
+        var seen = Set<String>()
+        let unknowns = (appleUnknowns + local.unknowns).filter { seen.insert($0.lowercased()).inserted }.prefix(3).map { $0 }
         var merged = PromptAnalysis(analysisID: local.analysisID, title: local.title, input: local.input, task: local.task, intent: local.intent, domain: local.domain, secondaryDomains: local.secondaryDomains, target: local.target, outcome: local.outcome, elaboration: local.elaboration, discoveries: combined, unknowns: unknowns, prompt: "", qualityNotes: local.qualityNotes, intelligenceMode: "APPLE AUGMENTED + LOCAL EXPERT", analyzedAt: .now)
         #if DEBUG
         print("IDEVERO_METRIC apple_merge_ms=\(Int((Date.timeIntervalSinceReferenceDate - mergeStarted) * 1000))")

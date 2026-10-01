@@ -67,8 +67,14 @@ struct CreateView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
-                .safeAreaPadding(.bottom)
-                .padding(.bottom, 24)
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                // The system supplies the actual tab/safe-area geometry. Standard
+                // content padding adds breathing room without guessing tab height.
+                Color.clear
+                    .frame(height: 1)
+                    .padding(.vertical)
+                    .accessibilityHidden(true)
             }
             .scrollDismissesKeyboard(.interactively)
             .scrollIndicators(.visible)

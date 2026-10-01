@@ -61,8 +61,8 @@ jobs:
           FILE_TYPE="$(file "$EXECUTABLE")"
 
           test "$BUNDLE_ID" = "com.aitor93.idevero"
-          test "$VERSION" = "0.2.4"
-          test "$BUILD" = "6"
+          test "$VERSION" = "0.2.5"
+          test "$BUILD" = "7"
           echo "$ARCHS" | grep -qw arm64
           echo "$APP_PATH" | grep -q 'Debug-iphoneos'
           ! echo "$APP_PATH" | grep -q 'iphonesimulator'
@@ -94,9 +94,9 @@ jobs:
           mkdir -p DeviceArtifact/Payload
           ditto DerivedData-Device/Build/Products/Debug-iphoneos/Idevero.app DeviceArtifact/Payload/Idevero.app
           cd DeviceArtifact
-          /usr/bin/zip -qry Idevero-iOS-0.2.4-DeviceUnsigned.ipa Payload
-          unzip -t Idevero-iOS-0.2.4-DeviceUnsigned.ipa | tee ipa-integrity.log
-          shasum -a 256 Idevero-iOS-0.2.4-DeviceUnsigned.ipa | tee Idevero-iOS-0.2.4-DeviceUnsigned.ipa.sha256
+          /usr/bin/zip -qry Idevero-iOS-0.2.5-DeviceUnsigned.ipa Payload
+          unzip -t Idevero-iOS-0.2.5-DeviceUnsigned.ipa | tee ipa-integrity.log
+          shasum -a 256 Idevero-iOS-0.2.5-DeviceUnsigned.ipa | tee Idevero-iOS-0.2.5-DeviceUnsigned.ipa.sha256
           test -f Payload/Idevero.app/Info.plist
           test -f Payload/Idevero.app/Idevero
           file Payload/Idevero.app/Idevero | grep -q arm64
@@ -107,9 +107,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          SHA256="$(cut -d ' ' -f 1 DeviceArtifact/Idevero-iOS-0.2.4-DeviceUnsigned.ipa.sha256)"
+          SHA256="$(cut -d ' ' -f 1 DeviceArtifact/Idevero-iOS-0.2.5-DeviceUnsigned.ipa.sha256)"
           {
-            echo '# IDEVERO 0.2.4 build 6 — iPhoneOS unsigned build'
+            echo '# IDEVERO 0.2.5 build 7 — iPhoneOS unsigned build'
             echo
             echo "- Commit: \`$GITHUB_SHA\`"
             echo "- Run: \`$GITHUB_RUN_ID\`"
@@ -139,20 +139,20 @@ jobs:
         run: |
           cp WINDOWS-ALTSTORE-DEVICE-TEST.md DeviceArtifact/
           cp WINDOWS-PHYSICAL-TEST-REPORT.md DeviceArtifact/
-          cp QUALITY-V2-REPORT.md BEFORE-AFTER-QUALITY.md DeviceArtifact/
+          cp QUALITY-V3-REPORT.md QUALITY-V3-BEFORE-AFTER.md DeviceArtifact/
 
       - name: Upload private device artifact
         uses: actions/upload-artifact@v4
         with:
-          name: idevero-device-build-0.2.4-manual
+          name: idevero-device-build-0.2.5-manual
           path: |
-            DeviceArtifact/Idevero-iOS-0.2.4-DeviceUnsigned.ipa
-            DeviceArtifact/Idevero-iOS-0.2.4-DeviceUnsigned.ipa.sha256
+            DeviceArtifact/Idevero-iOS-0.2.5-DeviceUnsigned.ipa
+            DeviceArtifact/Idevero-iOS-0.2.5-DeviceUnsigned.ipa.sha256
             DeviceArtifact/DEVICE-BUILD-REPORT.md
             DeviceArtifact/WINDOWS-ALTSTORE-DEVICE-TEST.md
             DeviceArtifact/WINDOWS-PHYSICAL-TEST-REPORT.md
-            DeviceArtifact/QUALITY-V2-REPORT.md
-            DeviceArtifact/BEFORE-AFTER-QUALITY.md
+            DeviceArtifact/QUALITY-V3-REPORT.md
+            DeviceArtifact/QUALITY-V3-BEFORE-AFTER.md
             device-xcodebuild.log
             device-environment.log
           if-no-files-found: error

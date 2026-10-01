@@ -41,15 +41,15 @@ final class FoundationQualityV2Tests: XCTestCase {
 
     func testScopeRiskAndLowIntentFitAreRejected() throws {
         let merger = AppleDiscoveryMerger(store: try KnowledgeStore.load())
-        let highRisk = SemanticFinding(concept: "Sensores conectados automáticamente", reason: "Añade dispositivos y una integración remota aunque el usuario no ha solicitado hardware ni captura automática.", lens: "Tecnología", kind: "OPERATIONAL_CONTEXT", materiality: "MEDIUM", userIntentFit: "MEDIUM", scopeRisk: "HIGH")
-        let lowFit = SemanticFinding(concept: "Programa de fidelización comercial", reason: "Permite ofrecer recompensas y campañas comerciales aunque la petición se centra en una operación interna diferente.", lens: "Marketing", kind: "WORKFLOW", materiality: "MEDIUM", userIntentFit: "LOW", scopeRisk: "MEDIUM")
+        let highRisk = SemanticFinding(concept: "Sensores conectados automáticamente", reason: "Añade dispositivos y una integración remota aunque el usuario no ha solicitado hardware ni captura automática.", lens: "Tecnología", semanticRole: "OPTIONAL_FEATURE", anchor: "captura de estado", materiality: "MEDIUM", userIntentFit: "MEDIUM", scopeRisk: "HIGH")
+        let lowFit = SemanticFinding(concept: "Programa de fidelización comercial", reason: "Permite ofrecer recompensas y campañas comerciales aunque la petición se centra en una operación interna diferente.", lens: "Marketing", semanticRole: "BUSINESS_OPPORTUNITY", anchor: "operación interna", materiality: "MEDIUM", userIntentFit: "LOW", scopeRisk: "MEDIUM")
         XCTAssertTrue(merger.merge(local: [], findings: [highRisk, lowFit], request: "app operativa sencilla").isEmpty)
     }
 
     func testLockedAndExcludedDiscoveriesRemainAuthoritativeDuringAppleMerge() throws {
         let locked = Discovery(id: "LOCKED", concept: "Historial operativo", reason: "Conserva decisiones previas.", lens: "Usuario", priority: .core, provenance: .userLocked, state: .locked, dependencies: [], confidence: "HIGH")
         let excluded = Discovery(id: "EXCLUDED", concept: "Integración automática", reason: "Excluida por el usuario.", lens: "Usuario", priority: .outOfScope, provenance: .localKnowledge, state: .excluded, dependencies: [], confidence: "HIGH")
-        let finding = SemanticFinding(concept: "Flujo de revisión por activo", reason: "Relaciona cada revisión con su activo y estado anterior para decidir la siguiente acción operativa.", lens: "Dominio", kind: "WORKFLOW")
+        let finding = SemanticFinding(concept: "Flujo de revisión por activo", reason: "Relaciona cada revisión con su activo y estado anterior para decidir la siguiente acción operativa.", lens: "Dominio", semanticRole: "CORE_WORKFLOW", anchor: "revisión por activo")
         let result = AppleDiscoveryMerger(store: try KnowledgeStore.load()).merge(local: [locked, excluded], findings: [finding], request: "app de trabajo")
         XCTAssertEqual(result.first { $0.id == "LOCKED" }?.state, .locked)
         XCTAssertEqual(result.first { $0.id == "EXCLUDED" }?.state, .excluded)

@@ -42,6 +42,14 @@ final class ResponsiveLayoutUITests: XCTestCase {
         let lastAction = excludeButtons.element(boundBy: excludeButtons.count - 1)
         for _ in 0..<12 where !lastAction.isHittable { app.swipeUp() }
         XCTAssertTrue(lastAction.isHittable, "The final discovery actions must scroll fully above the bottom tab bar.")
+        let tabBar = app.tabBars.firstMatch
+        XCTAssertTrue(tabBar.exists, "The system tab bar must be available for a physical-clearance assertion.")
+        for _ in 0..<6 where lastAction.frame.maxY > tabBar.frame.minY - 8 { app.swipeUp() }
+        XCTAssertLessThanOrEqual(
+            lastAction.frame.maxY,
+            tabBar.frame.minY - 8,
+            "The final action must be completely visible with a real visual margin above the floating tab bar."
+        )
 
         let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         attachment.name = "Idevero-responsive-result"
