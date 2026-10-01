@@ -20,8 +20,16 @@ struct SemanticDomainFrame: Sendable {
     let workflows: [String]
     let decisions: [String]
     let constraints: [String]
+    var contextItems: [SemanticDomainItem] = []
 
     var anchors: [String] { actors + entities + relationships + workflows + decisions + constraints }
+}
+
+struct SemanticDomainItem: Sendable {
+    let kind: String
+    let text: String
+    let epistemicStatus: String
+    let decisionRelevance: String
 }
 
 struct SemanticFinding: Sendable {
@@ -37,6 +45,10 @@ struct SemanticFinding: Sendable {
     let materiality: String
     let userIntentFit: String
     let scopeRisk: String
+    let domainSpecificity: String
+    let professionalRelevance: String
+    let caseDependency: String
+    let domainMechanism: String
 
     init(
         concept: String,
@@ -50,7 +62,11 @@ struct SemanticFinding: Sendable {
         decisionImpact: String = "HIGH",
         materiality: String = "HIGH",
         userIntentFit: String = "HIGH",
-        scopeRisk: String = "LOW"
+        scopeRisk: String = "LOW",
+        domainSpecificity: String = "UNASSESSED",
+        professionalRelevance: String = "HIGH",
+        caseDependency: String = "GENERAL",
+        domainMechanism: String = ""
     ) {
         self.concept = concept
         self.reason = reason
@@ -64,6 +80,10 @@ struct SemanticFinding: Sendable {
         self.materiality = materiality
         self.userIntentFit = userIntentFit
         self.scopeRisk = scopeRisk
+        self.domainSpecificity = domainSpecificity
+        self.professionalRelevance = professionalRelevance
+        self.caseDependency = caseDependency
+        self.domainMechanism = domainMechanism.isEmpty ? reason : domainMechanism
     }
 }
 
@@ -73,6 +93,18 @@ struct SemanticUnknown: Sendable {
     let architectureImpact: String
     let workflowImpact: String
     let scopeImpact: String
+    let level: String
+    let dependsOnPrimaryJob: Bool
+
+    init(question: String, reason: String, architectureImpact: String, workflowImpact: String, scopeImpact: String, level: String = "DOMAIN_DETAIL", dependsOnPrimaryJob: Bool = false) {
+        self.question = question
+        self.reason = reason
+        self.architectureImpact = architectureImpact
+        self.workflowImpact = workflowImpact
+        self.scopeImpact = scopeImpact
+        self.level = level
+        self.dependsOnPrimaryJob = dependsOnPrimaryJob
+    }
 }
 
 enum DisplayLanguage: String, Codable, Sendable {
@@ -162,6 +194,18 @@ struct DomainContextBuilder: Sendable {
         }
         var jobs = selected(frame.primaryJobCandidates, maximum: 3).filter(policy.isNaturalJob)
         if Set(jobs.map { $0.lowercased() }).count < 2 { jobs = [] }
+        let calibrated = frame.contextItems.compactMap { item -> DomainContextItem? in
+            let clean = item.text.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard policy.isSafeDisplay(clean) else { return nil }
+            guard let status = DomainKnowledgeStatus(rawValue: item.epistemicStatus.uppercased()), status != .unsupported else { return nil }
+            let relevance = item.decisionRelevance.uppercased()
+            guard relevance != "LOW" else { return nil }
+            return DomainContextItem(kind: item.kind.uppercased(), text: clean, status: status, decisionRelevance: relevance)
+        }
+        var calibratedSeen = Set<String>()
+        let uniqueCalibrated = Array(calibrated.filter {
+            calibratedSeen.insert($0.text.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)).inserted
+        }.prefix(12))
         let context = DomainContext(
             language: language.rawValue,
             primaryJobStatus: frame.primaryJobStatus.uppercased() == "DEFINED" ? "DEFINED" : "UNDERSPECIFIED",
@@ -171,7 +215,8 @@ struct DomainContextBuilder: Sendable {
             relationships: selected(frame.relationships, maximum: 4),
             workflows: selected(frame.workflows, maximum: 3),
             decisions: selected(frame.decisions, maximum: 3),
-            constraints: selected(frame.constraints, maximum: 3)
+            constraints: selected(frame.constraints, maximum: 3),
+            calibratedItems: uniqueCalibrated.isEmpty ? nil : uniqueCalibrated
         )
         return context.isEmpty && context.primaryJobStatus == "DEFINED" ? nil : context
     }
@@ -180,7 +225,7 @@ struct DomainContextBuilder: Sendable {
 struct AppleUnknownSelector: Sendable {
     func select(_ unknowns: [SemanticUnknown], frame: SemanticDomainFrame, findings: [SemanticFinding], language: DisplayLanguage = .spanish) -> [String] {
         let policy = UserFacingTextPolicy(language: language)
-        var candidates = unknowns.filter { impactScore($0) >= 2 && informative($0, policy: policy) }
+        var candidates = unknowns.filter { impactScore($0) >= 3 && informative($0, policy: policy) }
 
         if frame.primaryJobStatus.uppercased() == "UNDERSPECIFIED" {
             let options = frame.primaryJobCandidates.filter(policy.isNaturalJob).prefix(3)
@@ -201,7 +246,9 @@ struct AppleUnknownSelector: Sendable {
                     reason: language == .spanish ? "La elección cambia el flujo principal, el modelo de información y el alcance del producto." : "The choice changes the primary workflow, information model and product scope.",
                     architectureImpact: "HIGH",
                     workflowImpact: "HIGH",
-                    scopeImpact: "HIGH"
+                    scopeImpact: "HIGH",
+                    level: "PRIMARY_JOB",
+                    dependsOnPrimaryJob: false
                 ),
                 at: 0
             )
@@ -216,22 +263,42 @@ struct AppleUnknownSelector: Sendable {
                     reason: finding.reason,
                     architectureImpact: "MEDIUM",
                     workflowImpact: finding.semanticRole == SemanticRole.coreWorkflow.rawValue ? "HIGH" : "MEDIUM",
-                    scopeImpact: "HIGH"
+                    scopeImpact: "HIGH",
+                    level: "SCOPE",
+                    dependsOnPrimaryJob: true
                 )
             )
         }
 
+        // When the product direction itself is unresolved, downstream operational
+        // questions have poor information value and may encode a false premise.
+        if frame.primaryJobStatus.uppercased() == "UNDERSPECIFIED" {
+            candidates = candidates.filter { $0.level.uppercased() == "PRIMARY_JOB" || !$0.dependsOnPrimaryJob && $0.level.uppercased() == "PRODUCT_DIRECTION" }
+        }
+
         var seen = Set<String>()
         return candidates
-            .sorted { impactScore($0) > impactScore($1) }
+            .sorted {
+                let left = levelRank($0.level), right = levelRank($1.level)
+                return left == right ? impactScore($0) > impactScore($1) : left < right
+            }
             .compactMap { item in
                 guard policy.isSafeDisplay(item.question, minimumLength: 12) else { return nil }
                 let key = normalized(item.question)
                 guard !key.isEmpty, seen.insert(key).inserted else { return nil }
                 return item.question.trimmingCharacters(in: .whitespacesAndNewlines)
             }
-            .prefix(3)
+            .prefix(frame.primaryJobStatus.uppercased() == "UNDERSPECIFIED" ? 1 : 3)
             .map { $0 }
+    }
+
+    private func levelRank(_ value: String) -> Int {
+        switch value.uppercased() {
+        case "PRIMARY_JOB", "PRODUCT_DIRECTION": return 0
+        case "CORE_WORKFLOW", "ARCHITECTURE": return 1
+        case "SCOPE": return 2
+        default: return 3
+        }
     }
 
     private func impactScore(_ item: SemanticUnknown) -> Int {
@@ -309,10 +376,12 @@ struct AppleDiscoveryMerger: Sendable {
 
         guard hasValidAnchor(item, role: role, frame: frame, deduplicator: deduplicator) else { return nil }
         guard item.scopeRisk.uppercased() != "HIGH", item.userIntentFit.uppercased() != "LOW" else { return nil }
+        guard item.domainSpecificity.uppercased() != "LOW", item.professionalRelevance.uppercased() != "LOW" else { return nil }
+        guard !isDomainWashed(item, frame: frame, deduplicator: deduplicator) else { return nil }
         guard specificity(reason, deduplicator: deduplicator) >= 1 else { return nil }
 
         if role == .businessOpportunity { return nil }
-        if item.requiresConfirmation || item.assumptionLevel.uppercased() == "HIGH" { return nil }
+        if item.requiresConfirmation || item.assumptionLevel.uppercased() == "HIGH" || item.caseDependency.uppercased() == "USER_SPECIFIC" { return nil }
 
         let scopeDependent = item.scopeDependency.uppercased() != "CORE"
         if role == .optionalFeature || role == .contextDependent || scopeDependent || item.assumptionLevel.uppercased() == "MEDIUM" {
@@ -323,6 +392,18 @@ struct AppleDiscoveryMerger: Sendable {
         guard autoIncluded.contains(role), item.decisionImpact.uppercased() != "LOW" else { return nil }
         return (item.materiality.uppercased() == "HIGH" ? .highValue : .optional,
                 item.materiality.uppercased() == "HIGH" ? .included : .optional)
+    }
+
+    private func isDomainWashed(_ item: SemanticFinding, frame: SemanticDomainFrame?, deduplicator: LocalSemanticDeduplicator) -> Bool {
+        if item.domainSpecificity.uppercased() == "UNASSESSED" { return false }
+        guard item.domainSpecificity.uppercased() != "HIGH" else {
+            let mechanism = deduplicator.normalized(item.domainMechanism)
+            guard mechanism.split(separator: " ").count >= 4 else { return true }
+            guard let frame else { return false }
+            let anchors = frame.anchors.map(deduplicator.normalized).filter { !$0.isEmpty }
+            return !anchors.contains { mechanism.contains($0) || tokenSimilarity(mechanism, $0) >= 0.25 }
+        }
+        return true
     }
 
     private func hasValidAnchor(_ item: SemanticFinding, role: SemanticRole, frame: SemanticDomainFrame?, deduplicator: LocalSemanticDeduplicator) -> Bool {

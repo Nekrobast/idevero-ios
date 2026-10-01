@@ -4,7 +4,10 @@ struct SpecializedCompiler {
     func compile(_ analysis: PromptAnalysis) -> String {
         let selected = analysis.discoveries.filter { [.included, .locked].contains($0.state) && [.core, .highValue].contains($0.priority) }
         switch analysis.task {
-        case "EMAIL": return "Redacta un email para: \(analysis.input). Ajusta el tono a la relación con el destinatario, aporta solo el contexto imprescindible y formula con claridad la acción o respuesta esperada. No inventes hechos. Entrega únicamente el email listo para enviar, con asunto breve y cuerpo conciso."
+        case "EMAIL":
+            return DisplayLanguage.detect(in: analysis.input) == .english
+                ? "Write an email for: \(analysis.input). Match the tone to the relationship with the recipient, include only essential context and state the expected action or reply clearly. Do not invent facts. Return only the ready-to-send email with a short subject and concise body."
+                : "Redacta un email para: \(analysis.input). Ajusta el tono a la relación con el destinatario, aporta solo el contexto imprescindible y formula con claridad la acción o respuesta esperada. No inventes hechos. Entrega únicamente el email listo para enviar, con asunto breve y cuerpo conciso."
         case "IMAGE": return image(analysis, selected)
         case "IMAGE_EDITING": return imageEdit(analysis, selected)
         case "SPREADSHEET": return spreadsheet(analysis, selected)
@@ -14,7 +17,10 @@ struct SpecializedCompiler {
         default: return structured(analysis, selected)
         }
     }
-    private func bullets(_ values: [Discovery]) -> String { values.map { "- \($0.concept): \($0.reason)" }.joined(separator: "\n") }
+    private func bullets(_ values: [Discovery], language: DisplayLanguage = .spanish) -> String {
+        let display = DisplayLocalization(language: language)
+        return values.map { "- \(display.text($0.concept)): \(display.text($0.reason))" }.joined(separator: "\n")
+    }
     private func section(_ title: String, _ values: [Discovery]) -> String {
         guard !values.isEmpty else { return "" }
         return "\n\n\(title)\n\(bullets(values))"
@@ -70,8 +76,8 @@ struct SpecializedCompiler {
         let domain = ds.filter { ($0.sourceProvenance ?? [$0.provenance]).contains(.appleModel) }
         let domainIDs = Set(domain.map(\.id))
         let explicit = ds.filter { [.userExplicit, .userAccepted, .userLocked].contains($0.provenance) && !domainIDs.contains($0.id) }
-        let confirmed = domain.isEmpty ? "" : "\n\nConfirmed domain requirements\n" + bullets(domain)
-        let explicitBlock = explicit.isEmpty ? "" : "\n\nExplicit or locked requirements\n" + bullets(explicit)
+        let confirmed = domain.isEmpty ? "" : "\n\nConfirmed domain requirements\n" + bullets(domain, language: .english)
+        let explicitBlock = explicit.isEmpty ? "" : "\n\nExplicit or locked requirements\n" + bullets(explicit, language: .english)
         return """
         Original request: “\(a.input)”.
 
@@ -95,6 +101,9 @@ struct SpecializedCompiler {
                 ? "Contexto del dominio\nNo presupongas procesos sectoriales que no estén respaldados; utiliza las preguntas por confirmar para fijar el alcance."
                 : "Domain context\nDo not assume unsupported sector workflows; use the questions to confirm the scope."
         }
+        if let calibrated = context.calibratedItems, !calibrated.isEmpty {
+            return calibratedDomainContextBlock(calibrated, language: language)
+        }
         let elements = Array((context.actors + context.entities).prefix(5))
         let relationships = Array(context.relationships.prefix(4))
         let workflows = Array(context.workflows.prefix(3))
@@ -113,6 +122,25 @@ struct SpecializedCompiler {
         append("Flujos habituales", "Common workflows", workflows)
         append("Decisiones y restricciones", "Decisions and constraints", decisions)
         return title + "\n" + notice + (sections.isEmpty ? "" : "\n\n" + sections.joined(separator: "\n\n"))
+    }
+    private func calibratedDomainContextBlock(_ items: [DomainContextItem], language: DisplayLanguage) -> String {
+        let title = language == .spanish ? "Contexto del dominio" : "Domain context"
+        let notice = language == .spanish
+            ? "Usa este contexto para razonar, sin convertirlo automáticamente en funciones ni asumir que todos los patrones aplican a este caso."
+            : "Use this context for reasoning without automatically turning it into features or assuming every pattern applies to this case."
+        let established = items.filter { $0.status == .established }.prefix(6)
+        let conditional = items.filter { $0.status == .caseDependent }.prefix(3)
+        var blocks: [String] = []
+        if !established.isEmpty {
+            let heading = language == .spanish ? "Conocimiento sectorial fiable" : "Reliable domain knowledge"
+            blocks.append(heading + "\n" + established.map { "- \($0.text)" }.joined(separator: "\n"))
+        }
+        if !conditional.isEmpty {
+            let heading = language == .spanish ? "Patrones que dependen del caso" : "Case-dependent patterns"
+            let prefix = language == .spanish ? "Puede ser relevante, según el objetivo elegido: " : "Depending on the chosen objective, it may be relevant to consider: "
+            blocks.append(heading + "\n" + conditional.map { "- \(prefix)\($0.text)" }.joined(separator: "\n"))
+        }
+        return title + "\n" + notice + (blocks.isEmpty ? "" : "\n\n" + blocks.joined(separator: "\n\n"))
     }
     private func primaryJobText(_ a: PromptAnalysis, language: DisplayLanguage) -> String {
         guard let context = a.domainContext, context.primaryJobStatus == "UNDERSPECIFIED" else {

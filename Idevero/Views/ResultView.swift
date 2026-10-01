@@ -8,6 +8,8 @@ struct ResultView: View {
     let onReanalyze: () -> Void
     let onSave: () -> Void
     @State private var showDiscoveries = false
+    private var language: DisplayLanguage { .detect(in: analysis.input) }
+    private func ui(_ spanish: String, _ english: String) -> String { language == .spanish ? spanish : english }
 
     private var usedAppleAugmentation: Bool {
         analysis.intelligenceMode == "APPLE AUGMENTED + LOCAL EXPERT"
@@ -28,7 +30,7 @@ struct ResultView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Prompt generado")
+                Text(ui("Prompt generado", "Generated prompt"))
                     .font(.title2.bold())
                     .lineLimit(1)
                     .minimumScaleFactor(0.85)
@@ -41,7 +43,7 @@ struct ResultView: View {
                     .padding(.vertical, 6)
                     .foregroundStyle(usedAppleAugmentation ? Color.indigo : Color.secondary)
                     .background((usedAppleAugmentation ? Color.indigo : Color.secondary).opacity(0.12), in: Capsule())
-                    .accessibilityLabel("Inteligencia utilizada: \(displayedProviderName)")
+                    .accessibilityLabel(ui("Inteligencia utilizada: \(displayedProviderName)", "Intelligence used: \(displayedProviderName)"))
                     .accessibilityIdentifier("providerBadge")
             }
 
@@ -68,7 +70,7 @@ struct ResultView: View {
                 .padding(.top, 8)
             } label: {
                 HStack(spacing: 8) {
-                    Text("Lo que Idevero añadió")
+                    Text(ui("Lo que Idevero añadió", "What Idevero added"))
                         .fontWeight(.semibold)
                     Text("\(displayedDiscoveries.count)")
                         .font(.caption.monospacedDigit())
@@ -85,12 +87,12 @@ struct ResultView: View {
 
     @ViewBuilder
     private var resultActions: some View {
-        Button("Copiar") { UIPasteboard.general.string = analysis.prompt }
-        ShareLink(item: analysis.prompt) { Text("Compartir") }
-        Button("Guardar", action: onSave)
-        Menu("Actualizar") {
-            Button("Regenerar prompt", action: onRegenerate)
-            Button("Reanalizar necesidades", action: onReanalyze)
+        Button(ui("Copiar", "Copy")) { UIPasteboard.general.string = analysis.prompt }
+        ShareLink(item: analysis.prompt) { Text(ui("Compartir", "Share")) }
+        Button(ui("Guardar", "Save"), action: onSave)
+        Menu(ui("Actualizar", "Update")) {
+            Button(ui("Regenerar prompt", "Regenerate prompt"), action: onRegenerate)
+            Button(ui("Reanalizar necesidades", "Reanalyze needs"), action: onReanalyze)
         }
     }
 }
@@ -109,29 +111,32 @@ private struct DiscoveryRow: View {
     private var displayedLens: String {
         guard (item.sourceProvenance ?? [item.provenance]).contains(.appleModel),
               let raw = item.semanticRole,
-              let role = SemanticRole(rawValue: raw) else { return item.lens }
+              let role = SemanticRole(rawValue: raw) else { return DisplayLocalization(language: language).lens(item.lens) }
         return UserFacingTextPolicy(language: language).displayLens(for: role)
     }
+
+    private var display: DisplayLocalization { DisplayLocalization(language: language) }
+    private func ui(_ spanish: String, _ english: String) -> String { language == .spanish ? spanish : english }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ViewThatFits(in: .horizontal) {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(item.concept)
+                    Text(display.text(item.concept))
                         .font(.headline)
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: 0)
                     priorityBadge
                 }
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(item.concept)
+                    Text(display.text(item.concept))
                         .font(.headline)
                         .fixedSize(horizontal: false, vertical: true)
                     priorityBadge
                 }
             }
 
-            Text(item.reason)
+            Text(display.text(item.reason))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -146,10 +151,10 @@ private struct DiscoveryRow: View {
                         MetadataBadge(
                             text: provenance.displayName(language: language),
                             emphasized: provenance == .appleModel,
-                            accessibilityPrefix: "Procedencia"
+                            accessibilityPrefix: ui("Procedencia", "Provenance")
                         )
                     }
-                    MetadataBadge(text: item.state.displayName(language: language), emphasized: false, accessibilityPrefix: "Estado")
+                    MetadataBadge(text: item.state.displayName(language: language), emphasized: false, accessibilityPrefix: ui("Estado", "State"))
                 }
             }
 
@@ -166,16 +171,16 @@ private struct DiscoveryRow: View {
     }
 
     private var priorityBadge: some View {
-        MetadataBadge(text: item.priority.displayName(language: language), emphasized: item.priority == .core, accessibilityPrefix: "Prioridad")
+        MetadataBadge(text: item.priority.displayName(language: language), emphasized: item.priority == .core, accessibilityPrefix: ui("Prioridad", "Priority"))
     }
 
     @ViewBuilder
     private var discoveryActions: some View {
-        Button("Incluir") { onState(item.id, .included) }
+        Button(ui("Incluir", "Include")) { onState(item.id, .included) }
             .frame(minHeight: 44)
-        Button("Bloquear") { onState(item.id, .locked) }
+        Button(ui("Bloquear", "Lock")) { onState(item.id, .locked) }
             .frame(minHeight: 44)
-        Button("Excluir", role: .destructive) { onState(item.id, .excluded) }
+        Button(ui("Excluir", "Exclude"), role: .destructive) { onState(item.id, .excluded) }
             .frame(minHeight: 44)
     }
 }

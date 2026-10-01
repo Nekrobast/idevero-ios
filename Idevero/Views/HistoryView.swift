@@ -14,7 +14,7 @@ struct HistoryView: View {
                     ForEach(records) { record in
                         NavigationLink { HistoryDetailView(record: record) } label: {
                             VStack(alignment: .leading) {
-                                Text(record.title).font(.headline).lineLimit(1)
+                                Text(DisplayLocalization(language: .detect(in: record.originalIdea)).text(record.title)).font(.headline).lineLimit(1)
                                 Text(record.originalIdea).font(.subheadline).foregroundStyle(.secondary).lineLimit(2)
                             }
                         }
@@ -50,7 +50,7 @@ struct HistoryDetailView: View {
             if isWorking { ProgressView("Actualizando…") }
             if let errorMessage { Text(errorMessage).foregroundStyle(.red).padding() }
         }
-        .navigationTitle(record.title)
+        .navigationTitle(DisplayLocalization(language: .detect(in: record.originalIdea)).text(record.title))
         .navigationBarTitleDisplayMode(.inline)
     }
 

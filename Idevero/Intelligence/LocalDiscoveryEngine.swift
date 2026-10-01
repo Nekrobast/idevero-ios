@@ -18,7 +18,8 @@ struct LocalDiscoveryEngine {
         discoveries = normalize(discoveries, decisions: decisions)
         let unknowns = questionBudget(primary: primary, route: route, elaboration: elaboration)
         let outcome = outcomeFor(route: route, input: input)
-        var analysis = PromptAnalysis(analysisID: UUID(), title: "\(route.task.capitalized): \(input.prefix(48))", input: input, task: route.task, intent: route.intent, domain: primary, secondaryDomains: secondary, target: route.target, outcome: outcome, elaboration: elaboration, discoveries: discoveries, unknowns: unknowns, prompt: "", qualityNotes: quality(discoveries, strategy: strategy), intelligenceMode: "LOCAL EXPERT", analyzedAt: .now)
+        let language = DisplayLanguage.detect(in: input)
+        var analysis = PromptAnalysis(analysisID: UUID(), title: "\(DisplayLocalization(language: language).task(route.task)): \(input.prefix(48))", input: input, task: route.task, intent: route.intent, domain: primary, secondaryDomains: secondary, target: route.target, outcome: outcome, elaboration: elaboration, discoveries: discoveries, unknowns: unknowns, prompt: "", qualityNotes: quality(discoveries, strategy: strategy), intelligenceMode: "LOCAL EXPERT", analyzedAt: .now)
         analysis = PromptAnalysis(analysisID: analysis.analysisID, title: analysis.title, input: analysis.input, task: analysis.task, intent: analysis.intent, domain: analysis.domain, secondaryDomains: analysis.secondaryDomains, target: analysis.target, outcome: analysis.outcome, elaboration: analysis.elaboration, discoveries: analysis.discoveries, unknowns: analysis.unknowns, prompt: SpecializedCompiler().compile(analysis), qualityNotes: analysis.qualityNotes, intelligenceMode: analysis.intelligenceMode, analyzedAt: analysis.analyzedAt)
         return analysis
     }

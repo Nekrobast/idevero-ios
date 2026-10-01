@@ -27,11 +27,13 @@ struct FoundationModelsProvider: IntelligenceProvider {
         if #available(iOS 26.0, *), case .ready = await availability() {
             let session = LanguageModelSession(instructions: """
             Eres el especialista de dominio bajo demanda de IDEVERO. No escribas el prompt final ni diseñes la solución.
-            Primero construye un Domain Frame: qué actores y entidades existen, qué relaciones los conectan, qué workflows son habituales, qué decisiones materiales toman y qué restricciones condicionan el trabajo. Después devuelve solo requisitos anclados explícitamente a ese frame.
+            Primero construye un Domain Frame y calibra cada elemento. Distingue: ESTABLISHED para conocimiento general estable del oficio; CASE_DEPENDENT para patrones plausibles que pueden no aplicar a este caso; USER_SPECIFIC_UNKNOWN para hechos de la situación concreta que requieren confirmación; UNSUPPORTED para especulación que debe omitirse. No presentes organizaciones, supervisión, regulación, escala, ubicación ni relaciones comerciales como hechos si la petición no las establece.
+            No rellenes categorías para completar el schema. Un campo vacío es mejor que un dato plausible pero poco relevante. Prefiere terminología profesional natural realmente usada en el dominio; si no tienes confianza, usa lenguaje claro sin inventar jerga.
             Distingue conocimiento que define el dominio de una posible feature. Prioriza DOMAIN_PRIMITIVE, CORE_WORKFLOW, DECISION_INPUT, CONSTRAINT y FAILURE_MODE. Marca como CONTEXT_DEPENDENT u OPTIONAL_FEATURE lo que solo sirve para un objetivo concreto. Marca como BUSINESS_OPPORTUNITY cualquier expansión comercial que no esté pedida.
             Si la petición admite productos materialmente distintos, usa primaryJobStatus UNDERSPECIFIED, enumera dos o tres trabajos plausibles de alto nivel y no elijas uno silenciosamente. Un supuesto fuerte requiere confirmación y nunca es un hecho.
             Cada finding debe indicar un anchor literal presente en el Domain Frame. Sin workflow, entidad, decisión, restricción o dato que lo necesite, no propongas integraciones, dispositivos, automatización ni funciones periféricas.
-            Complementa Local Expert: omite universales de producto y cualquier reformulación de la petición. Calidad antes que cantidad; dos a cuatro hallazgos centrales son suficientes.
+            Complementa Local Expert: omite universales de producto y cualquier reformulación de la petición. Un hallazgo no es sectorial solo porque incluya un sustantivo del dominio: explica el mecanismo profesional que cambia materialmente el requisito. Si seguiría siendo igual al sustituir el dominio por otro negocio, no lo propongas como augmentation. Calidad antes que cantidad; cero a cuatro hallazgos centrales son suficientes.
+            Ordena los unknowns por ganancia de información y dependencia: primero dirección del producto/trabajo principal, después workflow o arquitectura y solo entonces detalle sectorial. Si primaryJobStatus es UNDERSPECIFIED, no preguntes detalles que dependan de haber elegido ese trabajo; normalmente una sola pregunta de dirección es mejor que tres preguntas prematuras.
             Todos los textos destinados al usuario —candidatos de trabajo, actores, entidades, relaciones, workflows, decisiones, restricciones, conceptos, razones, perspectivas y preguntas— deben estar escritos en el idioma principal de la petición original, con lenguaje humano natural. No mezcles idiomas.
             Nunca uses identificadores, nombres de enum, snake_case, ALL_CAPS_WITH_UNDERSCORES, marcadores sintéticos ni opciones como PRIMARY_JOB_A. Los códigos internos de semanticRole, assumptionLevel, scopeDependency e impact sí conservan los valores cerrados indicados por el schema.
             Los candidatos de trabajo deben describir actividades reales, comprensibles y materialmente distintas; nunca features técnicas ni etiquetas abstractas.
@@ -63,6 +65,19 @@ struct FoundationModelsProvider: IntelligenceProvider {
     #if canImport(FoundationModels)
     @available(iOS 26.0, *)
     @Generable
+    struct ModelDomainItem {
+        @Guide(description: "ACTOR, ENTITY, RELATIONSHIP, WORKFLOW, DECISION, or CONSTRAINT")
+        var kind: String
+        @Guide(description: "Concise natural professional domain statement in the original request language")
+        var text: String
+        @Guide(description: "ESTABLISHED, CASE_DEPENDENT, USER_SPECIFIC_UNKNOWN, or UNSUPPORTED")
+        var epistemicStatus: String
+        @Guide(description: "Decision relevance: HIGH, MEDIUM, or LOW")
+        var decisionRelevance: String
+    }
+
+    @available(iOS 26.0, *)
+    @Generable
     struct ModelDomainFrame {
         @Guide(description: "Primary job status: DEFINED or UNDERSPECIFIED")
         var primaryJobStatus: String
@@ -80,6 +95,8 @@ struct FoundationModelsProvider: IntelligenceProvider {
         var decisions: [String]
         @Guide(description: "Operational constraints that shape the work, at most four", .maximumCount(4))
         var constraints: [String]
+        @Guide(description: "Only high-signal calibrated domain context. Do not fill categories for completeness and omit unsupported speculation", .maximumCount(12))
+        var contextItems: [ModelDomainItem]
     }
 
     @available(iOS 26.0, *)
@@ -109,6 +126,14 @@ struct FoundationModelsProvider: IntelligenceProvider {
         var userIntentFit: String
         @Guide(description: "Model claim about unjustified scope expansion: LOW, MEDIUM, or HIGH")
         var scopeRisk: String
+        @Guide(description: "Whether the requirement materially changes because of this domain: HIGH, MEDIUM, or LOW")
+        var domainSpecificity: String
+        @Guide(description: "Professional relevance to real practitioners: HIGH, MEDIUM, or LOW")
+        var professionalRelevance: String
+        @Guide(description: "GENERAL, CASE_DEPENDENT, or USER_SPECIFIC")
+        var caseDependency: String
+        @Guide(description: "Natural concise explanation of the domain mechanism that makes this finding different from a generic software requirement")
+        var domainMechanism: String
     }
 
     @available(iOS 26.0, *)
@@ -124,6 +149,10 @@ struct FoundationModelsProvider: IntelligenceProvider {
         var workflowImpact: String
         @Guide(description: "Scope impact: HIGH, MEDIUM, or LOW")
         var scopeImpact: String
+        @Guide(description: "PRIMARY_JOB, PRODUCT_DIRECTION, CORE_WORKFLOW, ARCHITECTURE, SCOPE, or DOMAIN_DETAIL")
+        var level: String
+        @Guide(description: "True when the question is premature until the primary job is selected")
+        var dependsOnPrimaryJob: Bool
     }
 
     @available(iOS 26.0, *)
@@ -148,7 +177,10 @@ struct FoundationModelsProvider: IntelligenceProvider {
             relationships: findings.domainFrame.relationships,
             workflows: findings.domainFrame.workflows,
             decisions: findings.domainFrame.decisions,
-            constraints: findings.domainFrame.constraints
+            constraints: findings.domainFrame.constraints,
+            contextItems: findings.domainFrame.contextItems.map {
+                SemanticDomainItem(kind: $0.kind, text: $0.text, epistemicStatus: $0.epistemicStatus, decisionRelevance: $0.decisionRelevance)
+            }
         )
         let language = DisplayLanguage.detect(in: local.input)
         let domainContext = DomainContextBuilder().build(frame: frame, language: language)
@@ -165,13 +197,17 @@ struct FoundationModelsProvider: IntelligenceProvider {
                 decisionImpact: $0.decisionImpact,
                 materiality: $0.materiality,
                 userIntentFit: $0.userIntentFit,
-                scopeRisk: $0.scopeRisk
+                scopeRisk: $0.scopeRisk,
+                domainSpecificity: $0.domainSpecificity,
+                professionalRelevance: $0.professionalRelevance,
+                caseDependency: $0.caseDependency,
+                domainMechanism: $0.domainMechanism
             )
         }
         let mergeStarted = Date.timeIntervalSinceReferenceDate
         let combined = AppleDiscoveryMerger(store: store).merge(local: local.discoveries, findings: structured, request: local.input, frame: frame)
         let semanticUnknowns = findings.unknowns.map {
-            SemanticUnknown(question: $0.question, reason: $0.reason, architectureImpact: $0.architectureImpact, workflowImpact: $0.workflowImpact, scopeImpact: $0.scopeImpact)
+            SemanticUnknown(question: $0.question, reason: $0.reason, architectureImpact: $0.architectureImpact, workflowImpact: $0.workflowImpact, scopeImpact: $0.scopeImpact, level: $0.level, dependsOnPrimaryJob: $0.dependsOnPrimaryJob)
         }
         let appleUnknowns = AppleUnknownSelector().select(semanticUnknowns, frame: frame, findings: structured, language: language)
         var seen = Set<String>()
