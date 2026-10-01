@@ -50,7 +50,9 @@ final class FoundationQualityV3Tests: XCTestCase {
         let assumed = SemanticFinding(concept: "Captura automática en campo", reason: "Cambiaría la forma de registrar el estado, pero presupone equipamiento y una operación todavía no confirmados.", lens: "Operación", semanticRole: "CONTEXT_DEPENDENT", anchor: "trabajo en campo", assumptionLevel: "HIGH", requiresConfirmation: true, scopeDependency: "CONTEXT_DEPENDENT", decisionImpact: "HIGH")
         XCTAssertTrue(try merge([assumed]).isEmpty)
         let selected = AppleUnknownSelector().select([], frame: frame, findings: [assumed])
-        XCTAssertTrue(selected.contains { $0.localizedCaseInsensitiveContains("captura automática") })
+        XCTAssertEqual(selected.count, 1)
+        XCTAssertFalse(selected.contains { $0.localizedCaseInsensitiveContains("captura automática") })
+        XCTAssertTrue(selected[0].localizedCaseInsensitiveContains("problema principal"))
     }
 
     func testUnanchoredFindingIsRejected() throws {

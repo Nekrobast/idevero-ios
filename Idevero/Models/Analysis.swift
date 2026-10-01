@@ -45,7 +45,8 @@ struct DomainContext: Codable, Hashable, Sendable {
 
     var isEmpty: Bool {
         primaryJobCandidates.isEmpty && actors.isEmpty && entities.isEmpty &&
-        relationships.isEmpty && workflows.isEmpty && decisions.isEmpty && constraints.isEmpty
+        relationships.isEmpty && workflows.isEmpty && decisions.isEmpty && constraints.isEmpty &&
+        (calibratedItems?.isEmpty ?? true)
     }
 }
 
