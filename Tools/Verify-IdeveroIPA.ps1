@@ -4,8 +4,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$ExpectedHash = "bcc26abf2266f81afa251077507957e453220b81dc9a04be178296221e7aaaad"
-$ExpectedName = "Idevero-iOS-0.2.2-DeviceUnsigned.ipa"
+$ExpectedHash = "d3b52d0d2b4f6e68fa2bcce5467774724b0dd0c08fd08612c2e1d11dae0578cf"
+$ExpectedName = "Idevero-iOS-0.2.3-DeviceUnsigned.ipa"
 
 function Fail([string]$Message) {
     Write-Host "FAIL: $Message" -ForegroundColor Red
@@ -55,4 +55,3 @@ try {
 } catch {
     Fail $_.Exception.Message
 }
-
