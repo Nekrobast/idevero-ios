@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ["Idevero/**", "IdeveroTests/**", "Idevero.xcodeproj/**", ".github/workflows/ios-ci.yml"]
+    paths: ["Idevero/**", "IdeveroTests/**", "IdeveroUITests/**", "Idevero.xcodeproj/**", ".github/workflows/ios-ci.yml"]
   pull_request:
-    paths: ["Idevero/**", "IdeveroTests/**", "Idevero.xcodeproj/**", ".github/workflows/ios-ci.yml"]
+    paths: ["Idevero/**", "IdeveroTests/**", "IdeveroUITests/**", "Idevero.xcodeproj/**", ".github/workflows/ios-ci.yml"]
 
 permissions:
   contents: read
@@ -14,7 +14,7 @@ permissions:
 jobs:
   simulator-build-and-test:
     runs-on: macos-26
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -25,20 +25,126 @@ jobs:
           XCODE_APP="$(find /Applications -maxdepth 1 -type d -name 'Xcode*.app' | sort -V | tail -1)"
           test -n "$XCODE_APP"
           sudo xcode-select --switch "$XCODE_APP/Contents/Developer"
-          sw_vers
-          xcodebuild -version
-          swift --version
-          xcodebuild -showsdks
+          {
+            sw_vers
+            xcodebuild -version
+            swift --version
+            xcodebuild -showsdks
+          } | tee simulator-environment.log
 
-      - name: Select an available iPhone Simulator
+      - name: Select large and small iPhone Simulators
         shell: bash
         run: |
           set -euo pipefail
-          DEVICE_ID="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(x["udid"] for runtime in d.values() for x in runtime if x.get("isAvailable") and x["name"].startswith("iPhone")))')"
-          echo "IOS_SIMULATOR_UDID=$DEVICE_ID" >> "$GITHUB_ENV"
-          xcrun simctl boot "$DEVICE_ID" || true
+          xcrun simctl list devices available -j > available-simulators.json
+          python3 <<'PY' >> "$GITHUB_ENV"
+          import json
+          devices = [d for values in json.load(open("available-simulators.json"))["devices"].values() for d in values if d.get("isAvailable") and d["name"].startswith("iPhone")]
+          def pick(names, excluded=None):
+              for name in names:
+                  for device in devices:
+                      if device["name"] == name and device["udid"] != excluded:
+                          return device
+              return next(device for device in devices if device["udid"] != excluded)
+          large = pick(["iPhone 17 Pro Max", "iPhone 16 Pro Max", "iPhone 15 Pro Max"])
+          small = pick(["iPhone SE (3rd generation)", "iPhone 16e", "iPhone 15", "iPhone 16"], large["udid"])
+          print(f'LARGE_SIMULATOR_UDID={large["udid"]}')
+          print(f'LARGE_SIMULATOR_NAME={large["name"]}')
+          print(f'SMALL_SIMULATOR_UDID={small["udid"]}')
+          print(f'SMALL_SIMULATOR_NAME={small["name"]}')
+          PY
+          cat available-simulators.json
 
-      - name: Build and run XCTest without signing
+      - name: Build and run complete XCTest suite on large iPhone
+        shell: bash
+        run: |
+          set -euo pipefail
+          set -o pipefail
+          defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool false
+          xcrun simctl boot "$LARGE_SIMULATOR_UDID" || true
+          xcrun simctl bootstatus "$LARGE_SIMULATOR_UDID" -b
+          xcodebuild \
+            -project Idevero.xcodeproj \
+            -scheme Idevero \
+            -destination "platform=iOS Simulator,id=$LARGE_SIMULATOR_UDID" \
+            -derivedDataPath DerivedData-CI \
+            -resultBundlePath TestResults-Large.xcresult \
+            CODE_SIGNING_ALLOWED=NO \
+            clean test | tee xcodebuild-large.log
+          xcrun simctl io "$LARGE_SIMULATOR_UDID" screenshot idevero-large-result.png
+
+      - name: Validate small iPhone with larger Dynamic Type
+        shell: bash
+        run: |
+          set -euo pipefail
+          set -o pipefail
+          xcrun simctl shutdown "$LARGE_SIMULATOR_UDID" || true
+          xcrun simctl boot "$SMALL_SIMULATOR_UDID" || true
+          xcrun simctl bootstatus "$SMALL_SIMULATOR_UDID" -b
+          xcrun simctl ui "$SMALL_SIMULATOR_UDID" content_size accessibility-large
+          xcodebuild \
+            -project Idevero.xcodeproj \
+            -scheme Idevero \
+            -destination "platform=iOS Simulator,id=$SMALL_SIMULATOR_UDID" \
+            -derivedDataPath DerivedData-CI \
+            -resultBundlePath TestResults-Small.xcresult \
+            -only-testing:IdeveroUITests/ResponsiveLayoutUITests/testKeyboardDismissesAndGeneratedResultIsReachable \
+            CODE_SIGNING_ALLOWED=NO \
+            test | tee xcodebuild-small.log
+          xcrun simctl io "$SMALL_SIMULATOR_UDID" screenshot idevero-small-dynamic-type.png
+
+      - name: Create UI validation report
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '# IDEVERO 0.2.3 build 5 — responsive UI validation'
+            echo
+            echo "- Commit: \`$GITHUB_SHA\`"
+            echo "- Run: \`$GITHUB_RUN_ID\`"
+            echo "- Large simulator: \`$LARGE_SIMULATOR_NAME\`"
+            echo '- Large simulator checks: complete XCTest, software keyboard, generation, keyboard dismissal, result reachability, provider badge'
+            echo "- Small simulator: \`$SMALL_SIMULATOR_NAME\`"
+            echo '- Small simulator checks: UI test with Accessibility Large Dynamic Type'
+            echo '- UI screenshots: XCTest attachments retained in both xcresult bundles'
+            echo '- Root behavior: native vertical scroll with interactive keyboard dismissal'
+          } > UI-VALIDATION-REPORT.md
+
+      - name: Upload simulator diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: idevero-xcode-results-0.2.3
+          path: |
+            xcodebuild-large.log
+            xcodebuild-small.log
+            simulator-environment.log
+            available-simulators.json
+            TestResults-Large.xcresult
+            TestResults-Small.xcresult
+            idevero-large-result.png
+            idevero-small-dynamic-type.png
+            UI-VALIDATION-REPORT.md
+          if-no-files-found: warn
+          retention-days: 7
+
+  unsigned-device-build:
+    needs: simulator-build-and-test
+    runs-on: macos-26
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        shell: bash
+        run: |
+          set -euo pipefail
+          XCODE_APP="$(find /Applications -maxdepth 1 -type d -name 'Xcode*.app' | sort -V | tail -1)"
+          test -n "$XCODE_APP"
+          sudo xcode-select --switch "$XCODE_APP/Contents/Developer"
+          { sw_vers; xcodebuild -version; swift --version; xcodebuild -showsdks; } | tee device-environment.log
+
+      - name: Build unsigned ARM64 iPhoneOS application
         shell: bash
         run: |
           set -euo pipefail
@@ -46,18 +152,84 @@ jobs:
           xcodebuild \
             -project Idevero.xcodeproj \
             -scheme Idevero \
-            -destination "platform=iOS Simulator,id=$IOS_SIMULATOR_UDID" \
-            -resultBundlePath TestResults.xcresult \
+            -configuration Debug \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath DerivedData-Device \
             CODE_SIGNING_ALLOWED=NO \
-            clean test | tee xcodebuild.log
+            CODE_SIGNING_REQUIRED=NO \
+            build | tee device-xcodebuild.log
 
-      - name: Upload diagnostic artifacts
-        if: always()
+      - name: Validate bundle and create unsigned IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="DerivedData-Device/Build/Products/Debug-iphoneos/Idevero.app"
+          INFO="$APP/Info.plist"
+          EXECUTABLE="$APP/Idevero"
+          test -d "$APP" && test -f "$INFO" && test -f "$EXECUTABLE"
+          test "$(plutil -extract CFBundleIdentifier raw "$INFO")" = "com.aitor93.idevero"
+          test "$(plutil -extract CFBundleShortVersionString raw "$INFO")" = "0.2.3"
+          test "$(plutil -extract CFBundleVersion raw "$INFO")" = "5"
+          test "$(plutil -extract MinimumOSVersion raw "$INFO")" = "17.0"
+          lipo -archs "$EXECUTABLE" | grep -qw arm64
+          xcrun vtool -show-build "$EXECUTABLE" | tee device-platform.log
+          grep -Eq 'platform IOS|platform 2' device-platform.log
+          test ! -e "$APP/embedded.mobileprovision"
+          test ! -d "$APP/_CodeSignature"
+          test -f "$APP/Concepts.json" && test -f "$APP/Relationships.json"
+          test -f "$APP/DomainPacks.json" && test -f "$APP/IntentPacks.json" && test -f "$APP/StrategyPacks.json"
+          mkdir -p DeviceArtifact/Payload
+          ditto "$APP" DeviceArtifact/Payload/Idevero.app
+          cd DeviceArtifact
+          /usr/bin/zip -qry Idevero-iOS-0.2.3-DeviceUnsigned.ipa Payload
+          unzip -t Idevero-iOS-0.2.3-DeviceUnsigned.ipa | tee ipa-integrity.log
+          shasum -a 256 Idevero-iOS-0.2.3-DeviceUnsigned.ipa | tee Idevero-iOS-0.2.3-DeviceUnsigned.ipa.sha256
+
+      - name: Verify re-signability on a disposable copy
+        shell: bash
+        run: |
+          set -euo pipefail
+          ditto DeviceArtifact/Payload/Idevero.app DeviceArtifact/Idevero-AdHoc-Test.app
+          codesign --force --deep --sign - --timestamp=none DeviceArtifact/Idevero-AdHoc-Test.app
+          codesign --verify --deep --strict --verbose=2 DeviceArtifact/Idevero-AdHoc-Test.app
+          test ! -d DeviceArtifact/Payload/Idevero.app/_CodeSignature
+
+      - name: Download responsive UI validation evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: idevero-xcode-results-0.2.3
+          path: SimulatorEvidence
+
+      - name: Create device build report
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA256="$(cut -d ' ' -f 1 DeviceArtifact/Idevero-iOS-0.2.3-DeviceUnsigned.ipa.sha256)"
+          {
+            echo '# IDEVERO 0.2.3 build 5 — iPhoneOS unsigned build'
+            echo
+            echo "- Commit: \`$GITHUB_SHA\`"
+            echo "- Run: \`$GITHUB_RUN_ID\`"
+            echo '- Destination: `generic/platform=iOS`'
+            echo '- Architecture: `arm64`'
+            echo '- Foundation Models iPhoneOS compile: PASS'
+            echo '- Signing: intentionally unsigned; AltServer must re-sign'
+            echo '- Disposable-copy structural codesign: PASS'
+            echo "- SHA-256: \`$SHA256\`"
+          } > DeviceArtifact/DEVICE-BUILD-REPORT.md
+          cp SimulatorEvidence/UI-VALIDATION-REPORT.md DeviceArtifact/
+
+      - name: Upload private 0.2.3 device artifact
         uses: actions/upload-artifact@v4
         with:
-          name: idevero-xcode-results
+          name: idevero-device-build-0.2.3
           path: |
-            xcodebuild.log
-            TestResults.xcresult
-          if-no-files-found: warn
+            DeviceArtifact/Idevero-iOS-0.2.3-DeviceUnsigned.ipa
+            DeviceArtifact/Idevero-iOS-0.2.3-DeviceUnsigned.ipa.sha256
+            DeviceArtifact/DEVICE-BUILD-REPORT.md
+            DeviceArtifact/UI-VALIDATION-REPORT.md
+            device-xcodebuild.log
+            device-environment.log
+            device-platform.log
+          if-no-files-found: error
           retention-days: 7

@@ -1,4 +1,4 @@
-# Idevero iOS 0.2.2 — Xcode Validated
+# Idevero iOS 0.2.3 — Physical UI iteration
 
 Aplicación SwiftUI nativa que transforma una idea breve en un prompt profesional. No usa WebView, backend ni API de pago.
 
@@ -21,15 +21,4 @@ Aplicación SwiftUI nativa que transforma una idea breve en un prompt profesiona
 
 History reconstruye snapshots completos y permite regenerar o reanalizar conservando locks y exclusions. La deduplicación local usa IDs, labels ES/EN, aliases y comparación conservadora de tokens.
 
-## Validación real
-
-- Runner estándar GitHub-hosted `macos-26`.
-- Xcode 26.6, Swift 6.3.3, iOS SDK 26.5.
-- Deployment target local: iOS 17.0.
-- Xcode Simulator build: PASS.
-- XCTest: 21 total, 20 pass, 0 fail, 1 skipped por requerir un dispositivo físico con Apple Intelligence.
-- Regex: 67/67 PASS.
-- Simulator launch smoke test: PASS.
-- Foundation Models compile: PASS; runtime real pendiente de dispositivo físico compatible.
-
-Consulta `XCODE-CI-BUILD-REPORT.md`, `XCTEST-CI-REPORT.md`, `LEEME-MAC-XCODE.md`, `XCODE-FIRST-RUN-CHECKLIST.md` y `FOUNDATION-MODELS-DEVICE-CHECKLIST.md`.
+Validación: corpus de 102 casos, 67 vectores regex, XCTest, UI test responsive y `Tools/pre-xcode-check.sh`. El scheme compartido permite invocar `xcodebuild` sin crear configuración manual. GitHub Actions valida un iPhone Pro Max, un iPhone más pequeño con Dynamic Type ampliado y el build ARM64 iPhoneOS sin firma. Consulta `LEEME-MAC-XCODE.md`, `XCODE-FIRST-RUN-CHECKLIST.md` y `FOUNDATION-MODELS-DEVICE-CHECKLIST.md`.

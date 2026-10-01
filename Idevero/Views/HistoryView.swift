@@ -45,7 +45,7 @@ struct HistoryDetailView: View {
 
     var body: some View {
         ScrollView {
-            ResultView(analysis: analysis, providerName: providerName, onState: setState, onRegenerate: regenerate, onReanalyze: reanalyze, onSave: persist)
+            ResultView(analysis: analysis, onState: setState, onRegenerate: regenerate, onReanalyze: reanalyze, onSave: persist)
                 .padding()
             if isWorking { ProgressView("Actualizando…") }
             if let errorMessage { Text(errorMessage).foregroundStyle(.red).padding() }
