@@ -1,7 +1,7 @@
 # Mañana: instalar IDEVERO en el iPhone
 
-1. Abre el run privado `36862684183` de GitHub Actions y descarga `idevero-device-build-0.2.5` (artifact `11163107180`).
-2. Extrae el ZIP. Debe aparecer `Idevero-iOS-0.2.5-DeviceUnsigned.ipa`.
+1. Abre el run privado `36897880225` de GitHub Actions y descarga `idevero-device-build-0.2.6` (artifact `11180358445`).
+2. Extrae el ZIP. Debe aparecer `Idevero-iOS-0.2.6-DeviceUnsigned.ipa`.
 3. Descarga también `Tools/Verify-IdeveroIPA.ps1` desde el repositorio y déjalo junto al IPA. Verifica desde PowerShell:
 
    ```powershell
@@ -11,10 +11,10 @@
    O manualmente:
 
    ```powershell
-   Get-FileHash .\Idevero-iOS-0.2.5-DeviceUnsigned.ipa -Algorithm SHA256
+   Get-FileHash .\Idevero-iOS-0.2.6-DeviceUnsigned.ipa -Algorithm SHA256
    ```
 
-   Debe dar `120d858fe4757564c3f7d496c4cb3ce09aa0f840504e4e75111bc511f68a3f87`.
+   Debe dar `cd92b0435120b8f145d95f3ff121d4df437885a29a6e99e2099c4574f2be1e69`.
 
 4. Instala iTunes e iCloud desde Apple —no Microsoft Store— y AltServer desde `https://altstore.io/`.
 5. Ejecuta AltServer como administrador.
@@ -24,6 +24,6 @@
 9. En el iPhone activa **Ajustes > Privacidad y seguridad > Modo de desarrollador**, reinicia y confirma. Si se solicita, confía en el desarrollador en **General > VPN y gestión de dispositivos**.
 10. Abre IDEVERO.
 11. Test Local: `Escribe un email corto de agradecimiento`. Debe mostrar `Local Expert` y generar un prompt compacto.
-12. Test Foundation: `Quiero crear una app para apicultores`. Si Apple está disponible, debe mostrar `Apple Foundation Models` y discoveries `APPLE MODEL INFERENCE`; si no, Local Expert debe funcionar sin crash.
+12. Test Foundation: `Quiero crear una app para apicultores`. Si Apple está disponible, confirma que el prompt contiene contexto sectorial natural, mantiene el alcance abierto, no muestra tokens internos ni mezcla idiomas y presenta hallazgos Apple con etiquetas humanas. Si no está disponible, Local Expert debe funcionar sin crash.
 
 No compartas contraseña, 2FA, Apple ID, UDID, número de serie ni perfiles.
