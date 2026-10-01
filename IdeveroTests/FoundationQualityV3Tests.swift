@@ -52,7 +52,7 @@ final class FoundationQualityV3Tests: XCTestCase {
         let selected = AppleUnknownSelector().select([], frame: frame, findings: [assumed])
         XCTAssertEqual(selected.count, 1)
         XCTAssertFalse(selected.contains { $0.localizedCaseInsensitiveContains("captura automática") })
-        XCTAssertTrue(selected[0].localizedCaseInsensitiveContains("problema principal"))
+        XCTAssertTrue(selected[0].localizedCaseInsensitiveContains("trabajo principal"))
     }
 
     func testUnanchoredFindingIsRejected() throws {

@@ -45,7 +45,7 @@ final class FoundationQualityV5Tests: XCTestCase {
         XCTAssertTrue(prompt.contains("Conocimiento sectorial fiable"))
         XCTAssertTrue(prompt.contains("Patrones que dependen del caso"))
         XCTAssertTrue(prompt.contains("Puede ser relevante, según el objetivo elegido"))
-        XCTAssertFalse(prompt.contains("coordinar trabajos con proveedores externos\n\nTrabajo principal"))
+        XCTAssertFalse(prompt.contains("\n- coordinar trabajos con proveedores externos"))
     }
 
     func testGenericRequirementWithDomainNounIsRejected() throws {
