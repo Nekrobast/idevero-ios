@@ -32,6 +32,13 @@ final class FoundationQualityV2Tests: XCTestCase {
         XCTAssertFalse(result.prompt.contains("Contexto y requisitos específicos del dominio"))
     }
 
+    func testVersionAndBuildComeFromRuntimeBundleMetadata() {
+        let metadata = RuntimeAppMetadata(bundle: .main)
+        XCTAssertEqual(metadata.version, Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—")
+        XCTAssertEqual(metadata.build, Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—")
+        XCTAssertNotEqual(metadata.version, "0.2.2")
+    }
+
     func testScopeRiskAndLowIntentFitAreRejected() throws {
         let merger = AppleDiscoveryMerger(store: try KnowledgeStore.load())
         let highRisk = SemanticFinding(concept: "Sensores conectados automáticamente", reason: "Añade dispositivos y una integración remota aunque el usuario no ha solicitado hardware ni captura automática.", lens: "Tecnología", kind: "OPERATIONAL_CONTEXT", materiality: "MEDIUM", userIntentFit: "MEDIUM", scopeRisk: "HIGH")

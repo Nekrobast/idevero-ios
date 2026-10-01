@@ -1,8 +1,17 @@
 import SwiftUI
 
+struct RuntimeAppMetadata {
+    let version: String
+    let build: String
+
+    init(bundle: Bundle = .main) {
+        version = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
+        build = bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
+    }
+}
+
 struct SettingsView: View {
-    private var version: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—" }
-    private var build: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—" }
+    private let metadata = RuntimeAppMetadata()
 
     var body: some View {
         List {
@@ -16,8 +25,8 @@ struct SettingsView: View {
                 Label("Sin cuenta ni backend", systemImage: "lock")
             }
             Section("Versión") {
-                LabeledContent("Versión", value: version)
-                LabeledContent("Build", value: build)
+                LabeledContent("Versión", value: metadata.version)
+                LabeledContent("Build", value: metadata.build)
             }
         }
         .navigationTitle("Ajustes")
