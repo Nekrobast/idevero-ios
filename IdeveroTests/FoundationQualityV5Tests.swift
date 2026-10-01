@@ -2,6 +2,7 @@ import XCTest
 @testable import Idevero
 
 final class FoundationQualityV5Tests: XCTestCase {
+    // CI contract for deterministic Quality V5 gates; physical semantics remain device evidence.
     private let provider = LocalExpertProvider()
 
     private func frame(status: String = "UNDERSPECIFIED", items: [SemanticDomainItem] = []) -> SemanticDomainFrame {
