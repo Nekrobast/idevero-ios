@@ -39,10 +39,10 @@ struct LocalDiscoveryEngine {
         if hit("\\b(campana|marketing|anuncio|seo)\\b", text) { return .init(task: "MARKETING", intent: "CONVINCE", strategy: "marketing", target: target, existing: existing) }
         if hit("\\b(instagram|linkedin|tiktok|post|tweet)\\b", text) { return .init(task: "SOCIAL", intent: "PRESENT", strategy: "social", target: target, existing: existing) }
         if hit("\\b(analiza|analizar|csv|datos|dashboard)\\b", text) { return .init(task: "DATA", intent: "ANALYZE", strategy: "data", target: target, existing: existing) }
-        if hit("\\b(plan de negocio|plan negocio|empresa|business)\\b", text) { return .init(task: "BUSINESS", intent: "PLAN", strategy: "business", target: target, existing: existing) }
         if hit("\\b(presentacion|diapositivas|slides|pitch)\\b", text) { return .init(task: "PRESENTATION", intent: "PRESENT", strategy: "presentation", target: target, existing: existing) }
         if hit("\\b(automatiza|automatizar|workflow)\\b", text) { return .init(task: "AUTOMATION", intent: "AUTOMATE", strategy: "automation", target: target, existing: existing) }
         if hit("\\b(app|aplicacion|software|sistema|marketplace|web|landing|pagina web|tienda online|ecommerce|blog|portfolio|directorio)\\b", text) { let web = hit("\\b(web|landing|pagina web|tienda online|ecommerce|blog|portfolio|directorio)\\b", text); return .init(task: web ? "WEB" : "APPLICATION", intent: existing ? "IMPROVE" : "CREATE", strategy: web ? "web" : "app", target: target, existing: existing) }
+        if hit("\\b(plan de negocio|plan negocio|empresa|business)\\b", text) { return .init(task: "BUSINESS", intent: "PLAN", strategy: "business", target: target, existing: existing) }
         if hit("\\b(plan|organiza|organizar|torneo|evento)\\b", text) { return .init(task: "PLANNING", intent: "PLAN", strategy: "planning", target: target, existing: existing) }
         if hit("\\b(resume|resumir|summary|contrato|pdf|documento|informe|manual|politica|propuesta)\\b", text) { return .init(task: "DOCUMENT", intent: hit("resum", text) ? "SUMMARIZE" : "DOCUMENT", strategy: "document", target: target, existing: existing) }
         if hit("\\b(rutina|gimnasio|entrenamiento|fitness|ponerme fuerte)\\b", text) { return .init(task: "FITNESS", intent: "PLAN", strategy: "fitness", target: target, existing: existing) }

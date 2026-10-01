@@ -51,7 +51,8 @@ struct AppleDiscoveryMerger: Sendable {
         let concept = deduplicator.normalized(item.concept)
         let reason = item.reason.trimmingCharacters(in: .whitespacesAndNewlines)
         let kind = item.kind.uppercased(), materiality = item.materiality.uppercased()
-        guard concept.split(separator: " ").count >= 2, reason.count >= 28 else { return false }
+        let isKnownConcept = deduplicator.canonicalConcept(for: item.concept) != nil
+        guard (concept.split(separator: " ").count >= 2 || isKnownConcept), reason.count >= 28 else { return false }
         guard materiality != "LOW", item.userIntentFit.uppercased() != "LOW", item.scopeRisk.uppercased() != "HIGH" else { return false }
         let allowedKinds = Set(["WORKFLOW", "ENTITY", "RELATIONSHIP", "DECISION", "DOMAIN_DATA", "CONSTRAINT", "FAILURE_MODE", "RISK", "ACCEPTANCE_CRITERION", "OPERATIONAL_CONTEXT"])
         guard allowedKinds.contains(kind) else { return false }
