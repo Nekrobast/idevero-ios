@@ -4,6 +4,7 @@ import SwiftData
 struct CreateView: View {
     @StateObject private var model = CreateViewModel()
     @Environment(\.modelContext) private var context
+    @Environment(\.ideveroTabBarClearance) private var tabBarClearance
     @FocusState private var isIdeaFocused: Bool
 
     private enum ScrollAnchor: Hashable {
@@ -69,12 +70,10 @@ struct CreateView: View {
                 .padding(.top, 12)
             }
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                // The system supplies the actual tab/safe-area geometry. Standard
-                // content padding adds breathing room without guessing tab height.
                 Color.clear
-                    .frame(height: 1)
-                    .padding(.vertical)
+                    .frame(height: max(tabBarClearance, 1) + 20)
                     .accessibilityHidden(true)
+                    .accessibilityIdentifier("measuredTabBarClearance")
             }
             .scrollDismissesKeyboard(.interactively)
             .scrollIndicators(.visible)

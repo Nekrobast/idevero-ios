@@ -19,8 +19,25 @@ struct SpecializedCompiler {
         guard !values.isEmpty else { return "" }
         return "\n\n\(title)\n\(bullets(values))"
     }
-    private func unknowns(_ a: PromptAnalysis) -> String { a.unknowns.isEmpty ? "" : "\n\nDatos por confirmar — conserva los marcadores y no inventes valores:\n" + a.unknowns.map { "- \($0)" }.joined(separator: "\n") }
+    private func unknowns(_ a: PromptAnalysis, language: DisplayLanguage? = nil) -> String {
+        guard !a.unknowns.isEmpty else { return "" }
+        let language = language ?? .detect(in: a.input)
+        let placeholders = a.unknowns.filter { $0.contains("[") && $0.contains("]") }
+        let questions = a.unknowns.filter { !placeholders.contains($0) }
+        var blocks: [String] = []
+        if !questions.isEmpty {
+            let title = language == .spanish ? "Preguntas por confirmar" : "Questions to confirm"
+            blocks.append(title + "\n" + questions.map { "- \($0)" }.joined(separator: "\n"))
+        }
+        if !placeholders.isEmpty {
+            let title = language == .spanish ? "Datos que debe completar el usuario" : "Information for the user to complete"
+            blocks.append(title + "\n" + placeholders.map { "- \($0)" }.joined(separator: "\n"))
+        }
+        return blocks.isEmpty ? "" : "\n\n" + blocks.joined(separator: "\n\n")
+    }
     private func product(_ a: PromptAnalysis, _ ds: [Discovery]) -> String {
+        let language = DisplayLanguage(rawValue: a.domainContext?.language ?? "") ?? .detect(in: a.input)
+        if language == .english { return productEnglish(a, ds) }
         let domain = ds.filter { ($0.sourceProvenance ?? [$0.provenance]).contains(.appleModel) }
         let primitives = domain.filter { $0.semanticRole == SemanticRole.domainPrimitive.rawValue }
         let workflows = domain.filter { $0.semanticRole == SemanticRole.coreWorkflow.rawValue }
@@ -29,20 +46,18 @@ struct SpecializedCompiler {
         let remaining = domain.filter { !groupedIDs.contains($0.id) }
         let domainIDs = Set(domain.map(\.id))
         let explicit = ds.filter { [.userExplicit, .userAccepted, .userLocked].contains($0.provenance) && !domainIDs.contains($0.id) }
-        let domainBlock = domain.isEmpty ? "" : """
-
-
-        Marco del dominio
-        \(sectionBody("Entidades y relaciones", primitives))\(sectionBody("Flujos centrales", workflows))\(sectionBody("Decisiones, restricciones y fallos", decisions))\(sectionBody("Otros hallazgos confirmados", remaining))
-        """
+        let domainBlock = domainContextBlock(a, language: .spanish)
         let explicitBlock = explicit.isEmpty ? "" : "\n\nRequisitos expresos o bloqueados\n" + bullets(explicit)
+        let confirmedDomain = domain.isEmpty ? "" : "\n\nRequisitos sectoriales confirmados\n" + groupedRequirements(primitives: primitives, workflows: workflows, decisions: decisions, remaining: remaining)
         return """
         Encargo original: «\(a.input)».
 
         Diseña y especifica \(a.task == "WEB" ? "un producto web" : "una aplicación") que consiga este resultado: \(a.outcome)
 
-        Enfoque
-        Si el trabajo principal no está definido, no elijas silenciosamente uno: presenta las alternativas de alto nivel y utiliza los datos por confirmar para fijar el alcance.\(domainBlock)\(explicitBlock)\(unknowns(a))
+        \(domainBlock)
+
+        Trabajo principal
+        \(primaryJobText(a, language: .spanish))\(explicitBlock)\(confirmedDomain)\(unknowns(a, language: .spanish))
 
         Diseño del producto
         Una vez elegido el problema principal, define de forma proporcional el flujo, modelo de información, navegación, persistencia, estados, validaciones y criterios de aceptación que ese problema necesite. No conviertas entidades del dominio en dashboards, alertas, automatizaciones o integraciones salvo que un workflow confirmado lo justifique.
@@ -50,6 +65,71 @@ struct SpecializedCompiler {
         Alcance y calidad
         Separa el MVP de ampliaciones opcionales. Explica las relaciones y dependencias entre datos o pasos cuando afecten al funcionamiento. Incluye fallos y recuperación propios del flujo, junto con criterios de aceptación observables. Aplica privacidad, accesibilidad, rendimiento y pruebas en proporción al riesgo. No añadas IA, gamificación, integraciones, cuentas ni funciones sociales sin una razón material.\(work(a))
         """
+    }
+    private func productEnglish(_ a: PromptAnalysis, _ ds: [Discovery]) -> String {
+        let domain = ds.filter { ($0.sourceProvenance ?? [$0.provenance]).contains(.appleModel) }
+        let domainIDs = Set(domain.map(\.id))
+        let explicit = ds.filter { [.userExplicit, .userAccepted, .userLocked].contains($0.provenance) && !domainIDs.contains($0.id) }
+        let confirmed = domain.isEmpty ? "" : "\n\nConfirmed domain requirements\n" + bullets(domain)
+        let explicitBlock = explicit.isEmpty ? "" : "\n\nExplicit or locked requirements\n" + bullets(explicit)
+        return """
+        Original request: “\(a.input)”.
+
+        Design and specify \(a.task == "WEB" ? "a web product" : "an application") that achieves this outcome: \(a.outcome)
+
+        \(domainContextBlock(a, language: .english))
+
+        Primary job
+        \(primaryJobText(a, language: .english))\(explicitBlock)\(confirmed)\(unknowns(a, language: .english))
+
+        Product design
+        Once the primary problem is chosen, define only the proportionate workflow, information model, navigation, persistence, states, validation and acceptance criteria it requires. Do not turn domain entities into dashboards, alerts, automation or integrations unless a confirmed workflow justifies them.
+
+        Scope and quality
+        Separate the MVP from optional extensions. Explain relationships and dependencies when they affect operation. Cover workflow-specific failures and recovery with observable acceptance criteria. Apply privacy, accessibility, performance and testing in proportion to risk. Do not add AI, gamification, integrations, accounts or social features without material justification.\(work(a))
+        """
+    }
+    private func domainContextBlock(_ a: PromptAnalysis, language: DisplayLanguage) -> String {
+        guard let context = a.domainContext, !context.isEmpty else {
+            return language == .spanish
+                ? "Contexto del dominio\nNo presupongas procesos sectoriales que no estén respaldados; utiliza las preguntas por confirmar para fijar el alcance."
+                : "Domain context\nDo not assume unsupported sector workflows; use the questions to confirm the scope."
+        }
+        let elements = Array((context.actors + context.entities).prefix(5))
+        let relationships = Array(context.relationships.prefix(4))
+        let workflows = Array(context.workflows.prefix(3))
+        let decisions = Array((context.decisions + context.constraints).prefix(4))
+        let title = language == .spanish ? "Contexto del dominio" : "Domain context"
+        let notice = language == .spanish
+            ? "Utiliza este marco para comprender el trabajo, pero no conviertas automáticamente cada elemento en una función ni en alcance del MVP."
+            : "Use this frame to understand the work, but do not automatically turn every element into a feature or MVP scope."
+        var sections: [String] = []
+        func append(_ headingES: String, _ headingEN: String, _ values: [String]) {
+            guard !values.isEmpty else { return }
+            sections.append((language == .spanish ? headingES : headingEN) + "\n" + values.map { "- \($0)" }.joined(separator: "\n"))
+        }
+        append("Elementos centrales", "Core elements", elements)
+        append("Relaciones relevantes", "Relevant relationships", relationships)
+        append("Flujos habituales", "Common workflows", workflows)
+        append("Decisiones y restricciones", "Decisions and constraints", decisions)
+        return title + "\n" + notice + (sections.isEmpty ? "" : "\n\n" + sections.joined(separator: "\n\n"))
+    }
+    private func primaryJobText(_ a: PromptAnalysis, language: DisplayLanguage) -> String {
+        guard let context = a.domainContext, context.primaryJobStatus == "UNDERSPECIFIED" else {
+            return language == .spanish ? "Respeta el objetivo principal expresado por el usuario." : "Follow the primary objective expressed by the user."
+        }
+        guard context.primaryJobCandidates.count >= 2 else {
+            return language == .spanish
+                ? "El objetivo prioritario todavía no está definido. No elijas uno silenciosamente; conserva un diseño útil y adaptable hasta confirmarlo."
+                : "The priority objective is not yet defined. Do not choose one silently; keep the design useful and adaptable until it is confirmed."
+        }
+        let candidates = context.primaryJobCandidates.map { "- \($0)" }.joined(separator: "\n")
+        return (language == .spanish
+            ? "El objetivo prioritario está pendiente de confirmar. Alternativas plausibles:\n"
+            : "The priority objective still needs confirmation. Plausible alternatives:\n") + candidates
+    }
+    private func groupedRequirements(primitives: [Discovery], workflows: [Discovery], decisions: [Discovery], remaining: [Discovery]) -> String {
+        [primitives, workflows, decisions, remaining].flatMap { $0 }.map { "- \($0.concept): \($0.reason)" }.joined(separator: "\n")
     }
     private func sectionBody(_ title: String, _ values: [Discovery]) -> String {
         guard !values.isEmpty else { return "" }

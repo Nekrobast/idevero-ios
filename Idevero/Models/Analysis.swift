@@ -17,11 +17,29 @@ struct Discovery: Identifiable, Codable, Hashable, Sendable {
     var anchor: String? = nil
 }
 
+struct DomainContext: Codable, Hashable, Sendable {
+    let language: String
+    let primaryJobStatus: String
+    let primaryJobCandidates: [String]
+    let actors: [String]
+    let entities: [String]
+    let relationships: [String]
+    let workflows: [String]
+    let decisions: [String]
+    let constraints: [String]
+
+    var isEmpty: Bool {
+        primaryJobCandidates.isEmpty && actors.isEmpty && entities.isEmpty &&
+        relationships.isEmpty && workflows.isEmpty && decisions.isEmpty && constraints.isEmpty
+    }
+}
+
 struct PromptAnalysis: Codable, Sendable {
     let analysisID: UUID; let title: String; let input: String; let task: String; let intent: String
     let domain: String; let secondaryDomains: [String]; let target: String; let outcome: String
     let elaboration: ElaborationLevel; var discoveries: [Discovery]; let unknowns: [String]
     let prompt: String; let qualityNotes: [String]; let intelligenceMode: String; let analyzedAt: Date
+    var domainContext: DomainContext? = nil
 }
 
 enum IntelligenceAvailability: Equatable, Sendable { case ready, unavailable(String) }

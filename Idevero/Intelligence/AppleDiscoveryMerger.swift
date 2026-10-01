@@ -75,16 +75,130 @@ struct SemanticUnknown: Sendable {
     let scopeImpact: String
 }
 
-struct AppleUnknownSelector: Sendable {
-    func select(_ unknowns: [SemanticUnknown], frame: SemanticDomainFrame, findings: [SemanticFinding]) -> [String] {
-        var candidates = unknowns.filter { impactScore($0) >= 2 && informative($0) }
+enum DisplayLanguage: String, Codable, Sendable {
+    case spanish = "es"
+    case english = "en"
 
-        if frame.primaryJobStatus.uppercased() == "UNDERSPECIFIED", !frame.primaryJobCandidates.isEmpty {
-            let options = frame.primaryJobCandidates.prefix(3).joined(separator: ", ")
+    static func detect(in request: String) -> DisplayLanguage {
+        let value = request.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+        let spanish = ["quiero", "para", "una", "un", "crear", "necesito", "aplicacion", "organizar", "mejora", "comprar"].filter { value.range(of: "\\b\($0)\\b", options: .regularExpression) != nil }.count
+        let english = ["i", "want", "for", "an", "a", "create", "need", "organize", "improve", "buy"].filter { value.range(of: "\\b\($0)\\b", options: .regularExpression) != nil }.count
+        return english > spanish ? .english : .spanish
+    }
+}
+
+struct UserFacingTextPolicy: Sendable {
+    let language: DisplayLanguage
+
+    func isSafeDisplay(_ value: String, minimumLength: Int = 3) -> Bool {
+        let clean = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard clean.count >= minimumLength, !containsMachineToken(clean), !containsSyntheticPlaceholder(clean) else { return false }
+        return isLanguageConsistent(clean)
+    }
+
+    func isNaturalJob(_ value: String) -> Bool {
+        guard isSafeDisplay(value, minimumLength: 8) else { return false }
+        let words = value.split(whereSeparator: { $0.isWhitespace })
+        guard words.count >= 3 else { return false }
+        let normalized = value.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+        let activitySignals = language == .spanish
+            ? ["gest", "segu", "control", "plan", "organ", "registr", "revis", "coord", "administr", "supervis", "oper"]
+            : ["manag", "track", "monitor", "plan", "organ", "record", "inspect", "coordin", "administ", "operat"]
+        return activitySignals.contains { normalized.contains($0) }
+    }
+
+    func containsMachineToken(_ value: String) -> Bool {
+        value.range(of: "\\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\\b", options: .regularExpression) != nil
+    }
+
+    func displayLens(for role: SemanticRole) -> String {
+        switch (language, role) {
+        case (.spanish, .domainPrimitive): return "Estructura del dominio"
+        case (.spanish, .coreWorkflow): return "Flujo del dominio"
+        case (.spanish, .decisionInput): return "Decisión profesional"
+        case (.spanish, .constraint): return "Restricción operativa"
+        case (.spanish, .failureMode): return "Riesgo operativo"
+        case (.spanish, .contextDependent): return "Contexto por confirmar"
+        case (.spanish, .optionalFeature): return "Posibilidad opcional"
+        case (.spanish, .businessOpportunity): return "Oportunidad fuera del alcance"
+        case (.english, .domainPrimitive): return "Domain structure"
+        case (.english, .coreWorkflow): return "Domain workflow"
+        case (.english, .decisionInput): return "Professional decision"
+        case (.english, .constraint): return "Operational constraint"
+        case (.english, .failureMode): return "Operational risk"
+        case (.english, .contextDependent): return "Context to confirm"
+        case (.english, .optionalFeature): return "Optional possibility"
+        case (.english, .businessOpportunity): return "Out-of-scope opportunity"
+        }
+    }
+
+    private func containsSyntheticPlaceholder(_ value: String) -> Bool {
+        value.range(of: "(?:PRIMARY|SECONDARY|OPTION|PLACEHOLDER|UNKNOWN)[-_ ]?[A-Z0-9]+", options: .regularExpression) != nil ||
+        value.range(of: "[<{][A-Z0-9_ -]{3,}[>}]", options: .regularExpression) != nil
+    }
+
+    private func isLanguageConsistent(_ value: String) -> Bool {
+        guard value.split(whereSeparator: { $0.isWhitespace }).count >= 4 else { return true }
+        let normalized = value.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current).lowercased()
+        let spanishWords = ["que", "para", "del", "de", "la", "el", "los", "las", "una", "como", "cual", "debe", "permite", "necesita", "cambia"]
+        let englishWords = ["what", "which", "the", "for", "with", "from", "should", "must", "does", "allows", "needs", "changes"]
+        func score(_ words: [String]) -> Int { words.filter { normalized.range(of: "\\b\($0)\\b", options: .regularExpression) != nil }.count }
+        let es = score(spanishWords), en = score(englishWords)
+        return language == .spanish ? !(en >= 2 && es == 0) : !(es >= 2 && en == 0)
+    }
+}
+
+struct DomainContextBuilder: Sendable {
+    func build(frame: SemanticDomainFrame, language: DisplayLanguage) -> DomainContext? {
+        let policy = UserFacingTextPolicy(language: language)
+        func selected(_ values: [String], maximum: Int) -> [String] {
+            var seen = Set<String>()
+            return values.compactMap { value -> String? in
+                let clean = value.trimmingCharacters(in: .whitespacesAndNewlines)
+                let key = clean.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+                guard policy.isSafeDisplay(clean), seen.insert(key).inserted else { return nil }
+                return clean
+            }.prefix(maximum).map { $0 }
+        }
+        var jobs = selected(frame.primaryJobCandidates, maximum: 3).filter(policy.isNaturalJob)
+        if Set(jobs.map { $0.lowercased() }).count < 2 { jobs = [] }
+        let context = DomainContext(
+            language: language.rawValue,
+            primaryJobStatus: frame.primaryJobStatus.uppercased() == "DEFINED" ? "DEFINED" : "UNDERSPECIFIED",
+            primaryJobCandidates: jobs,
+            actors: selected(frame.actors, maximum: 3),
+            entities: selected(frame.entities, maximum: 5),
+            relationships: selected(frame.relationships, maximum: 4),
+            workflows: selected(frame.workflows, maximum: 3),
+            decisions: selected(frame.decisions, maximum: 3),
+            constraints: selected(frame.constraints, maximum: 3)
+        )
+        return context.isEmpty && context.primaryJobStatus == "DEFINED" ? nil : context
+    }
+}
+
+struct AppleUnknownSelector: Sendable {
+    func select(_ unknowns: [SemanticUnknown], frame: SemanticDomainFrame, findings: [SemanticFinding], language: DisplayLanguage = .spanish) -> [String] {
+        let policy = UserFacingTextPolicy(language: language)
+        var candidates = unknowns.filter { impactScore($0) >= 2 && informative($0, policy: policy) }
+
+        if frame.primaryJobStatus.uppercased() == "UNDERSPECIFIED" {
+            let options = frame.primaryJobCandidates.filter(policy.isNaturalJob).prefix(3)
+            let question: String
+            if options.count >= 2 {
+                let joined = options.joined(separator: "; ")
+                question = language == .spanish
+                    ? "¿Qué trabajo principal debe resolver primero la aplicación: \(joined)?"
+                    : "Which primary job should the application solve first: \(joined)?"
+            } else {
+                question = language == .spanish
+                    ? "¿Cuál es el problema principal que debe resolver primero la aplicación?"
+                    : "What is the primary problem the application should solve first?"
+            }
             candidates.insert(
                 SemanticUnknown(
-                    question: "¿Qué trabajo principal debe resolver primero el producto entre estas posibilidades: \(options)?",
-                    reason: "La elección cambia el flujo principal, el modelo de información y el alcance del producto.",
+                    question: question,
+                    reason: language == .spanish ? "La elección cambia el flujo principal, el modelo de información y el alcance del producto." : "The choice changes the primary workflow, information model and product scope.",
                     architectureImpact: "HIGH",
                     workflowImpact: "HIGH",
                     scopeImpact: "HIGH"
@@ -95,9 +209,10 @@ struct AppleUnknownSelector: Sendable {
 
         for finding in findings where finding.requiresConfirmation || finding.assumptionLevel.uppercased() == "HIGH" {
             guard finding.decisionImpact.uppercased() == "HIGH" else { continue }
+            guard policy.isSafeDisplay(finding.concept), policy.isSafeDisplay(finding.reason, minimumLength: 12) else { continue }
             candidates.append(
                 SemanticUnknown(
-                    question: "¿Debe formar parte del alcance: \(finding.concept)?",
+                    question: language == .spanish ? "¿Debe incluir el alcance inicial \(finding.concept.lowercased())?" : "Should the initial scope include \(finding.concept.lowercased())?",
                     reason: finding.reason,
                     architectureImpact: "MEDIUM",
                     workflowImpact: finding.semanticRole == SemanticRole.coreWorkflow.rawValue ? "HIGH" : "MEDIUM",
@@ -110,6 +225,7 @@ struct AppleUnknownSelector: Sendable {
         return candidates
             .sorted { impactScore($0) > impactScore($1) }
             .compactMap { item in
+                guard policy.isSafeDisplay(item.question, minimumLength: 12) else { return nil }
                 let key = normalized(item.question)
                 guard !key.isEmpty, seen.insert(key).inserted else { return nil }
                 return item.question.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -124,9 +240,10 @@ struct AppleUnknownSelector: Sendable {
         }
     }
 
-    private func informative(_ item: SemanticUnknown) -> Bool {
+    private func informative(_ item: SemanticUnknown, policy: UserFacingTextPolicy) -> Bool {
         item.question.trimmingCharacters(in: .whitespacesAndNewlines).count >= 12 &&
-        item.reason.trimmingCharacters(in: .whitespacesAndNewlines).count >= 20
+        item.reason.trimmingCharacters(in: .whitespacesAndNewlines).count >= 20 &&
+        policy.isSafeDisplay(item.question, minimumLength: 12) && policy.isSafeDisplay(item.reason, minimumLength: 12)
     }
 
     private func normalized(_ value: String) -> String {
@@ -141,6 +258,7 @@ struct AppleDiscoveryMerger: Sendable {
 
     func merge(local: [Discovery], findings: [SemanticFinding], request: String = "", frame: SemanticDomainFrame? = nil) -> [Discovery] {
         let deduplicator = LocalSemanticDeduplicator(store: store)
+        let displayPolicy = UserFacingTextPolicy(language: .detect(in: request))
         var accepted = local
         for (index, item) in findings.enumerated() {
             guard let disposition = disposition(for: item, request: request, frame: frame, deduplicator: deduplicator) else { continue }
@@ -155,7 +273,7 @@ struct AppleDiscoveryMerger: Sendable {
                     id: current.id,
                     concept: current.concept,
                     reason: appleAddsDepth ? item.reason.trimmingCharacters(in: .whitespacesAndNewlines) : current.reason,
-                    lens: appleAddsDepth ? item.lens.trimmingCharacters(in: .whitespacesAndNewlines) : current.lens,
+                    lens: appleAddsDepth ? displayPolicy.displayLens(for: SemanticRole(rawValue: item.semanticRole.uppercased()) ?? .domainPrimitive) : current.lens,
                     priority: current.priority,
                     provenance: current.provenance,
                     state: current.state,
@@ -168,7 +286,7 @@ struct AppleDiscoveryMerger: Sendable {
                 continue
             }
 
-            guard var discovery = deduplicator.appleDiscovery(index: index, concept: item.concept, reason: item.reason, lens: item.lens, existing: accepted) else { continue }
+            guard var discovery = deduplicator.appleDiscovery(index: index, concept: item.concept, reason: item.reason, lens: displayPolicy.displayLens(for: SemanticRole(rawValue: item.semanticRole.uppercased()) ?? .domainPrimitive), existing: accepted) else { continue }
             discovery.priority = disposition.priority
             discovery.state = disposition.state
             discovery.semanticRole = item.semanticRole
@@ -183,6 +301,8 @@ struct AppleDiscoveryMerger: Sendable {
         let reason = item.reason.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let role = SemanticRole(rawValue: item.semanticRole.uppercased()) else { return nil }
         guard !concept.isEmpty, reason.count >= 18 else { return nil }
+        let policy = UserFacingTextPolicy(language: .detect(in: request))
+        guard policy.isSafeDisplay(item.concept), policy.isSafeDisplay(reason, minimumLength: 18), policy.isSafeDisplay(item.anchor) else { return nil }
 
         let requestValue = deduplicator.normalized(request)
         if !requestValue.isEmpty && (concept == requestValue || tokenSimilarity(concept, requestValue) > 0.88) { return nil }

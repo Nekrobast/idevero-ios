@@ -1,4 +1,6 @@
-# Idevero iOS 0.2.5 — Foundation Models Quality V3
+# Idevero iOS 0.2.6 — Foundation Models Quality V4
+
+Quality V4 preserves a safe, human-readable Domain Context separately from confirmed product requirements. It blocks model-generated machine identifiers and mixed-language display text, humanizes high-impact unknowns, retains one on-device inference, and measures the real tab-bar clearance for the result scroll view.
 
 Aplicación SwiftUI nativa que transforma una idea breve en un prompt profesional. No usa WebView, backend ni API de pago.
 

@@ -17,6 +17,14 @@ struct ResultView: View {
         usedAppleAugmentation ? "Apple Foundation Models" : "Local Expert"
     }
 
+    private var displayedDiscoveries: [Discovery] {
+        let policy = UserFacingTextPolicy(language: .detect(in: analysis.input))
+        return analysis.discoveries.filter { item in
+            let isApple = (item.sourceProvenance ?? [item.provenance]).contains(.appleModel)
+            return !isApple || (policy.isSafeDisplay(item.concept) && policy.isSafeDisplay(item.reason, minimumLength: 12))
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             VStack(alignment: .leading, spacing: 8) {
@@ -52,9 +60,9 @@ struct ResultView: View {
 
             DisclosureGroup(isExpanded: $showDiscoveries) {
                 LazyVStack(alignment: .leading, spacing: 0) {
-                    ForEach(analysis.discoveries) { item in
-                        DiscoveryRow(item: item, onState: onState)
-                        if item.id != analysis.discoveries.last?.id { Divider() }
+                    ForEach(displayedDiscoveries) { item in
+                        DiscoveryRow(item: item, language: .detect(in: analysis.input), onState: onState)
+                        if item.id != displayedDiscoveries.last?.id { Divider() }
                     }
                 }
                 .padding(.top, 8)
@@ -62,7 +70,7 @@ struct ResultView: View {
                 HStack(spacing: 8) {
                     Text("Lo que Idevero añadió")
                         .fontWeight(.semibold)
-                    Text("\(analysis.discoveries.count)")
+                    Text("\(displayedDiscoveries.count)")
                         .font(.caption.monospacedDigit())
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 7)
@@ -89,12 +97,20 @@ struct ResultView: View {
 
 private struct DiscoveryRow: View {
     let item: Discovery
+    let language: DisplayLanguage
     let onState: (String, DiscoveryState) -> Void
 
     private var provenances: [DiscoveryProvenance] {
         var values = item.sourceProvenance ?? [item.provenance]
         if !values.contains(item.provenance) { values.insert(item.provenance, at: 0) }
         return values
+    }
+
+    private var displayedLens: String {
+        guard (item.sourceProvenance ?? [item.provenance]).contains(.appleModel),
+              let raw = item.semanticRole,
+              let role = SemanticRole(rawValue: raw) else { return item.lens }
+        return UserFacingTextPolicy(language: language).displayLens(for: role)
     }
 
     var body: some View {
@@ -120,7 +136,7 @@ private struct DiscoveryRow: View {
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Text("Perspectiva: \(item.lens)")
+            Text((language == .spanish ? "Perspectiva: " : "Perspective: ") + displayedLens)
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -128,12 +144,12 @@ private struct DiscoveryRow: View {
                 HStack(spacing: 6) {
                     ForEach(provenances, id: \.self) { provenance in
                         MetadataBadge(
-                            text: provenance.rawValue,
+                            text: provenance.displayName(language: language),
                             emphasized: provenance == .appleModel,
                             accessibilityPrefix: "Procedencia"
                         )
                     }
-                    MetadataBadge(text: item.state.rawValue, emphasized: false, accessibilityPrefix: "Estado")
+                    MetadataBadge(text: item.state.displayName(language: language), emphasized: false, accessibilityPrefix: "Estado")
                 }
             }
 
@@ -150,7 +166,7 @@ private struct DiscoveryRow: View {
     }
 
     private var priorityBadge: some View {
-        MetadataBadge(text: item.priority.rawValue, emphasized: item.priority == .core, accessibilityPrefix: "Prioridad")
+        MetadataBadge(text: item.priority.displayName(language: language), emphasized: item.priority == .core, accessibilityPrefix: "Prioridad")
     }
 
     @ViewBuilder
@@ -161,6 +177,47 @@ private struct DiscoveryRow: View {
             .frame(minHeight: 44)
         Button("Excluir", role: .destructive) { onState(item.id, .excluded) }
             .frame(minHeight: 44)
+    }
+}
+
+private extension DiscoveryProvenance {
+    func displayName(language: DisplayLanguage) -> String {
+        if language == .english {
+            switch self {
+            case .userExplicit: return "User request"
+            case .localKnowledge: return "Local knowledge"
+            case .appleModel: return "Apple inference"
+            case .userAccepted: return "User accepted"
+            case .userLocked: return "User locked"
+            case .placeholder: return "Placeholder"
+            }
+        }
+        switch self {
+        case .userExplicit: return "Petición del usuario"
+        case .localKnowledge: return "Conocimiento local"
+        case .appleModel: return "Inferencia de Apple"
+        case .userAccepted: return "Aceptado por el usuario"
+        case .userLocked: return "Bloqueado por el usuario"
+        case .placeholder: return "Marcador"
+        }
+    }
+}
+
+private extension DiscoveryState {
+    func displayName(language: DisplayLanguage) -> String {
+        if language == .english {
+            switch self { case .included: return "Included"; case .locked: return "Locked"; case .optional: return "Optional"; case .excluded: return "Excluded"; case .pending: return "Pending" }
+        }
+        switch self { case .included: return "Incluido"; case .locked: return "Bloqueado"; case .optional: return "Opcional"; case .excluded: return "Excluido"; case .pending: return "Pendiente" }
+    }
+}
+
+private extension RequirementPriority {
+    func displayName(language: DisplayLanguage) -> String {
+        if language == .english {
+            switch self { case .core: return "Core"; case .highValue: return "High value"; case .optional: return "Optional"; case .outOfScope: return "Out of scope" }
+        }
+        switch self { case .core: return "Esencial"; case .highValue: return "Alto valor"; case .optional: return "Opcional"; case .outOfScope: return "Fuera de alcance" }
     }
 }
 

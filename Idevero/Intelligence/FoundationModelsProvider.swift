@@ -32,6 +32,9 @@ struct FoundationModelsProvider: IntelligenceProvider {
             Si la petición admite productos materialmente distintos, usa primaryJobStatus UNDERSPECIFIED, enumera dos o tres trabajos plausibles de alto nivel y no elijas uno silenciosamente. Un supuesto fuerte requiere confirmación y nunca es un hecho.
             Cada finding debe indicar un anchor literal presente en el Domain Frame. Sin workflow, entidad, decisión, restricción o dato que lo necesite, no propongas integraciones, dispositivos, automatización ni funciones periféricas.
             Complementa Local Expert: omite universales de producto y cualquier reformulación de la petición. Calidad antes que cantidad; dos a cuatro hallazgos centrales son suficientes.
+            Todos los textos destinados al usuario —candidatos de trabajo, actores, entidades, relaciones, workflows, decisiones, restricciones, conceptos, razones, perspectivas y preguntas— deben estar escritos en el idioma principal de la petición original, con lenguaje humano natural. No mezcles idiomas.
+            Nunca uses identificadores, nombres de enum, snake_case, ALL_CAPS_WITH_UNDERSCORES, marcadores sintéticos ni opciones como PRIMARY_JOB_A. Los códigos internos de semanticRole, assumptionLevel, scopeDependency e impact sí conservan los valores cerrados indicados por el schema.
+            Los candidatos de trabajo deben describir actividades reales, comprensibles y materialmente distintas; nunca features técnicas ni etiquetas abstractas.
             """)
             let packet = """
             Petición: \(request)
@@ -63,11 +66,11 @@ struct FoundationModelsProvider: IntelligenceProvider {
     struct ModelDomainFrame {
         @Guide(description: "Primary job status: DEFINED or UNDERSPECIFIED")
         var primaryJobStatus: String
-        @Guide(description: "Two or three materially different plausible jobs only when underspecified", .maximumCount(3))
+        @Guide(description: "Two or three materially different real professional activities, in the original request language and natural user-facing wording; never identifiers or placeholders", .maximumCount(3))
         var primaryJobCandidates: [String]
-        @Guide(description: "Domain actors, at most four", .maximumCount(4))
+        @Guide(description: "Natural user-facing domain actors in the original request language, at most four", .maximumCount(4))
         var actors: [String]
-        @Guide(description: "Objects, records or units that exist in the domain, at most six", .maximumCount(6))
+        @Guide(description: "Natural user-facing objects, records or units that exist in the domain, in the original request language, at most six", .maximumCount(6))
         var entities: [String]
         @Guide(description: "Material relationships between domain elements, at most five", .maximumCount(5))
         var relationships: [String]
@@ -111,7 +114,7 @@ struct FoundationModelsProvider: IntelligenceProvider {
     @available(iOS 26.0, *)
     @Generable
     struct ModelUnknown {
-        @Guide(description: "Specific fact to confirm, phrased as a semantic placeholder or concise question")
+        @Guide(description: "Natural concise question in the original request language; never a placeholder, identifier or enum token")
         var question: String
         @Guide(description: "Why the answer materially changes the product")
         var reason: String
@@ -147,6 +150,8 @@ struct FoundationModelsProvider: IntelligenceProvider {
             decisions: findings.domainFrame.decisions,
             constraints: findings.domainFrame.constraints
         )
+        let language = DisplayLanguage.detect(in: local.input)
+        let domainContext = DomainContextBuilder().build(frame: frame, language: language)
         let structured = findings.discoveries.map {
             SemanticFinding(
                 concept: $0.concept,
@@ -168,16 +173,16 @@ struct FoundationModelsProvider: IntelligenceProvider {
         let semanticUnknowns = findings.unknowns.map {
             SemanticUnknown(question: $0.question, reason: $0.reason, architectureImpact: $0.architectureImpact, workflowImpact: $0.workflowImpact, scopeImpact: $0.scopeImpact)
         }
-        let appleUnknowns = AppleUnknownSelector().select(semanticUnknowns, frame: frame, findings: structured)
+        let appleUnknowns = AppleUnknownSelector().select(semanticUnknowns, frame: frame, findings: structured, language: language)
         var seen = Set<String>()
         let unknowns = (appleUnknowns + local.unknowns).filter { seen.insert($0.lowercased()).inserted }.prefix(3).map { $0 }
-        var merged = PromptAnalysis(analysisID: local.analysisID, title: local.title, input: local.input, task: local.task, intent: local.intent, domain: local.domain, secondaryDomains: local.secondaryDomains, target: local.target, outcome: local.outcome, elaboration: local.elaboration, discoveries: combined, unknowns: unknowns, prompt: "", qualityNotes: local.qualityNotes, intelligenceMode: "APPLE AUGMENTED + LOCAL EXPERT", analyzedAt: .now)
+        var merged = PromptAnalysis(analysisID: local.analysisID, title: local.title, input: local.input, task: local.task, intent: local.intent, domain: local.domain, secondaryDomains: local.secondaryDomains, target: local.target, outcome: local.outcome, elaboration: local.elaboration, discoveries: combined, unknowns: unknowns, prompt: "", qualityNotes: local.qualityNotes, intelligenceMode: "APPLE AUGMENTED + LOCAL EXPERT", analyzedAt: .now, domainContext: domainContext)
         #if DEBUG
         print("IDEVERO_METRIC apple_merge_ms=\(Int((Date.timeIntervalSinceReferenceDate - mergeStarted) * 1000))")
         #endif
         let compileStarted = Date.timeIntervalSinceReferenceDate
         let prompt = SpecializedCompiler().compile(merged)
-        merged = PromptAnalysis(analysisID: merged.analysisID, title: merged.title, input: merged.input, task: merged.task, intent: merged.intent, domain: merged.domain, secondaryDomains: merged.secondaryDomains, target: merged.target, outcome: merged.outcome, elaboration: merged.elaboration, discoveries: merged.discoveries, unknowns: merged.unknowns, prompt: prompt, qualityNotes: merged.qualityNotes, intelligenceMode: merged.intelligenceMode, analyzedAt: merged.analyzedAt)
+        merged = PromptAnalysis(analysisID: merged.analysisID, title: merged.title, input: merged.input, task: merged.task, intent: merged.intent, domain: merged.domain, secondaryDomains: merged.secondaryDomains, target: merged.target, outcome: merged.outcome, elaboration: merged.elaboration, discoveries: merged.discoveries, unknowns: merged.unknowns, prompt: prompt, qualityNotes: merged.qualityNotes, intelligenceMode: merged.intelligenceMode, analyzedAt: merged.analyzedAt, domainContext: merged.domainContext)
         #if DEBUG
         print("IDEVERO_METRIC specialized_compile_ms=\(Int((Date.timeIntervalSinceReferenceDate - compileStarted) * 1000))")
         #endif

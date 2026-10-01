@@ -50,7 +50,7 @@ final class FoundationQualityV3Tests: XCTestCase {
         let assumed = SemanticFinding(concept: "Captura automática en campo", reason: "Cambiaría la forma de registrar el estado, pero presupone equipamiento y una operación todavía no confirmados.", lens: "Operación", semanticRole: "CONTEXT_DEPENDENT", anchor: "trabajo en campo", assumptionLevel: "HIGH", requiresConfirmation: true, scopeDependency: "CONTEXT_DEPENDENT", decisionImpact: "HIGH")
         XCTAssertTrue(try merge([assumed]).isEmpty)
         let selected = AppleUnknownSelector().select([], frame: frame, findings: [assumed])
-        XCTAssertTrue(selected.contains { $0.contains("Captura automática") })
+        XCTAssertTrue(selected.contains { $0.localizedCaseInsensitiveContains("captura automática") })
     }
 
     func testUnanchoredFindingIsRejected() throws {
@@ -82,10 +82,9 @@ final class FoundationQualityV3Tests: XCTestCase {
         analysis.discoveries.append(Discovery(id: "APPLE_PRIMITIVE", concept: "Unidad gestionada", reason: "Relaciona el trabajo con una unidad estable y su evolución.", lens: "Dominio", priority: .highValue, provenance: .appleModel, state: .included, dependencies: [], confidence: "HIGH", sourceProvenance: [.appleModel], semanticRole: "DOMAIN_PRIMITIVE", anchor: "unidad gestionada"))
         analysis.discoveries.append(Discovery(id: "APPLE_WORKFLOW", concept: "Revisión de la unidad", reason: "Actualiza su estado antes de decidir la siguiente intervención.", lens: "Operación", priority: .highValue, provenance: .appleModel, state: .included, dependencies: [], confidence: "HIGH", sourceProvenance: [.appleModel], semanticRole: "CORE_WORKFLOW", anchor: "revisión"))
         let prompt = SpecializedCompiler().compile(analysis)
-        XCTAssertTrue(prompt.contains("Marco del dominio"))
-        XCTAssertTrue(prompt.contains("Entidades y relaciones"))
-        XCTAssertTrue(prompt.contains("Flujos centrales"))
-        XCTAssertLessThan(try XCTUnwrap(prompt.range(of: "Marco del dominio")?.lowerBound), try XCTUnwrap(prompt.range(of: "Diseño del producto")?.lowerBound))
+        XCTAssertTrue(prompt.contains("Contexto del dominio"))
+        XCTAssertTrue(prompt.contains("Requisitos sectoriales confirmados"))
+        XCTAssertLessThan(try XCTUnwrap(prompt.range(of: "Contexto del dominio")?.lowerBound), try XCTUnwrap(prompt.range(of: "Diseño del producto")?.lowerBound))
     }
 
     func testCrossDomainHoldoutV2KeepsApplicationTaskWithoutSectorRules() throws {
