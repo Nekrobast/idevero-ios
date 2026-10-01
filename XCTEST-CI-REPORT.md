@@ -1,40 +1,42 @@
-# IDEVERO 0.2.6 build 8 — XCTest CI report
+# IDEVERO 0.2.7 build 9 — XCTest CI report
 
 ## Validated run
 
-- Validated merge commit: `f55ea1a291d4c248b27b75039c349404f3fe8328`
-- GitHub Actions run: `36897880225`
+- Validated merge commit: `f0bad0b535d5a80ecfc35c14f8e1e6ec317a9156`
+- GitHub Actions run: `36933358823`
 - XCTest result: PASS
 
 ## Results
 
-- Total tests: 53
-- Passed: 52
+- Total tests: 64
+- Passed: 63
 - Failed: 0
 - Skipped: 1
-- UI tests: PASS on large iPhone plus PASS on compact accessibility configuration
+- UI tests: PASS on iPhone 17 Pro Max plus PASS on iPhone 16e with Accessibility Large
 - Regex validation: 67/67 PASS
 
-The single skipped test is the real Foundation Models runtime test, which intentionally requires a compatible physical device. Foundation Models contract, merge, display validation, domain-context persistence and compiler behavior are tested without pretending that Simulator execution proves on-device inference.
+The single skipped test is the real Foundation Models runtime test, which intentionally requires a compatible physical device.
 
-## Quality V4 coverage
+## Quality V5 coverage
 
-- Domain Frame survives into `PromptAnalysis`, history snapshots and regenerate
-- Legacy analyses without Domain Context decode successfully
-- Spanish and English display contracts remain coherent
-- Machine-token candidates, discoveries and unknowns are rejected from user-facing output
-- Raw semantic-role enums are not exposed as display lenses
-- Natural primary-job fallback is produced when model candidates are invalid
-- Domain Context remains useful when Apple requirements are rejected by scope control
-- Business opportunities are not auto-included
-- Final application prompt remains useful while the primary job is unresolved
-- Locks, exclusions, dedupe, regenerate, reanalyze and history regressions pass
-- Knowledge inventory and 67/67 regular expressions pass
+- Epistemic status is preserved and compiled conditionally
+- Unsupported and low-decision-relevance domain context is omitted
+- Domain-washed generic findings are rejected
+- Anchored professional mechanisms remain eligible
+- Primary-job ambiguity suppresses premature downstream questions
+- Sparse Domain Frames remain sparse
+- Observed Spanish Local Expert labels are localized without mutating stable identifiers
+- English display remains English
+- Calibrated Domain Context survives Codable round trips
+- Legacy Domain Context without calibration fields still decodes
+- Simple email output remains compact
+- Ten-domain structural holdout passes
+- Locks, exclusions, dedupe, regenerate, reanalyze, history, knowledge inventory and 67/67 regular expressions pass
 
 ## Responsive UI coverage
 
-The large and compact accessibility configurations passed. The UI test compares the final discovery action frame with the actual tab-bar frame; the implementation derives clearance from the runtime tab container rather than a device-specific height.
+Large and compact accessibility configurations passed. The physical bottom-tab fix already passed on 0.2.6; 0.2.7 preserves it and adds no layout change.
 
 ## Physical boundary
 
-Quality V4 physical model output and final bottom-tab clearance are awaiting installation of the 0.2.6 IPA on the iPhone 17 Pro Max.
+Fixtures and deterministic tests do not constitute a real Quality V5 Foundation Models result. Physical semantic evaluation is awaiting installation of the 0.2.7 IPA.
