@@ -1,0 +1,181 @@
+name: Idevero AltStore IPA preflight
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/ios-altstore-preflight.yml"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  preflight:
+    runs-on: macos-26
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download exact validated private artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl --fail --location \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            --output original-artifact.zip \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/11139991371/zip"
+          mkdir OriginalArtifact
+          unzip -q original-artifact.zip -d OriginalArtifact
+          test -f OriginalArtifact/Idevero-iOS-0.2.2-DeviceUnsigned.ipa
+
+      - name: Audit exact unsigned IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          IPA="OriginalArtifact/Idevero-iOS-0.2.2-DeviceUnsigned.ipa"
+          EXPECTED="bcc26abf2266f81afa251077507957e453220b81dc9a04be178296221e7aaaad"
+          ACTUAL="$(shasum -a 256 "$IPA" | cut -d ' ' -f 1)"
+          test "$ACTUAL" = "$EXPECTED"
+          unzip -t "$IPA" | tee ipa-integrity.log
+          mkdir IPAExtract
+          unzip -q "$IPA" -d IPAExtract
+          APP="IPAExtract/Payload/Idevero.app"
+          INFO="$APP/Info.plist"
+          EXECUTABLE="$APP/Idevero"
+          test -d "$APP" && test -f "$INFO" && test -f "$EXECUTABLE"
+
+          BUNDLE_ID="$(plutil -extract CFBundleIdentifier raw "$INFO")"
+          VERSION="$(plutil -extract CFBundleShortVersionString raw "$INFO")"
+          BUILD="$(plutil -extract CFBundleVersion raw "$INFO")"
+          MIN_IOS="$(plutil -extract MinimumOSVersion raw "$INFO")"
+          DT_PLATFORM="$(plutil -extract DTPlatformName raw "$INFO")"
+          DT_SDK="$(plutil -extract DTSDKName raw "$INFO")"
+          ARCHS="$(lipo -archs "$EXECUTABLE")"
+          test "$BUNDLE_ID" = "com.aitor93.idevero"
+          test "$VERSION" = "0.2.2"
+          test "$BUILD" = "4"
+          test "$MIN_IOS" = "17.0"
+          test "$DT_PLATFORM" = "iphoneos"
+          echo "$DT_SDK" | grep -q '^iphoneos'
+          echo "$ARCHS" | grep -qw arm64
+          xcrun vtool -show-build "$EXECUTABLE" | tee platform.log
+          grep -Eq 'platform IOS|platform 2' platform.log
+          plutil -p "$INFO" | tee info-plist.log
+          grep -q '"UIDeviceFamily"' info-plist.log
+          grep -q '"CFBundleSupportedPlatforms"' info-plist.log
+
+          test ! -e "$APP/embedded.mobileprovision"
+          test ! -d "$APP/_CodeSignature"
+          if codesign --verify --deep --strict "$APP" 2>original-codesign.log; then
+            echo "Expected original IPA to be unsigned" >&2
+            exit 1
+          fi
+
+          find "$APP" -type d \( -name '*.framework' -o -name '*.appex' -o -name '*.bundle' \) -print | tee embedded-directories.log
+          find "$APP" -type f \( -name '*.dylib' -o -perm -111 \) -print | tee embedded-code.log
+          test "$(find "$APP" -type d -name '*.appex' | wc -l | tr -d ' ')" = "0"
+
+          {
+            echo "IPA_SHA256=$ACTUAL"
+            echo "CFBundleIdentifier=$BUNDLE_ID"
+            echo "CFBundleShortVersionString=$VERSION"
+            echo "CFBundleVersion=$BUILD"
+            echo "MinimumOSVersion=$MIN_IOS"
+            echo "DTPlatformName=$DT_PLATFORM"
+            echo "DTSDKName=$DT_SDK"
+            echo "ARCHITECTURES=$ARCHS"
+          } | tee metadata.log
+
+      - name: Audit capabilities and entitlements declarations
+        shell: bash
+        run: |
+          set -euo pipefail
+          find . -path './IPAExtract' -prune -o -name '*.entitlements' -print | tee entitlement-files.log
+          test ! -s entitlement-files.log
+          if grep -REn --exclude-dir=.git --exclude='ios-altstore-preflight.yml' \
+            'CODE_SIGN_ENTITLEMENTS|SystemCapabilities|com\.apple\.developer\.|aps-environment|UIBackgroundModes' \
+            Idevero Idevero.xcodeproj > capability-declarations.log; then
+            echo "Unexpected capability declaration found" >&2
+            cat capability-declarations.log
+            exit 1
+          fi
+          : > capability-declarations.log
+
+      - name: Ad-hoc sign a disposable copy and verify structure
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir AdHocTest
+          ditto IPAExtract/Payload/Idevero.app AdHocTest/Idevero.app
+          codesign --force --deep --sign - --timestamp=none AdHocTest/Idevero.app
+          codesign --verify --deep --strict --verbose=2 AdHocTest/Idevero.app 2>&1 | tee adhoc-codesign.log
+          codesign -d --entitlements :- AdHocTest/Idevero.app > adhoc-entitlements.plist 2>adhoc-display.log || true
+          test -d AdHocTest/Idevero.app/_CodeSignature
+          test "$(shasum -a 256 OriginalArtifact/Idevero-iOS-0.2.2-DeviceUnsigned.ipa | cut -d ' ' -f 1)" = \
+            "bcc26abf2266f81afa251077507957e453220b81dc9a04be178296221e7aaaad"
+
+      - name: Create real preflight report
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo '# IDEVERO AltStore / AltServer sideload preflight'
+            echo
+            echo "- Commit: \`$GITHUB_SHA\`"
+            echo "- Run: \`$GITHUB_RUN_ID\`"
+            echo '- Exact source artifact: `11139991371`'
+            echo '- Exact IPA SHA-256: `bcc26abf2266f81afa251077507957e453220b81dc9a04be178296221e7aaaad`'
+            echo '- IPA integrity: PASS'
+            echo '- Original IPA unsigned: PASS / expected'
+            echo '- ARM64 iPhoneOS: PASS'
+            echo '- Entitlement files: NONE'
+            echo '- Restricted capability declarations: NONE'
+            echo '- App extensions: NONE'
+            echo '- Disposable-copy ad-hoc codesign: PASS'
+            echo '- Strict structural verification: PASS'
+            echo '- Original IPA unchanged: PASS'
+            echo
+            echo '## Metadata'
+            echo '```text'
+            cat metadata.log
+            echo '```'
+            echo
+            echo '## Info.plist'
+            echo '```text'
+            cat info-plist.log
+            echo '```'
+            echo
+            echo '## Embedded directories'
+            echo '```text'
+            cat embedded-directories.log
+            echo '```'
+            echo
+            echo '## Embedded executable files'
+            echo '```text'
+            cat embedded-code.log
+            echo '```'
+          } > ALTSTORE-PREFLIGHT-REPORT.md
+
+      - name: Upload private preflight evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: idevero-altstore-preflight
+          path: |
+            ALTSTORE-PREFLIGHT-REPORT.md
+            metadata.log
+            info-plist.log
+            platform.log
+            embedded-directories.log
+            embedded-code.log
+            original-codesign.log
+            adhoc-codesign.log
+            adhoc-entitlements.plist
+            ipa-integrity.log
+          if-no-files-found: error
+          retention-days: 7
+

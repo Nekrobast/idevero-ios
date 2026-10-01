@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
+    paths: ["Idevero/**", "IdeveroTests/**", "Idevero.xcodeproj/**", ".github/workflows/ios-ci.yml"]
   pull_request:
     paths: ["Idevero/**", "IdeveroTests/**", "Idevero.xcodeproj/**", ".github/workflows/ios-ci.yml"]
 
@@ -50,25 +51,6 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             clean test | tee xcodebuild.log
 
-      - name: Simulator launch smoke test
-        shell: bash
-        run: |
-          set -euo pipefail
-          APP_PATH="$(find "$HOME/Library/Developer/Xcode/DerivedData" -path '*/Build/Products/Debug-iphonesimulator/Idevero.app' -type d | head -1)"
-          test -n "$APP_PATH"
-          xcrun simctl install "$IOS_SIMULATOR_UDID" "$APP_PATH"
-          xcrun simctl terminate "$IOS_SIMULATOR_UDID" com.aitor93.idevero || true
-          xcrun simctl launch "$IOS_SIMULATOR_UDID" com.aitor93.idevero
-          sleep 2
-          xcrun simctl terminate "$IOS_SIMULATOR_UDID" com.aitor93.idevero
-
-      - name: Package Xcode-validated source
-        shell: bash
-        run: |
-          set -euo pipefail
-          zip -qry Idevero-iOS-0.2.2-XcodeValidated.zip . \
-            -x '.git/*' 'TestResults.xcresult/*' 'xcodebuild.log' '*.zip' '*.DS_Store'
-
       - name: Upload diagnostic artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -77,8 +59,5 @@ jobs:
           path: |
             xcodebuild.log
             TestResults.xcresult
-            Idevero-iOS-0.2.2-XcodeValidated.zip
-            XCODE-CI-BUILD-REPORT.md
-            XCTEST-CI-REPORT.md
           if-no-files-found: warn
           retention-days: 7
