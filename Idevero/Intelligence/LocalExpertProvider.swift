@@ -4,7 +4,7 @@ struct DiscoveryDecisions: Codable, Sendable {
     var locked: Set<String> = []; var excluded: Set<String> = []; var accepted: Set<String> = []
 }
 
-struct LocalExpertProvider: IntelligenceProvider {
+struct LocalExpertProvider: LocalIntelligenceProvider {
     let name = "Local Expert"
     private let suppliedStore: KnowledgeStore?
     init(store: KnowledgeStore? = nil) { suppliedStore = store }
