@@ -183,7 +183,13 @@ struct FoundationModelsProvider: IntelligenceProvider {
             }
         )
         let language = DisplayLanguage.detect(in: local.input)
-        let domainContext = DomainContextBuilder().build(frame: frame, language: language)
+        let domainContext = DomainContextBuilder().build(
+            frame: frame,
+            language: language,
+            originalRequest: local.input,
+            resolvedTask: local.task,
+            resolvedDomain: local.domain
+        )
         let structured = findings.discoveries.map {
             SemanticFinding(
                 concept: $0.concept,
