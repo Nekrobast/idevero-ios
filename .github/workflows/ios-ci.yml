@@ -129,6 +129,7 @@ jobs:
           retention-days: 7
 
   unsigned-device-build:
+    if: false # Phase 3 validates semantics only; no IPA is produced in this phase.
     needs: simulator-build-and-test
     runs-on: macos-26
     timeout-minutes: 15
