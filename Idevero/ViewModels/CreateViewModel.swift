@@ -16,7 +16,15 @@ final class CreateViewModel: ObservableObject {
 
     var decisions: DiscoveryDecisions {
         let values = analysis?.discoveries ?? []
-        return DiscoveryDecisions(locked: Set(values.filter { $0.state == .locked }.map(\.id)), excluded: Set(values.filter { $0.state == .excluded }.map(\.id)), accepted: Set(values.filter { $0.provenance == .userAccepted }.map(\.id)))
+        let locked = values.filter { $0.state == .locked }
+        let excluded = values.filter { $0.state == .excluded }
+        let accepted = values.filter { $0.provenance == .userAccepted }
+        return DiscoveryDecisions(
+            locked: Set(locked.map(\.id)), excluded: Set(excluded.map(\.id)), accepted: Set(accepted.map(\.id)),
+            lockedSemantic: Set(locked.map(DiscoverySemantics.identity)),
+            excludedSemantic: Set(excluded.map(DiscoverySemantics.identity)),
+            acceptedSemantic: Set(accepted.map(DiscoverySemantics.identity))
+        )
     }
 
     func generate() async {
