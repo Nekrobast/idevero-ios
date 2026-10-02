@@ -1,4 +1,4 @@
-# Idevero iOS 0.2.7 — Foundation Models Quality V5
+# Idevero iOS 0.2.8 — Foundation Models Quality V5
 
 IDEVERO converts a short idea into a professional prompt using Local Expert and, when available, one on-device Apple Foundation Models inference.
 
@@ -16,4 +16,4 @@ Quality V5 preserves the domain frame while distinguishing established domain kn
 
 Run `node Tools/prexcode-audit.mjs` for the portable audit. Xcode, XCTest, UI tests, generic iPhoneOS ARM64 and unsigned IPA packaging are validated by `.github/workflows/ios-ci.yml`.
 
-Physical semantic acceptance remains separate from fixture/Simulator evidence and must be repeated on the iPhone 17 Pro Max with the validated 0.2.7 IPA.
+Physical semantic acceptance remains separate from fixture/Simulator evidence and must be repeated on the iPhone 17 Pro Max with the validated 0.2.8 IPA.
