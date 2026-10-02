@@ -105,14 +105,39 @@ final class Pre028RedReproductionTests: XCTestCase {
         XCTAssertFalse(try XCTUnwrap(model.analysis).prompt.contains(finding.concept))
     }
 
-    // 04 — REQUIRES PRODUCTION REFACTOR FIRST: coordinator/provider cannot be injected.
-    func test04OlderSlowGenerationCannotOverwriteNewerGeneration() throws {
-        throw XCTSkip("0.2.7 has no injectable provider or generation identity seam; a production-level race cannot be reproduced without changing production.")
+    // 04 — Phase 2 target: a stale provider result never owns visible state.
+    @MainActor
+    func test04OlderSlowGenerationCannotOverwriteNewerGeneration() async throws {
+        let provider = DeterministicDelayedProvider(delays: ["Generation A": 220_000_000, "Generation B": 20_000_000])
+        let model = CreateViewModel(coordinator: IntelligenceCoordinator(foundation: provider))
+        model.idea = "Generation A"
+        let first = Task { await model.generate() }
+        try await Task.sleep(nanoseconds: 20_000_000)
+        model.idea = "Generation B"
+        let second = Task { await model.generate() }
+        await second.value
+        await first.value
+        XCTAssertEqual(model.analysis?.input, "Generation B")
+        XCTAssertEqual(model.analysis?.prompt, "Result for Generation B")
     }
 
-    // 05 — REQUIRES PRODUCTION REFACTOR FIRST: no controllable suspended inference seam.
-    func test05CancelledGenerationCannotMutateLaterState() throws {
-        throw XCTSkip("0.2.7 cannot inject a cancellable delayed Foundation provider into CreateViewModel.")
+    // 05 — Phase 2 target: cancellation is enforced by generation authority even
+    // when the provider deliberately ignores cooperative cancellation.
+    @MainActor
+    func test05CancelledGenerationCannotMutateLaterState() async throws {
+        let provider = DeterministicDelayedProvider(delays: ["Cancelled A": 220_000_000, "Current B": 20_000_000])
+        let model = CreateViewModel(coordinator: IntelligenceCoordinator(foundation: provider))
+        model.idea = "Cancelled A"
+        let first = Task { await model.generate() }
+        try await Task.sleep(nanoseconds: 20_000_000)
+        first.cancel()
+        model.idea = "Current B"
+        let second = Task { await model.generate() }
+        await second.value
+        await first.value
+        XCTAssertEqual(model.analysis?.input, "Current B")
+        XCTAssertEqual(model.analysis?.prompt, "Result for Current B")
+        XCTAssertNil(model.errorMessage)
     }
 
     // 06 — RED CONFIRMED: rejected calibrated items become nil, so compiler resurrects raw frame arrays.
@@ -384,7 +409,49 @@ final class Pre028RedReproductionTests: XCTestCase {
         )
         XCTAssertNil(absent)
         XCTAssertEqual(empty.calibratedItems, [])
+        XCTAssertEqual(empty.resolvedLifecycle, .empty)
         XCTAssertNil(rejected.calibratedItems)
+        XCTAssertEqual(rejected.resolvedLifecycle, .rejected)
         XCTAssertEqual(valid.calibratedItems?.count, 1)
+        XCTAssertEqual(valid.resolvedLifecycle, .valid)
+    }
+}
+
+private actor DeterministicDelayedProvider: IntelligenceProvider {
+    nonisolated let name = "Deterministic delayed provider"
+    private let delays: [String: UInt64]
+
+    init(delays: [String: UInt64]) {
+        self.delays = delays
+    }
+
+    func availability() async -> IntelligenceAvailability { .ready }
+
+    func analyze(_ request: String) async throws -> PromptAnalysis {
+        let delay = delays[request] ?? 0
+        let slice: UInt64 = 10_000_000
+        var elapsed: UInt64 = 0
+        while elapsed < delay {
+            try? await Task.sleep(nanoseconds: min(slice, delay - elapsed))
+            elapsed += slice
+        }
+        return PromptAnalysis(
+            analysisID: UUID(),
+            title: request,
+            input: request,
+            task: "GENERAL",
+            intent: "CREATE",
+            domain: "unknown",
+            secondaryDomains: [],
+            target: "CHATGPT",
+            outcome: request,
+            elaboration: .light,
+            discoveries: [],
+            unknowns: [],
+            prompt: "Result for \(request)",
+            qualityNotes: [],
+            intelligenceMode: "TEST",
+            analyzedAt: .now
+        )
     }
 }
