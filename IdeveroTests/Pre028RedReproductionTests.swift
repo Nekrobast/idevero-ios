@@ -1,4 +1,4 @@
-+import XCTest
+import XCTest
 import SwiftData
 @testable import Idevero
 
@@ -388,4 +388,3 @@ final class Pre028RedReproductionTests: XCTestCase {
         XCTAssertEqual(valid.calibratedItems?.count, 1)
     }
 }
-
