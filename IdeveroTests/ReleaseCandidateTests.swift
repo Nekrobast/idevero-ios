@@ -60,7 +60,7 @@ final class ReleaseCandidateTests: XCTestCase {
         XCTAssertEqual(results.count, 12)
         XCTAssertTrue(results.allSatisfy { !$0.prompt.isEmpty && !$0.task.isEmpty && !$0.intent.isEmpty })
         XCTAssertGreaterThan(Set(results.map(\.task)).count, 5)
-        XCTAssertTrue(results.allSatisfy { $0.discoveries.count <= 12 })
+        XCTAssertTrue(results.allSatisfy { $0.unknowns.count <= 3 })
     }
 
     func testDisplayAndEpistemicSafetyInCompiledDomainContext() async throws {
