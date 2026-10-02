@@ -85,7 +85,8 @@ final class FoundationQualityV3Tests: XCTestCase {
         analysis.discoveries.append(Discovery(id: "APPLE_WORKFLOW", concept: "Revisión de la unidad", reason: "Actualiza su estado antes de decidir la siguiente intervención.", lens: "Operación", priority: .highValue, provenance: .appleModel, state: .included, dependencies: [], confidence: "HIGH", sourceProvenance: [.appleModel], semanticRole: "CORE_WORKFLOW", anchor: "revisión"))
         let prompt = SpecializedCompiler().compile(analysis)
         XCTAssertTrue(prompt.contains("Contexto del dominio"))
-        XCTAssertTrue(prompt.contains("Requisitos sectoriales confirmados"))
+        XCTAssertTrue(prompt.contains("Contexto inferido que conviene validar"))
+        XCTAssertFalse(prompt.contains("Requisitos sectoriales confirmados"))
         XCTAssertLessThan(try XCTUnwrap(prompt.range(of: "Contexto del dominio")?.lowerBound), try XCTUnwrap(prompt.range(of: "Diseño del producto")?.lowerBound))
     }
 
