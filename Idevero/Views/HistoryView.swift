@@ -55,10 +55,14 @@ struct HistoryDetailView: View {
     }
 
     private var decisions: DiscoveryDecisions {
-        DiscoveryDecisions(
-            locked: Set(analysis.discoveries.filter { $0.state == .locked }.map(\.id)),
-            excluded: Set(analysis.discoveries.filter { $0.state == .excluded }.map(\.id)),
-            accepted: Set(analysis.discoveries.filter { $0.provenance == .userAccepted }.map(\.id))
+        let locked = analysis.discoveries.filter { $0.state == .locked }
+        let excluded = analysis.discoveries.filter { $0.state == .excluded }
+        let accepted = analysis.discoveries.filter { $0.provenance == .userAccepted }
+        return DiscoveryDecisions(
+            locked: Set(locked.map(\.id)), excluded: Set(excluded.map(\.id)), accepted: Set(accepted.map(\.id)),
+            lockedSemantic: Set(locked.map(DiscoverySemantics.identity)),
+            excludedSemantic: Set(excluded.map(DiscoverySemantics.identity)),
+            acceptedSemantic: Set(accepted.map(DiscoverySemantics.identity))
         )
     }
 
