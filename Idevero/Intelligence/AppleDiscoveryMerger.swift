@@ -140,7 +140,27 @@ struct UserFacingTextPolicy: Sendable {
     }
 
     func containsMachineToken(_ value: String) -> Bool {
-        value.range(of: "\\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\\b", options: .regularExpression) != nil
+        let expression = try? NSRegularExpression(pattern: "\\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\\b")
+        let range = NSRange(value.startIndex..<value.endIndex, in: value)
+        let matches = expression?.matches(in: value, range: range).compactMap { match -> String? in
+            guard let swiftRange = Range(match.range, in: value) else { return nil }
+            return String(value[swiftRange])
+        } ?? []
+        return matches.contains { token in
+            let parts = token.split(separator: "_").map(String.init)
+            let internalRoles = Set(SemanticRole.allCases.map(\.rawValue))
+            if internalRoles.contains(token) { return true }
+            let modelWords: Set<String> = ["PRIMARY", "SECONDARY", "OPTIONAL", "FEATURE", "JOB", "UNKNOWN", "PLACEHOLDER", "DECISION", "INPUT", "CANDIDATE"]
+            let looksSynthetic = parts.contains(where: { modelWords.contains($0) }) &&
+                (parts.last?.count == 1 || parts.contains("JOB") || parts.contains("FEATURE") || parts.contains("PLACEHOLDER"))
+            if looksSynthetic { return true }
+            // Standards, field identifiers and protocol names typically consist of
+            // short acronym/number segments. They are content, not model metadata.
+            return !parts.allSatisfy { part in
+                part.range(of: "^[A-Z]{2,5}[0-9]*$", options: .regularExpression) != nil ||
+                part.range(of: "^[0-9]{2,6}$", options: .regularExpression) != nil
+            }
+        }
     }
 
     func displayLens(for role: SemanticRole) -> String {
@@ -170,10 +190,10 @@ struct UserFacingTextPolicy: Sendable {
     }
 
     private func isLanguageConsistent(_ value: String) -> Bool {
-        guard value.split(whereSeparator: { $0.isWhitespace }).count >= 4 else { return true }
+        guard value.split(whereSeparator: { $0.isWhitespace }).count >= 2 else { return true }
         let normalized = value.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current).lowercased()
-        let spanishWords = ["que", "para", "del", "de", "la", "el", "los", "las", "una", "como", "cual", "debe", "permite", "necesita", "cambia"]
-        let englishWords = ["what", "which", "the", "for", "with", "from", "should", "must", "does", "allows", "needs", "changes"]
+        let spanishWords = ["que", "para", "del", "de", "la", "el", "los", "las", "una", "como", "cual", "debe", "permite", "necesita", "cambia", "estado", "operativo", "gestion", "registro", "limites", "capacidad", "estacional"]
+        let englishWords = ["what", "which", "the", "for", "with", "from", "should", "must", "does", "allows", "needs", "changes", "state", "operational", "management", "record", "limits", "capacity", "seasonal"]
         func score(_ words: [String]) -> Int { words.filter { normalized.range(of: "\\b\($0)\\b", options: .regularExpression) != nil }.count }
         let es = score(spanishWords), en = score(englishWords)
         return language == .spanish ? !(en >= 2 && es == 0) : !(es >= 2 && en == 0)
@@ -181,8 +201,9 @@ struct UserFacingTextPolicy: Sendable {
 }
 
 struct DomainContextBuilder: Sendable {
-    func build(frame: SemanticDomainFrame, language: DisplayLanguage) -> DomainContext? {
+    func build(frame: SemanticDomainFrame, language: DisplayLanguage, originalRequest: String = "", resolvedTask: String = "", resolvedDomain: String = "") -> DomainContext? {
         let policy = UserFacingTextPolicy(language: language)
+        let semantic = DomainGroundingValidator(request: originalRequest, task: resolvedTask, domain: resolvedDomain)
         func selected(_ values: [String], maximum: Int) -> [String] {
             var seen = Set<String>()
             return values.compactMap { value -> String? in
@@ -192,12 +213,13 @@ struct DomainContextBuilder: Sendable {
                 return clean
             }.prefix(maximum).map { $0 }
         }
-        var jobs = selected(frame.primaryJobCandidates, maximum: 3).filter(policy.isNaturalJob)
+        var jobs = selected(frame.primaryJobCandidates, maximum: 3).filter { policy.isNaturalJob($0) && semantic.supports($0, frame: frame) }
         if Set(jobs.map { $0.lowercased() }).count < 2 { jobs = [] }
         let calibrated = frame.contextItems.compactMap { item -> DomainContextItem? in
             let clean = item.text.trimmingCharacters(in: .whitespacesAndNewlines)
             guard policy.isSafeDisplay(clean) else { return nil }
             guard let status = DomainKnowledgeStatus(rawValue: item.epistemicStatus.uppercased()), status != .unsupported else { return nil }
+            guard semantic.supports(item.text, frame: frame, declaredStatus: status) else { return nil }
             let relevance = item.decisionRelevance.uppercased()
             guard relevance != "LOW" else { return nil }
             return DomainContextItem(kind: item.kind.uppercased(), text: clean, status: status, decisionRelevance: relevance)
@@ -206,19 +228,66 @@ struct DomainContextBuilder: Sendable {
         let uniqueCalibrated = Array(calibrated.filter {
             calibratedSeen.insert($0.text.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)).inserted
         }.prefix(12))
+        let rawActors = selected(frame.actors, maximum: 3).filter { semantic.supports($0, frame: frame) }
+        let rawEntities = selected(frame.entities, maximum: 5).filter { semantic.supports($0, frame: frame) }
+        let rawRelationships = selected(frame.relationships, maximum: 4).filter { semantic.supports($0, frame: frame) }
+        let rawWorkflows = selected(frame.workflows, maximum: 3).filter { semantic.supports($0, frame: frame) }
+        let rawDecisions = selected(frame.decisions, maximum: 3).filter { semantic.supports($0, frame: frame) }
+        let rawConstraints = selected(frame.constraints, maximum: 3).filter { semantic.supports($0, frame: frame) }
+        let hasRawContext = !jobs.isEmpty || !rawActors.isEmpty || !rawEntities.isEmpty ||
+            !rawRelationships.isEmpty || !rawWorkflows.isEmpty || !rawDecisions.isEmpty || !rawConstraints.isEmpty
+        let lifecycle: DomainFrameLifecycle
+        if !uniqueCalibrated.isEmpty {
+            lifecycle = .valid
+        } else if !frame.contextItems.isEmpty {
+            lifecycle = .rejected
+        } else {
+            lifecycle = hasRawContext ? .valid : .empty
+        }
         let context = DomainContext(
             language: language.rawValue,
             primaryJobStatus: frame.primaryJobStatus.uppercased() == "DEFINED" ? "DEFINED" : "UNDERSPECIFIED",
             primaryJobCandidates: jobs,
-            actors: selected(frame.actors, maximum: 3),
-            entities: selected(frame.entities, maximum: 5),
-            relationships: selected(frame.relationships, maximum: 4),
-            workflows: selected(frame.workflows, maximum: 3),
-            decisions: selected(frame.decisions, maximum: 3),
-            constraints: selected(frame.constraints, maximum: 3),
-            calibratedItems: uniqueCalibrated.isEmpty ? nil : uniqueCalibrated
+            actors: rawActors,
+            entities: rawEntities,
+            relationships: rawRelationships,
+            workflows: rawWorkflows,
+            decisions: rawDecisions,
+            constraints: rawConstraints,
+            calibratedItems: uniqueCalibrated.isEmpty ? nil : uniqueCalibrated,
+            lifecycle: lifecycle
         )
-        return context.isEmpty && context.primaryJobStatus == "DEFINED" ? nil : context
+        return context
+    }
+}
+
+/// Deterministic grounding gate. Model declarations are claims, never proof.
+/// Unknown-domain detail is admitted only when it is supported by an accepted
+/// calibrated item or shares evidence with the request/resolved classification.
+struct DomainGroundingValidator: Sendable {
+    let request: String
+    let task: String
+    let domain: String
+
+    func supports(_ value: String, frame: SemanticDomainFrame, declaredStatus: DomainKnowledgeStatus? = nil) -> Bool {
+        let candidate = tokens(value)
+        guard !candidate.isEmpty else { return false }
+        let evidence = tokens([request, task, domain].joined(separator: " "))
+        if evidence.isEmpty { return true } // Explicit legacy/no-grounding compatibility.
+        if !candidate.intersection(evidence).isEmpty { return true }
+        if let declaredStatus, declaredStatus == .caseDependent || declaredStatus == .userSpecificUnknown { return true }
+        // A calibrated ESTABLISHED claim remains inferred, but may be carried as
+        // context when the model supplied an explicit, decision-relevant item.
+        if declaredStatus == .established { return true }
+        let calibrated = frame.contextItems.filter { $0.epistemicStatus.uppercased() != "UNSUPPORTED" }.flatMap { tokens($0.text) }
+        return !candidate.intersection(Set(calibrated)).isEmpty
+    }
+
+    private func tokens(_ value: String) -> Set<String> {
+        let stop: Set<String> = ["de","del","la","las","el","los","para","por","una","un","the","of","for","a","an","app","application","aplicacion"]
+        let normalized = value.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+            .replacingOccurrences(of: "[^a-z0-9]+", with: " ", options: .regularExpression)
+        return Set(normalized.split(separator: " ").map(String.init).filter { $0.count > 2 && !stop.contains($0) })
     }
 }
 
@@ -353,7 +422,7 @@ struct AppleDiscoveryMerger: Sendable {
                 continue
             }
 
-            guard var discovery = deduplicator.appleDiscovery(index: index, concept: item.concept, reason: item.reason, lens: displayPolicy.displayLens(for: SemanticRole(rawValue: item.semanticRole.uppercased()) ?? .domainPrimitive), existing: accepted) else { continue }
+            guard var discovery = deduplicator.appleDiscovery(index: index, concept: item.concept, reason: item.reason, lens: displayPolicy.displayLens(for: SemanticRole(rawValue: item.semanticRole.uppercased()) ?? .domainPrimitive), existing: accepted, semanticRole: item.semanticRole, anchor: item.anchor) else { continue }
             discovery.priority = disposition.priority
             discovery.state = disposition.state
             discovery.semanticRole = item.semanticRole

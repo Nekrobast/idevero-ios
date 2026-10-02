@@ -55,19 +55,20 @@ struct HistoryDetailView: View {
     }
 
     private var decisions: DiscoveryDecisions {
-        DiscoveryDecisions(
-            locked: Set(analysis.discoveries.filter { $0.state == .locked }.map(\.id)),
-            excluded: Set(analysis.discoveries.filter { $0.state == .excluded }.map(\.id)),
-            accepted: Set(analysis.discoveries.filter { $0.provenance == .userAccepted }.map(\.id))
+        let locked = analysis.discoveries.filter { $0.state == .locked }
+        let excluded = analysis.discoveries.filter { $0.state == .excluded }
+        let accepted = analysis.discoveries.filter { $0.provenance == .userAccepted }
+        return DiscoveryDecisions(
+            locked: Set(locked.map(\.id)), excluded: Set(excluded.map(\.id)), accepted: Set(accepted.map(\.id)),
+            lockedSemantic: Set(locked.map(DiscoverySemantics.identity)),
+            excludedSemantic: Set(excluded.map(DiscoverySemantics.identity)),
+            acceptedSemantic: Set(accepted.map(DiscoverySemantics.identity))
         )
     }
 
     private func setState(_ id: String, _ state: DiscoveryState) {
         guard let index = analysis.discoveries.firstIndex(where: { $0.id == id }) else { return }
-        analysis.discoveries[index].state = state
-        if state == .locked { analysis.discoveries[index].priority = .core; analysis.discoveries[index].provenance = .userLocked }
-        if state == .excluded { analysis.discoveries[index].priority = .outOfScope }
-        if state == .included && analysis.discoveries[index].provenance == .localKnowledge { analysis.discoveries[index].provenance = .userAccepted }
+        analysis.discoveries[index] = DiscoverySemantics.transition(analysis.discoveries[index], to: state)
         Task { if let rebuilt = try? await coordinator.regenerate(analysis) { analysis = rebuilt; persist() } }
     }
 

@@ -1,8 +1,16 @@
 import Foundation
 
 actor IntelligenceCoordinator {
-    private let local = LocalExpertProvider()
-    private let foundation = FoundationModelsProvider()
+    private let local: any LocalIntelligenceProvider
+    private let foundation: any IntelligenceProvider
+
+    init(
+        local: any LocalIntelligenceProvider = LocalExpertProvider(),
+        foundation: any IntelligenceProvider = FoundationModelsProvider()
+    ) {
+        self.local = local
+        self.foundation = foundation
+    }
 
     func analyze(_ request: String) async throws -> (PromptAnalysis, String) {
         if case .ready = await foundation.availability() {
@@ -37,8 +45,10 @@ actor IntelligenceCoordinator {
         copy.discoveries = copy.discoveries.map { value in
             var item = value
             let key = item.concept.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
-            if decisions.excluded.contains(item.id) || decisions.excluded.contains(key) { item.state = .excluded; item.priority = .outOfScope }
-            if decisions.locked.contains(item.id) || decisions.locked.contains(key) { item.state = .locked; item.priority = .core; item.provenance = .userLocked }
+            let semantic = DiscoverySemantics.identity(item)
+            if decisions.accepted.contains(item.id) || decisions.accepted.contains(key) || decisions.acceptedSemantic?.contains(semantic) == true { item = DiscoverySemantics.transition(item, to: .included) }
+            if decisions.excluded.contains(item.id) || decisions.excluded.contains(key) || decisions.excludedSemantic?.contains(semantic) == true { item = DiscoverySemantics.transition(item, to: .excluded) }
+            if decisions.locked.contains(item.id) || decisions.locked.contains(key) || decisions.lockedSemantic?.contains(semantic) == true { item = DiscoverySemantics.transition(item, to: .locked) }
             return item
         }
         return (try? local.recompile(copy)) ?? copy

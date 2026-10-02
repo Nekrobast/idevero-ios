@@ -7,32 +7,48 @@ final class CreateViewModel: ObservableObject {
     @Published var providerName = "Local Expert"
     @Published var isGenerating = false
     @Published var errorMessage: String?
-    private let coordinator = IntelligenceCoordinator()
+    private let coordinator: IntelligenceCoordinator
+    private var generationSequence: UInt64 = 0
+
+    init(coordinator: IntelligenceCoordinator = IntelligenceCoordinator()) {
+        self.coordinator = coordinator
+    }
 
     var decisions: DiscoveryDecisions {
         let values = analysis?.discoveries ?? []
-        return DiscoveryDecisions(locked: Set(values.filter { $0.state == .locked }.map(\.id)), excluded: Set(values.filter { $0.state == .excluded }.map(\.id)), accepted: Set(values.filter { $0.provenance == .userAccepted }.map(\.id)))
+        let locked = values.filter { $0.state == .locked }
+        let excluded = values.filter { $0.state == .excluded }
+        let accepted = values.filter { $0.provenance == .userAccepted }
+        return DiscoveryDecisions(
+            locked: Set(locked.map(\.id)), excluded: Set(excluded.map(\.id)), accepted: Set(accepted.map(\.id)),
+            lockedSemantic: Set(locked.map(DiscoverySemantics.identity)),
+            excludedSemantic: Set(excluded.map(DiscoverySemantics.identity)),
+            acceptedSemantic: Set(accepted.map(DiscoverySemantics.identity))
+        )
     }
 
     func generate() async {
+        generationSequence &+= 1
+        let generation = generationSequence
         isGenerating = true
         errorMessage = nil
-        defer { isGenerating = false }
+        defer {
+            if generation == generationSequence { isGenerating = false }
+        }
         do {
             let (result, provider) = try await coordinator.analyze(idea)
+            guard generation == generationSequence, !Task.isCancelled else { return }
             analysis = result
             providerName = provider
         } catch {
+            guard generation == generationSequence, !Task.isCancelled else { return }
             errorMessage = error.localizedDescription
         }
     }
 
     func setState(_ state: DiscoveryState, id: String) async {
         guard var current = analysis, let index = current.discoveries.firstIndex(where: { $0.id == id }) else { return }
-        current.discoveries[index].state = state
-        if state == .locked { current.discoveries[index].priority = .core; current.discoveries[index].provenance = .userLocked }
-        if state == .included && current.discoveries[index].provenance == .localKnowledge { current.discoveries[index].provenance = .userAccepted }
-        if state == .excluded { current.discoveries[index].priority = .outOfScope }
+        current.discoveries[index] = DiscoverySemantics.transition(current.discoveries[index], to: state)
         analysis = try? await coordinator.regenerate(current)
     }
 
