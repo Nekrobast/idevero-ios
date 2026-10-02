@@ -64,10 +64,7 @@ struct HistoryDetailView: View {
 
     private func setState(_ id: String, _ state: DiscoveryState) {
         guard let index = analysis.discoveries.firstIndex(where: { $0.id == id }) else { return }
-        analysis.discoveries[index].state = state
-        if state == .locked { analysis.discoveries[index].priority = .core; analysis.discoveries[index].provenance = .userLocked }
-        if state == .excluded { analysis.discoveries[index].priority = .outOfScope }
-        if state == .included && analysis.discoveries[index].provenance == .localKnowledge { analysis.discoveries[index].provenance = .userAccepted }
+        analysis.discoveries[index] = DiscoverySemantics.transition(analysis.discoveries[index], to: state)
         Task { if let rebuilt = try? await coordinator.regenerate(analysis) { analysis = rebuilt; persist() } }
     }
 

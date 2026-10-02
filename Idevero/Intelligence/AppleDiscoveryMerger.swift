@@ -206,19 +206,36 @@ struct DomainContextBuilder: Sendable {
         let uniqueCalibrated = Array(calibrated.filter {
             calibratedSeen.insert($0.text.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)).inserted
         }.prefix(12))
+        let rawActors = selected(frame.actors, maximum: 3)
+        let rawEntities = selected(frame.entities, maximum: 5)
+        let rawRelationships = selected(frame.relationships, maximum: 4)
+        let rawWorkflows = selected(frame.workflows, maximum: 3)
+        let rawDecisions = selected(frame.decisions, maximum: 3)
+        let rawConstraints = selected(frame.constraints, maximum: 3)
+        let hasRawContext = !jobs.isEmpty || !rawActors.isEmpty || !rawEntities.isEmpty ||
+            !rawRelationships.isEmpty || !rawWorkflows.isEmpty || !rawDecisions.isEmpty || !rawConstraints.isEmpty
+        let lifecycle: DomainFrameLifecycle
+        if !uniqueCalibrated.isEmpty {
+            lifecycle = .valid
+        } else if !frame.contextItems.isEmpty {
+            lifecycle = .rejected
+        } else {
+            lifecycle = hasRawContext ? .valid : .empty
+        }
         let context = DomainContext(
             language: language.rawValue,
             primaryJobStatus: frame.primaryJobStatus.uppercased() == "DEFINED" ? "DEFINED" : "UNDERSPECIFIED",
             primaryJobCandidates: jobs,
-            actors: selected(frame.actors, maximum: 3),
-            entities: selected(frame.entities, maximum: 5),
-            relationships: selected(frame.relationships, maximum: 4),
-            workflows: selected(frame.workflows, maximum: 3),
-            decisions: selected(frame.decisions, maximum: 3),
-            constraints: selected(frame.constraints, maximum: 3),
-            calibratedItems: uniqueCalibrated.isEmpty ? nil : uniqueCalibrated
+            actors: rawActors,
+            entities: rawEntities,
+            relationships: rawRelationships,
+            workflows: rawWorkflows,
+            decisions: rawDecisions,
+            constraints: rawConstraints,
+            calibratedItems: uniqueCalibrated.isEmpty ? nil : uniqueCalibrated,
+            lifecycle: lifecycle
         )
-        return context.isEmpty && context.primaryJobStatus == "DEFINED" ? nil : context
+        return context
     }
 }
 
