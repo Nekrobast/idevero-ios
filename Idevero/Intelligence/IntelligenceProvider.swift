@@ -6,6 +6,11 @@ protocol IntelligenceProvider: Sendable {
     func analyze(_ request: String) async throws -> PromptAnalysis
 }
 
+protocol LocalIntelligenceProvider: IntelligenceProvider {
+    func analyze(_ request: String, decisions: DiscoveryDecisions) throws -> PromptAnalysis
+    func recompile(_ analysis: PromptAnalysis) throws -> PromptAnalysis
+}
+
 enum IntelligenceError: LocalizedError {
     case emptyRequest
     case unavailable(String)
@@ -17,4 +22,3 @@ enum IntelligenceError: LocalizedError {
         }
     }
 }
-
