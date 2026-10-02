@@ -42,7 +42,8 @@ final class FoundationQualityV5Tests: XCTestCase {
             ]
         )
         let prompt = SpecializedCompiler().compile(analysis)
-        XCTAssertTrue(prompt.contains("Conocimiento sectorial fiable"))
+        XCTAssertTrue(prompt.contains("Contexto inferido que conviene validar"))
+        XCTAssertFalse(prompt.contains("Conocimiento sectorial fiable"))
         XCTAssertTrue(prompt.contains("Patrones que dependen del caso"))
         XCTAssertTrue(prompt.contains("Puede ser relevante, según el objetivo elegido"))
         XCTAssertFalse(prompt.contains("\n- coordinar trabajos con proveedores externos"))
