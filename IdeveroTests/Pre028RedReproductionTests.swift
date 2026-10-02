@@ -242,11 +242,16 @@ final class Pre028RedReproductionTests: XCTestCase {
         XCTAssertEqual(context.entities.filter { $0.localizedCaseInsensitiveCompare("Colmena") == .orderedSame }.count, 1)
     }
 
-    // 15 — REQUIRES PRODUCTION REFACTOR FIRST: builder has no request/domain grounding input.
+    // 15 — Domain drift is rejected using request/task/domain grounding.
     func test15DomainDriftFixtureRequiresRequestGroundedValidation() throws {
-        let fixture = ["Apicultor", "Colmena", "Producto", "Abono"]
-        XCTAssertTrue(fixture.contains("Abono"))
-        throw XCTSkip("The fixture is reproducible, but 0.2.7 DomainContextBuilder has no request/domain grounding seam with which to assert universal drift.")
+        let context = try XCTUnwrap(DomainContextBuilder().build(
+            frame: domainFrame(entities: ["unidad profesional", "producto", "material ajeno"]),
+            language: .spanish,
+            originalRequest: "Quiero una app para profesionales de inspección",
+            resolvedTask: "APPLICATION",
+            resolvedDomain: "INSPECTION SERVICES"
+        ))
+        XCTAssertFalse(context.entities.contains("material ajeno"))
     }
 
     // 16 — RED CONFIRMED: a syntactically natural but domain-drifted job is accepted.
@@ -258,7 +263,10 @@ final class Pre028RedReproductionTests: XCTestCase {
                     candidates: [drifted, "Planificar la distribución de productos"],
                     entities: ["Colmena", "Producto", "Abono"]
                 ),
-                language: .spanish
+                language: .spanish,
+                originalRequest: "Quiero crear una app para profesionales",
+                resolvedTask: "APPLICATION",
+                resolvedDomain: "PROFESSIONAL SERVICES"
             )
         )
         XCTAssertFalse(context.primaryJobCandidates.contains(drifted))
