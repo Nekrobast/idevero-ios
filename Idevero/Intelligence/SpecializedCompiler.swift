@@ -2,7 +2,7 @@ import Foundation
 
 struct SpecializedCompiler {
     func compile(_ analysis: PromptAnalysis) -> String {
-        let selected = analysis.discoveries.filter { [.included, .locked].contains($0.state) && [.core, .highValue].contains($0.priority) }
+        let selected = analysis.discoveries.filter(DiscoverySemantics.isCompilerIncluded)
         switch analysis.task {
         case "EMAIL":
             return DisplayLanguage.detect(in: analysis.input) == .english
@@ -96,10 +96,22 @@ struct SpecializedCompiler {
         """
     }
     private func domainContextBlock(_ a: PromptAnalysis, language: DisplayLanguage) -> String {
-        guard let context = a.domainContext, !context.isEmpty else {
+        guard let context = a.domainContext else {
             return language == .spanish
                 ? "Contexto del dominio\nNo presupongas procesos sectoriales que no estén respaldados; utiliza las preguntas por confirmar para fijar el alcance."
                 : "Domain context\nDo not assume unsupported sector workflows; use the questions to confirm the scope."
+        }
+        switch context.resolvedLifecycle {
+        case .rejected:
+            return language == .spanish
+                ? "Contexto del dominio\nEl contexto sectorial propuesto no superó la validación. No reutilices elementos descartados ni los conviertas en requisitos."
+                : "Domain context\nThe proposed domain context did not pass validation. Do not reuse rejected elements or turn them into requirements."
+        case .empty:
+            return language == .spanish
+                ? "Contexto del dominio\nNo hay contexto sectorial validado suficiente. Mantén el diseño adaptable y confirma el trabajo principal antes de especializarlo."
+                : "Domain context\nThere is not enough validated domain context. Keep the design adaptable and confirm the primary job before specializing it."
+        case .valid:
+            break
         }
         if let calibrated = context.calibratedItems, !calibrated.isEmpty {
             return calibratedDomainContextBlock(calibrated, language: language)
