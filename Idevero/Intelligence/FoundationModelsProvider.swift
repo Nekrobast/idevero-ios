@@ -35,7 +35,8 @@ struct FoundationModelsProvider: IntelligenceProvider {
             Complementa Local Expert: omite universales de producto y cualquier reformulación de la petición. Un hallazgo no es sectorial solo porque incluya un sustantivo del dominio: explica el mecanismo profesional que cambia materialmente el requisito. Si seguiría siendo igual al sustituir el dominio por otro negocio, no lo propongas como augmentation. Calidad antes que cantidad; cero a cuatro hallazgos centrales son suficientes.
             Ordena los unknowns por ganancia de información y dependencia: primero dirección del producto/trabajo principal, después workflow o arquitectura y solo entonces detalle sectorial. Si primaryJobStatus es UNDERSPECIFIED, no preguntes detalles que dependan de haber elegido ese trabajo; normalmente una sola pregunta de dirección es mejor que tres preguntas prematuras.
             Todos los textos destinados al usuario —candidatos de trabajo, actores, entidades, relaciones, workflows, decisiones, restricciones, conceptos, razones, perspectivas y preguntas— deben estar escritos en el idioma principal de la petición original, con lenguaje humano natural. No mezcles idiomas.
-            Nunca uses identificadores, nombres de enum, snake_case, ALL_CAPS_WITH_UNDERSCORES, marcadores sintéticos ni opciones como PRIMARY_JOB_A. Los códigos internos de semanticRole, assumptionLevel, scopeDependency e impact sí conservan los valores cerrados indicados por el schema.
+            Conserva exactamente identificadores técnicos, campos, estándares, protocolos y acrónimos explícitos del usuario cuando sean relevantes. No inventes identificadores internos, nombres de enum, marcadores sintéticos ni opciones como PRIMARY_JOB_A. Los códigos internos de semanticRole, assumptionLevel, scopeDependency e impact sí conservan los valores cerrados indicados por el schema.
+            Una petición sectorial abierta no confirma ningún workflow particular. Un workflow solo puede ser CORE si está respaldado por el objetivo explícito. Para inferencias no confirmadas utiliza lenguaje condicional; no digas esencial, necesario, debe o imprescindible. ESTABLISHED describe el dominio, nunca una obligación del producto solicitado.
             Los candidatos de trabajo deben describir actividades reales, comprensibles y materialmente distintas; nunca features técnicas ni etiquetas abstractas.
             """)
             let packet = """
@@ -181,7 +182,7 @@ struct FoundationModelsProvider: IntelligenceProvider {
             contextItems: findings.domainFrame.contextItems.map {
                 SemanticDomainItem(kind: $0.kind, text: $0.text, epistemicStatus: $0.epistemicStatus, decisionRelevance: $0.decisionRelevance)
             }
-        )
+        ).validated(for: local.input)
         let language = DisplayLanguage.detect(in: local.input)
         let domainContext = DomainContextBuilder().build(
             frame: frame,
@@ -232,3 +233,4 @@ struct FoundationModelsProvider: IntelligenceProvider {
     }
     #endif
 }
+

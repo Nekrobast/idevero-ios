@@ -141,6 +141,87 @@ final class PhysicalV6RemediationTests: XCTestCase {
         analysis.domainContext = DomainContext(language: "es", primaryJobStatus: "DEFINED", primaryJobCandidates: [], actors: [], entities: [], relationships: [], workflows: [text], decisions: [], constraints: [], calibratedItems: [DomainContextItem(kind: "WORKFLOW", text: text, status: .established, decisionRelevance: "HIGH")], lifecycle: .valid)
         XCTAssertFalse(SpecializedCompiler().compile(analysis).contains(text))
     }
+
+    func testActualModelBoundaryOverridesUnfoundedDefinedAndPrioritizesObjective() {
+        for request in ["Quiero una app para restauradores", "I want an app for landscape designers"] {
+            let language = DisplayLanguage.detect(in: request)
+            let validated = frame(language == .spanish ? "clasificación diaria de encargos" : "daily classification of jobs").validated(for: request)
+            XCTAssertEqual(validated.primaryJobStatus, "UNDERSPECIFIED")
+            let questions = AppleUnknownSelector().select([], frame: validated, findings: [], language: language)
+            XCTAssertEqual(questions.count, 1)
+            XCTAssertTrue(questions[0].contains(language == .spanish ? "problema principal" : "primary problem"))
+        }
+    }
+
+    func testExplicitWorkflowEvidenceRemainsUsable() throws {
+        let request = "Quiero una app para registrar inspecciones de equipos"
+        let text = "registrar inspecciones de equipos"
+        let validated = frame(text).validated(for: request)
+        XCTAssertEqual(validated.primaryJobStatus, "DEFINED")
+        let finding = SemanticFinding(concept: text, reason: "Conserva cada inspección para comparar el estado observado del equipo.", lens: "Dominio", semanticRole: "CORE_WORKFLOW", anchor: text)
+        let merged = AppleDiscoveryMerger(store: try KnowledgeStore.load()).merge(local: [], findings: [finding], request: request, frame: validated)
+        XCTAssertEqual(merged.first?.state, .included)
+    }
+
+    func testUncalibratedModelFrameCannotBypassRequestGrounding() throws {
+        var raw = frame("clasificación diaria de encargos")
+        raw.contextItems = []
+        let validated = raw.validated(for: "Quiero una app para restauradores")
+        let finding = SemanticFinding(concept: "clasificación diaria de encargos", reason: "Este proceso es necesario para decidir el orden de los encargos del oficio.", lens: "Dominio", semanticRole: "CORE_WORKFLOW", anchor: "clasificación diaria de encargos")
+        let merged = AppleDiscoveryMerger(store: try KnowledgeStore.load()).merge(local: [], findings: [finding], request: "Quiero una app para restauradores", frame: validated)
+        XCTAssertEqual(merged.first?.state, .optional)
+        XCTAssertFalse(merged.first?.reason.contains("necesario") == true)
+    }
+
+    func testAuthoredEnglishCatalogCoversEveryLocalResource() throws {
+        let store = try KnowledgeStore.load()
+        for strategy in store.strategies {
+            XCTAssertNotNil(LocalKnowledgeLocalization.strategyLabels[strategy.id])
+            for index in strategy.candidates.indices {
+                XCTAssertNotNil(LocalKnowledgeLocalization.candidate(strategy: strategy.id, index: index), "\(strategy.id):\(index)")
+            }
+        }
+        for concept in store.concepts { XCTAssertNotNil(LocalKnowledgeLocalization.conceptReasons[concept.id], concept.id) }
+    }
+
+    func testEnglishHoldoutsDoNotLeakSpanishThroughOtherCompilers() async throws {
+        for request in ["I want an app to manage tasks", "I need an email requesting a meeting", "I want a spreadsheet to track expenses", "I want to research battery options", "I want to plan a project"] {
+            let analysis = try await LocalExpertProvider().analyze(request)
+            for forbidden in ["Facilitar", "Resultado esperado", "Criterios y requisitos", "Escribe", "Mantén", "Verificar:", "[USUARIO", "[ALCANCE"] {
+                XCTAssertFalse(analysis.prompt.contains(forbidden), request)
+            }
+            XCTAssertTrue(analysis.discoveries.allSatisfy { UserFacingTextPolicy(language: .english).isSafeDisplay($0.reason) })
+        }
+    }
+
+    @MainActor
+    func testSameRequestGeneratePreservesDecisionsAndDifferentRequestDoesNot() async throws {
+        let model = CreateViewModel(coordinator: IntelligenceCoordinator(foundation: V6ChangingProvider()))
+        model.idea = "Quiero una app para gestionar reparaciones"
+        await model.generate()
+        await model.setState(.locked, id: "choice-lock")
+        let id = model.analysis?.analysisID
+        await model.generate()
+        XCTAssertEqual(model.analysis?.analysisID, id)
+        XCTAssertTrue(model.analysis?.discoveries.contains { $0.provenance == .userLocked } == true)
+        model.idea = "Quiero crear una página web"
+        await model.generate()
+        XCTAssertNotEqual(model.analysis?.analysisID, id)
+        XCTAssertFalse(model.analysis?.discoveries.contains { $0.provenance == .userLocked } == true)
+    }
+
+    func testModelGeneratedTechnicalMetadataIsNotUserContent() {
+        let text = "CUSTOMER_INTERNAL_ROUTING_LAYER"
+        let context = DomainContextBuilder().build(frame: frame(text), language: .english, originalRequest: "I want an app for workshops", resolvedTask: "APPLICATION", resolvedDomain: "unknown")
+        XCTAssertFalse(context?.calibratedItems?.contains { $0.text == text } == true)
+    }
+
+    func testConditionalWordingAcrossBothLanguages() {
+        for text in ["Es imprescindible y debe incorporarse", "Es necesario y esencial", "It is essential and must be included", "It is necessary and mandatory"] {
+            let value = EpistemicText.conditional(text)
+            XCTAssertNil(value.range(of: "\\b(imprescindible|debe|necesario|esencial|essential|must|necessary|mandatory)\\b", options: [.regularExpression, .caseInsensitive]))
+        }
+    }
 }
 
 private actor V6ParaphraseProvider: IntelligenceProvider {

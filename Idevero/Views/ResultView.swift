@@ -6,6 +6,8 @@ struct ResultView: View {
     let onState: (String, DiscoveryState) -> Void
     let onRegenerate: () -> Void
     let onReanalyze: () -> Void
+    var isWorking = false
+    var completionMessage: String? = nil
     let onSave: () -> Void
     @State private var showDiscoveries = false
     private var language: DisplayLanguage { .detect(in: analysis.input) }
@@ -59,11 +61,23 @@ struct ResultView: View {
                 HStack(spacing: 8) { resultActions }
                 VStack(alignment: .leading, spacing: 8) { resultActions }
             }
+            .disabled(isWorking)
+
+            if isWorking {
+                ProgressView(ui("Actualizando prompt…", "Updating prompt…"))
+                    .accessibilityIdentifier("generationProgress")
+            } else if let completionMessage {
+                Text(completionMessage)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("generationStatus")
+            }
 
             DisclosureGroup(isExpanded: $showDiscoveries) {
                 LazyVStack(alignment: .leading, spacing: 0) {
                     ForEach(displayedDiscoveries) { item in
                         DiscoveryRow(item: item, language: .detect(in: analysis.input), onState: onState)
+                            .disabled(isWorking)
                         if item.id != displayedDiscoveries.last?.id { Divider() }
                     }
                 }
@@ -242,3 +256,4 @@ private struct MetadataBadge: View {
             .accessibilityLabel("\(accessibilityPrefix): \(text)")
     }
 }
+

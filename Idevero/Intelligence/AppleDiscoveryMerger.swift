@@ -21,8 +21,47 @@ struct SemanticDomainFrame: Sendable {
     let decisions: [String]
     let constraints: [String]
     var contextItems: [SemanticDomainItem] = []
+    // Legacy fixture frames are distinct from independently validated model input.
+    var requestValidated: Bool = false
 
     var anchors: [String] { actors + entities + relationships + workflows + decisions + constraints }
+
+    func validated(for request: String) -> SemanticDomainFrame {
+        let status = RequestGrounding(request: request).hasExplicitWorkflow ? primaryJobStatus : "UNDERSPECIFIED"
+        return SemanticDomainFrame(primaryJobStatus: status, primaryJobCandidates: primaryJobCandidates, actors: actors, entities: entities, relationships: relationships, workflows: workflows, decisions: decisions, constraints: constraints, contextItems: contextItems, requestValidated: true)
+    }
+}
+
+/// User evidence is independent of the model's frame, confidence and self-rating.
+struct RequestGrounding: Sendable {
+    let request: String
+    var hasExplicitWorkflow: Bool {
+        let value = request.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: Locale(identifier: "en_US_POSIX"))
+        return value.range(of: "\\b(gestionar|controlar|registrar|seguir|inspeccionar|comparar|coordinar|programar|asignar|manage|track|record|inspect|compare|coordinate|schedule|assign)\\b\\s+\\S+", options: .regularExpression) != nil
+    }
+    func supportsWorkflow(_ text: String) -> Bool {
+        guard hasExplicitWorkflow else { return false }
+        func atoms(_ value: String) -> Set<String> {
+            let stop: Set<String> = ["quiero", "crear", "para", "una", "con", "del", "los", "las", "app", "aplicacion", "want", "create", "application", "for", "the", "with", "and"]
+            return Set(value.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: Locale(identifier: "en_US_POSIX")).replacingOccurrences(of: "[^a-z0-9]+", with: " ", options: .regularExpression).split(separator: " ").map(String.init).filter { $0.count > 2 && !stop.contains($0) }.map { String($0.prefix(6)) })
+        }
+        return atoms(text).intersection(atoms(request)).count >= 2
+    }
+}
+
+enum EpistemicText {
+    static func conditional(_ text: String) -> String {
+        var value = text
+        for (pattern, replacement) in [
+            ("\\b(es|resulta)\\s+(esencial|necesari[oa]|imprescindible|obligatori[oa])\\b", "puede ser útil"),
+            ("\\b(esencial|necesari[oa]|imprescindible|obligatori[oa])\\b", "posible"),
+            ("\\b(debe|deben)\\b", "podría"),
+            ("\\b(is|are)\\s+(essential|necessary|indispensable|mandatory|required)\\b", "may be useful"),
+            ("\\b(essential|necessary|indispensable|mandatory)\\b", "possible"),
+            ("\\b(must|should)\\b", "may")
+        ] { value = value.replacingOccurrences(of: pattern, with: replacement, options: [.regularExpression, .caseInsensitive]) }
+        return value
+    }
 }
 
 struct SemanticDomainItem: Sendable {
@@ -156,10 +195,7 @@ struct UserFacingTextPolicy: Sendable {
             if looksSynthetic { return true }
             // Standards, field identifiers and protocol names typically consist of
             // short acronym/number segments. They are content, not model metadata.
-            return !parts.allSatisfy { part in
-                part.range(of: "^[A-Z]{2,5}[0-9]*$", options: .regularExpression) != nil ||
-                part.range(of: "^[0-9]{2,6}$", options: .regularExpression) != nil
-            }
+            return false
         }
     }
 
@@ -196,7 +232,7 @@ struct UserFacingTextPolicy: Sendable {
         let englishWords = ["what", "which", "the", "for", "with", "from", "should", "must", "does", "allows", "needs", "changes", "state", "operational", "management", "record", "limits", "capacity", "seasonal"]
         func score(_ words: [String]) -> Int { words.filter { normalized.range(of: "\\b\($0)\\b", options: .regularExpression) != nil }.count }
         let es = score(spanishWords), en = score(englishWords)
-        return language == .spanish ? !(en >= 2 && es == 0) : !(es >= 2 && en == 0)
+        return language == .spanish ? !(en >= 2 && es == 0) : !(es >= 1 && en == 0)
     }
 }
 
@@ -218,11 +254,14 @@ struct DomainContextBuilder: Sendable {
         let calibrated = frame.contextItems.compactMap { item -> DomainContextItem? in
             let clean = item.text.trimmingCharacters(in: .whitespacesAndNewlines)
             guard policy.isSafeDisplay(clean) else { return nil }
+            if !originalRequest.isEmpty && clean.contains("_") && !originalRequest.contains(clean) { return nil }
             guard let status = DomainKnowledgeStatus(rawValue: item.epistemicStatus.uppercased()), status != .unsupported else { return nil }
             guard semantic.supports(item.text, frame: frame, declaredStatus: status) else { return nil }
             let relevance = item.decisionRelevance.uppercased()
             guard relevance != "LOW" else { return nil }
-            return DomainContextItem(kind: item.kind.uppercased(), text: clean, status: status, decisionRelevance: relevance)
+            let isWorkflow = ["WORKFLOW", "DECISION"].contains(item.kind.uppercased())
+            let ungrounded = !originalRequest.isEmpty && isWorkflow && !RequestGrounding(request: originalRequest).supportsWorkflow(clean)
+            return DomainContextItem(kind: item.kind.uppercased(), text: ungrounded || status != .established ? EpistemicText.conditional(clean) : clean, status: ungrounded ? .caseDependent : status, decisionRelevance: relevance)
         }
         var calibratedSeen = Set<String>()
         let uniqueCalibrated = Array(calibrated.filter {
@@ -231,7 +270,7 @@ struct DomainContextBuilder: Sendable {
         let rawActors = selected(frame.actors, maximum: 3).filter { semantic.supports($0, frame: frame) }
         let rawEntities = selected(frame.entities, maximum: 5).filter { semantic.supports($0, frame: frame) }
         let rawRelationships = selected(frame.relationships, maximum: 4).filter { semantic.supports($0, frame: frame) }
-        let rawWorkflows = selected(frame.workflows, maximum: 3).filter { semantic.supports($0, frame: frame) }
+        let rawWorkflows = selected(frame.workflows, maximum: 3).filter { semantic.supports($0, frame: frame) && (originalRequest.isEmpty || RequestGrounding(request: originalRequest).supportsWorkflow($0)) }
         let rawDecisions = selected(frame.decisions, maximum: 3).filter { semantic.supports($0, frame: frame) }
         let rawConstraints = selected(frame.constraints, maximum: 3).filter { semantic.supports($0, frame: frame) }
         let hasRawContext = !jobs.isEmpty || !rawActors.isEmpty || !rawEntities.isEmpty ||
@@ -246,7 +285,7 @@ struct DomainContextBuilder: Sendable {
         }
         let context = DomainContext(
             language: language.rawValue,
-            primaryJobStatus: frame.primaryJobStatus.uppercased() == "DEFINED" ? "DEFINED" : "UNDERSPECIFIED",
+            primaryJobStatus: frame.primaryJobStatus.uppercased() == "DEFINED" && (originalRequest.isEmpty || RequestGrounding(request: originalRequest).hasExplicitWorkflow) ? "DEFINED" : "UNDERSPECIFIED",
             primaryJobCandidates: jobs,
             actors: rawActors,
             entities: rawEntities,
@@ -398,6 +437,8 @@ struct AppleDiscoveryMerger: Sendable {
         var accepted = local
         for (index, item) in findings.enumerated() {
             guard let disposition = disposition(for: item, request: request, frame: frame, deduplicator: deduplicator) else { continue }
+            let grounded = RequestGrounding(request: request).supportsWorkflow(item.anchor + " " + item.concept)
+            let reason = grounded ? item.reason : EpistemicText.conditional(item.reason)
 
             if let known = deduplicator.canonicalConcept(for: item.concept),
                let existingIndex = accepted.firstIndex(where: { $0.id == "K_\(known.id)" || deduplicator.canonicalConcept(for: $0.concept)?.id == known.id }) {
@@ -408,7 +449,7 @@ struct AppleDiscoveryMerger: Sendable {
                 accepted[existingIndex] = Discovery(
                     id: current.id,
                     concept: current.concept,
-                    reason: appleAddsDepth ? item.reason.trimmingCharacters(in: .whitespacesAndNewlines) : current.reason,
+                    reason: appleAddsDepth ? reason.trimmingCharacters(in: .whitespacesAndNewlines) : current.reason,
                     lens: appleAddsDepth ? displayPolicy.displayLens(for: SemanticRole(rawValue: item.semanticRole.uppercased()) ?? .domainPrimitive) : current.lens,
                     priority: current.priority,
                     provenance: current.provenance,
@@ -416,13 +457,16 @@ struct AppleDiscoveryMerger: Sendable {
                     dependencies: current.dependencies,
                     confidence: current.confidence,
                     sourceProvenance: sources,
-                    semanticRole: item.semanticRole,
-                    anchor: item.anchor
+                    semanticRole: current.semanticRole,
+                    anchor: current.anchor
                 )
                 continue
             }
 
-            guard var discovery = deduplicator.appleDiscovery(index: index, concept: item.concept, reason: item.reason, lens: displayPolicy.displayLens(for: SemanticRole(rawValue: item.semanticRole.uppercased()) ?? .domainPrimitive), existing: accepted, semanticRole: item.semanticRole, anchor: item.anchor) else { continue }
+            guard var discovery = deduplicator.appleDiscovery(index: index, concept: item.concept, reason: reason, lens: displayPolicy.displayLens(for: SemanticRole(rawValue: item.semanticRole.uppercased()) ?? .domainPrimitive), existing: accepted, semanticRole: item.semanticRole, anchor: item.anchor) else { continue }
+            if let known = deduplicator.canonicalConcept(for: item.concept) {
+                discovery = Discovery(id: discovery.id, concept: displayPolicy.language == .english ? known.labels.en : known.labels.es, reason: reason, lens: discovery.lens, priority: discovery.priority, provenance: discovery.provenance, state: discovery.state, dependencies: discovery.dependencies, confidence: discovery.confidence, sourceProvenance: discovery.sourceProvenance, semanticRole: discovery.semanticRole, anchor: discovery.anchor)
+            }
             discovery.priority = disposition.priority
             discovery.state = disposition.state
             discovery.semanticRole = item.semanticRole
@@ -439,6 +483,9 @@ struct AppleDiscoveryMerger: Sendable {
         guard !concept.isEmpty, reason.count >= 18 else { return nil }
         let policy = UserFacingTextPolicy(language: .detect(in: request))
         guard policy.isSafeDisplay(item.concept), policy.isSafeDisplay(reason, minimumLength: 18), policy.isSafeDisplay(item.anchor) else { return nil }
+        // Technical names are user content only when supplied by the user. Model
+        // generated snake/enum names are never promoted into display text.
+        if item.concept.contains("_") && !request.contains(item.concept) { return nil }
 
         let requestValue = deduplicator.normalized(request)
         if !requestValue.isEmpty && (concept == requestValue || tokenSimilarity(concept, requestValue) > 0.88) { return nil }
@@ -451,6 +498,11 @@ struct AppleDiscoveryMerger: Sendable {
 
         if role == .businessOpportunity { return nil }
         if item.requiresConfirmation || item.assumptionLevel.uppercased() == "HIGH" || item.caseDependency.uppercased() == "USER_SPECIFIC" { return nil }
+
+        let requiresRequestGrounding = frame?.requestValidated == true || !(frame?.contextItems.isEmpty ?? true)
+        if requiresRequestGrounding && [SemanticRole.coreWorkflow, .decisionInput].contains(role) && !RequestGrounding(request: request).supportsWorkflow(item.anchor + " " + item.concept) {
+            return (.optional, .optional)
+        }
 
         let scopeDependent = item.scopeDependency.uppercased() != "CORE"
         if role == .optionalFeature || role == .contextDependent || scopeDependent || item.assumptionLevel.uppercased() == "MEDIUM" {
@@ -502,3 +554,4 @@ struct AppleDiscoveryMerger: Sendable {
         return score
     }
 }
+

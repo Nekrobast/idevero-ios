@@ -59,7 +59,7 @@ struct CreateView: View {
                                     proxy.scrollTo(ScrollAnchor.result, anchor: .top)
                                 }
                             }
-                        }) {
+                        }, isWorking: model.isGenerating, completionMessage: model.completionMessage) {
                             try? PromptRecord.upsert(analysis, in: context)
                         }
                         .id(ScrollAnchor.result)
@@ -165,3 +165,4 @@ private struct EditorTextHeightKey: PreferenceKey {
         value = max(value, nextValue())
     }
 }
+

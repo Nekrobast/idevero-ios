@@ -30,63 +30,41 @@ struct HistoryView: View {
 struct HistoryDetailView: View {
     let record: PromptRecord
     @Environment(\.modelContext) private var context
-    @State private var analysis: PromptAnalysis
-    @State private var providerName: String
-    @State private var isWorking = false
-    @State private var errorMessage: String?
-    private let coordinator = IntelligenceCoordinator()
+    @StateObject private var model: CreateViewModel
 
     init(record: PromptRecord) {
         self.record = record
         let restored = record.reconstructedAnalysis()
-        _analysis = State(initialValue: restored)
-        _providerName = State(initialValue: restored.intelligenceMode)
+        let model = CreateViewModel()
+        model.analysis = restored
+        model.idea = restored.input
+        _model = StateObject(wrappedValue: model)
     }
 
     var body: some View {
         ScrollView {
-            ResultView(analysis: analysis, onState: setState, onRegenerate: regenerate, onReanalyze: reanalyze, onSave: persist)
+            if let analysis = model.analysis {
+                ResultView(analysis: analysis, onState: setState, onRegenerate: regenerate, onReanalyze: reanalyze, isWorking: model.isGenerating, completionMessage: model.completionMessage, onSave: persist)
                 .padding()
-            if isWorking { ProgressView("Actualizando…") }
-            if let errorMessage { Text(errorMessage).foregroundStyle(.red).padding() }
+            }
+            if let errorMessage = model.errorMessage { Text(errorMessage).foregroundStyle(.red).padding() }
         }
         .navigationTitle(DisplayLocalization(language: .detect(in: record.originalIdea)).text(record.title))
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    private var decisions: DiscoveryDecisions {
-        let locked = analysis.discoveries.filter { $0.state == .locked }
-        let excluded = analysis.discoveries.filter { $0.state == .excluded }
-        let accepted = analysis.discoveries.filter { $0.provenance == .userAccepted }
-        return DiscoveryDecisions(
-            locked: Set(locked.map(\.id)), excluded: Set(excluded.map(\.id)), accepted: Set(accepted.map(\.id)),
-            lockedSemantic: Set(locked.map(DiscoverySemantics.identity)),
-            excludedSemantic: Set(excluded.map(DiscoverySemantics.identity)),
-            acceptedSemantic: Set(accepted.map(DiscoverySemantics.identity))
-        )
-    }
-
     private func setState(_ id: String, _ state: DiscoveryState) {
-        guard let index = analysis.discoveries.firstIndex(where: { $0.id == id }) else { return }
-        analysis.discoveries[index] = DiscoverySemantics.transition(analysis.discoveries[index], to: state)
-        Task { if let rebuilt = try? await coordinator.regenerate(analysis) { analysis = rebuilt; persist() } }
+        Task { await model.setState(state, id: id); persist() }
     }
 
     private func regenerate() {
-        Task {
-            isWorking = true; defer { isWorking = false }
-            do { analysis = try await coordinator.regenerate(analysis); persist() }
-            catch { errorMessage = error.localizedDescription }
-        }
+        Task { await model.regenerate(); persist() }
     }
 
     private func reanalyze() {
-        Task {
-            isWorking = true; defer { isWorking = false }
-            do { let result = try await coordinator.reanalyze(record.originalIdea, decisions: decisions); analysis = result.0; providerName = result.1; persist() }
-            catch { errorMessage = error.localizedDescription }
-        }
+        Task { await model.reanalyze(); persist() }
     }
 
-    private func persist() { record.update(from: analysis); try? context.save() }
+    private func persist() { guard let analysis = model.analysis else { return }; record.update(from: analysis); try? context.save() }
 }
+
