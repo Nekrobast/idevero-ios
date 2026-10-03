@@ -27,7 +27,7 @@ Run 37134293683: 10 new tests, 7 failing methods / 30 failed assertions.
 Run 37134529279: 12 new tests, 8 failing methods / 31 failed assertions.
 Both compiled and executed on macos-26; the 24 original contracts and 4 concurrency
 tests passed. Device build was correctly skipped after the intentional RED gate.
-The eight supplementary tests and native UI harness close coverage gaps; they
+The nine supplementary tests and native UI harness close coverage gaps; they
 are not claimed as pre-fix executed RED tests.
 
 ## Repair design
@@ -43,6 +43,8 @@ Local authored knowledge selects English labels/reasons by stable resource
 identity, and all compilers choose language from the original input. Resource
 indices remain stable before conditional filtering. Domain machine IDs stay in
 analysis metadata; display lenses use resource labels or a localized abstraction.
+The closed schema enums define internal epistemic tokens; explicit unseen
+technical names are also asserted as separate execution constraints.
 
 User decisions carry scoped authoritative snapshots; a missing model finding
 cannot revoke them. Matching still uses the unchanged conservative identity.

@@ -187,7 +187,7 @@ struct UserFacingTextPolicy: Sendable {
         } ?? []
         return matches.contains { token in
             let parts = token.split(separator: "_").map(String.init)
-            let internalRoles = Set(SemanticRole.allCases.map(\.rawValue))
+            let internalRoles = Set(SemanticRole.allCases.map(\.rawValue) + DomainKnowledgeStatus.allCases.map(\.rawValue))
             if internalRoles.contains(token) { return true }
             let modelWords: Set<String> = ["PRIMARY", "SECONDARY", "OPTIONAL", "FEATURE", "JOB", "UNKNOWN", "PLACEHOLDER", "DECISION", "INPUT", "CANDIDATE"]
             let looksSynthetic = parts.contains(where: { modelWords.contains($0) }) &&

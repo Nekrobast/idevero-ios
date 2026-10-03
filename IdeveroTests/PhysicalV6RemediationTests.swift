@@ -223,6 +223,17 @@ final class PhysicalV6RemediationTests: XCTestCase {
             XCTAssertNil(value.range(of: "\\b(imprescindible|debe|necesario|esencial|essential|must|necessary|mandatory)\\b", options: [.regularExpression, .caseInsensitive]))
         }
     }
+
+    func testTechnicalNamesAreExecutionConstraintsWhileSchemaStatesRemainInternal() async throws {
+        let policy = UserFacingTextPolicy(language: .english)
+        for state in DomainKnowledgeStatus.allCases where state.rawValue.contains("_") {
+            XCTAssertFalse(policy.isSafeDisplay(state.rawValue))
+        }
+        let result = try await LocalExpertProvider().analyze("I want an app where each delivery uses DELIVERY_REFERENCE_KEY and each document uses DOCUMENT_TRACE_ID.")
+        XCTAssertTrue(result.prompt.contains("Explicit technical literals — preserve exactly"))
+        XCTAssertTrue(result.prompt.contains("\n- DELIVERY_REFERENCE_KEY"))
+        XCTAssertTrue(result.prompt.contains("\n- DOCUMENT_TRACE_ID"))
+    }
 }
 
 private actor V6ParaphraseProvider: IntelligenceProvider {
