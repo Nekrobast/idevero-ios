@@ -1,4 +1,5 @@
 name: Idevero iOS CI
+# Release candidate validation: rerun cleanly after runner-allocation failure.
 
 on:
   workflow_dispatch:
