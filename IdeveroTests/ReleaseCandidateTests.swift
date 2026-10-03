@@ -54,6 +54,7 @@ final class ReleaseCandidateTests: XCTestCase {
         XCTAssertEqual(results[6].target, "CHATGPT WORK")
     }
 
+    // Separate release holdout: 12 category-driven requests; no exact-output matching.
     func testReleaseHoldoutTwelveDiverseRequests() throws {
         let requests = [
             "Quiero crear una app para profesionales",
