@@ -59,7 +59,7 @@ struct CreateView: View {
                                     proxy.scrollTo(ScrollAnchor.result, anchor: .top)
                                 }
                             }
-                        }) {
+                        }, isWorking: model.isGenerating, completionMessage: model.completionMessage) {
                             try? PromptRecord.upsert(analysis, in: context)
                         }
                         .id(ScrollAnchor.result)
@@ -75,6 +75,7 @@ struct CreateView: View {
                     .accessibilityIdentifier("measuredTabBarClearance")
             }
             .scrollDismissesKeyboard(.interactively)
+            .safeAreaInset(edge: .top, spacing: 0) { OperationFeedbackView(model: model) }
             .scrollIndicators(.visible)
             .onChange(of: model.analysis?.analysisID) { _, analysisID in
                 guard analysisID != nil else { return }

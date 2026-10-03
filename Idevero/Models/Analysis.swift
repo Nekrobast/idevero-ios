@@ -17,7 +17,7 @@ struct Discovery: Identifiable, Codable, Hashable, Sendable {
     var anchor: String? = nil
 }
 
-enum DomainKnowledgeStatus: String, Codable, Hashable, Sendable {
+enum DomainKnowledgeStatus: String, Codable, Hashable, Sendable, CaseIterable {
     case established = "ESTABLISHED"
     case caseDependent = "CASE_DEPENDENT"
     case userSpecificUnknown = "USER_SPECIFIC_UNKNOWN"

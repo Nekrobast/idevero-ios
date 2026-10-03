@@ -12,12 +12,21 @@ on:
 permissions:
   contents: read
 
+env:
+  SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+
 jobs:
   simulator-build-and-test:
     runs-on: macos-26
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE_COMMIT }}
+          fetch-depth: 0
+
+      - name: Audit Physical V6 production additions
+        run: node Tools/audit-physical-v6.mjs
 
       - name: Select installed Xcode
         shell: bash
@@ -89,7 +98,7 @@ jobs:
             -destination "platform=iOS Simulator,id=$SMALL_SIMULATOR_UDID" \
             -derivedDataPath DerivedData-CI \
             -resultBundlePath TestResults-Small.xcresult \
-            -only-testing:IdeveroUITests/ResponsiveLayoutUITests/testKeyboardDismissesAndGeneratedResultIsReachable \
+            -only-testing:IdeveroUITests \
             CODE_SIGNING_ALLOWED=NO \
             test | tee xcodebuild-small.log
           xcrun simctl io "$SMALL_SIMULATOR_UDID" screenshot idevero-small-dynamic-type.png
@@ -99,9 +108,9 @@ jobs:
         shell: bash
         run: |
           {
-            echo '# IDEVERO 0.2.8 build 10 — responsive UI validation'
+            echo '# IDEVERO 0.2.8 build 12 — responsive UI validation'
             echo
-            echo "- Commit: \`$GITHUB_SHA\`"
+            echo "- Commit: \`$SOURCE_COMMIT\`"
             echo "- Run: \`$GITHUB_RUN_ID\`"
             echo "- Large simulator: \`$LARGE_SIMULATOR_NAME\`"
             echo '- Large simulator checks: complete XCTest, software keyboard, generation, keyboard dismissal, result reachability, provider badge'
@@ -135,6 +144,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE_COMMIT }}
 
       - name: Select Xcode
         shell: bash
@@ -170,7 +181,7 @@ jobs:
           test -d "$APP" && test -f "$INFO" && test -f "$EXECUTABLE"
           test "$(plutil -extract CFBundleIdentifier raw "$INFO")" = "com.aitor93.idevero"
           test "$(plutil -extract CFBundleShortVersionString raw "$INFO")" = "0.2.8"
-          test "$(plutil -extract CFBundleVersion raw "$INFO")" = "10"
+          test "$(plutil -extract CFBundleVersion raw "$INFO")" = "12"
           test "$(plutil -extract MinimumOSVersion raw "$INFO")" = "17.0"
           lipo -archs "$EXECUTABLE" | grep -qw arm64
           xcrun vtool -show-build "$EXECUTABLE" | tee device-platform.log
@@ -208,9 +219,9 @@ jobs:
           set -euo pipefail
           SHA256="$(cut -d ' ' -f 1 DeviceArtifact/Idevero-iOS-0.2.8-DeviceUnsigned.ipa.sha256)"
           {
-            echo '# IDEVERO 0.2.8 build 10 — iPhoneOS unsigned build'
+            echo '# IDEVERO 0.2.8 build 12 — iPhoneOS unsigned build'
             echo
-            echo "- Commit: \`$GITHUB_SHA\`"
+            echo "- Commit: \`$SOURCE_COMMIT\`"
             echo "- Run: \`$GITHUB_RUN_ID\`"
             echo '- Destination: `generic/platform=iOS`'
             echo '- Architecture: `arm64`'
@@ -221,9 +232,9 @@ jobs:
           } > DeviceArtifact/DEVICE-BUILD-REPORT.md
           cp SimulatorEvidence/UI-VALIDATION-REPORT.md DeviceArtifact/
           {
-            echo '# IDEVERO 0.2.8 build 10 — Xcode CI build'
+            echo '# IDEVERO 0.2.8 build 12 — Xcode CI build'
             echo
-            echo "- Commit: \`$GITHUB_SHA\`"
+            echo "- Commit: \`$SOURCE_COMMIT\`"
             echo "- Run: \`$GITHUB_RUN_ID\`"
             echo '- Simulator build: PASS'
             echo '- Large iPhone UI: PASS'
@@ -233,9 +244,9 @@ jobs:
           } > DeviceArtifact/XCODE-CI-BUILD-REPORT.md
           xcrun xcresulttool get test-results summary --path SimulatorEvidence/TestResults-Large.xcresult > DeviceArtifact/test-summary.json
           {
-            echo '# IDEVERO 0.2.8 build 10 — XCTest CI report'
+            echo '# IDEVERO 0.2.8 build 12 — XCTest CI report'
             echo
-            echo "- Commit: \`$GITHUB_SHA\`"
+            echo "- Commit: \`$SOURCE_COMMIT\`"
             echo "- Run: \`$GITHUB_RUN_ID\`"
             echo
             echo '```json'
@@ -244,6 +255,21 @@ jobs:
           } > DeviceArtifact/XCTEST-CI-REPORT.md
           cp QUALITY-V5-REPORT.md QUALITY-V4-REPORT.md QUALITY-023-024-025-026.md DeviceArtifact/
           cp PHYSICAL-V6-CHECKLIST.md Tools/VERIFY-IDEVERO-0.2.8.ps1 DeviceArtifact/
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+          export IPA_SHA256="$SHA256"
+          export SOURCE_TREE="$(git rev-parse HEAD^{tree})"
+          python3 <<'PY'
+          import json, os
+          manifest = {
+              "version": "0.2.8", "build": 12, "sourceCommit": os.environ["SOURCE_COMMIT"],
+              "sourceTree": os.environ["SOURCE_TREE"], "runID": os.environ["GITHUB_RUN_ID"],
+              "runAttempt": os.environ["GITHUB_RUN_ATTEMPT"], "ipa": "Idevero-iOS-0.2.8-DeviceUnsigned.ipa",
+              "ipaSHA256": os.environ["IPA_SHA256"], "architecture": "arm64", "platform": "iPhoneOS",
+              "signing": "unsigned", "physicalQualityV6": "AWAITING FINAL IPHONE RETEST"
+          }
+          with open("DeviceArtifact/manifest.json", "w") as output:
+              json.dump(manifest, output, indent=2)
+          PY
 
       - name: Upload private 0.2.8 device artifact
         uses: actions/upload-artifact@v4
@@ -253,6 +279,9 @@ jobs:
             DeviceArtifact/Idevero-iOS-0.2.8-DeviceUnsigned.ipa
             DeviceArtifact/Idevero-iOS-0.2.8-DeviceUnsigned.ipa.sha256
             DeviceArtifact/SHA256SUMS.txt
+            DeviceArtifact/manifest.json
+            PHYSICAL-V6-REMEDIATION.md
+            PHYSICAL-V6-TARGETED-REMEDIATION.md
             DeviceArtifact/PHYSICAL-V6-CHECKLIST.md
             DeviceArtifact/VERIFY-IDEVERO-0.2.8.ps1
             DeviceArtifact/DEVICE-BUILD-REPORT.md

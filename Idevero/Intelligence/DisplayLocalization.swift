@@ -22,8 +22,12 @@ struct DisplayLocalization: Sendable {
     }
 
     func lens(_ value: String) -> String {
-        guard language == .spanish else { return value }
-        var result = value
+        // Only human labels cross this display boundary. Unknown machine IDs
+        // have a localized abstraction rather than leaking their spelling.
+        var result = value.components(separatedBy: " · ").map { component in
+            component.range(of: "^[A-Za-z0-9]+(?:_[A-Za-z0-9]+)+$", options: .regularExpression) != nil ? (language == .spanish ? "Contexto del dominio" : "Domain context") : component
+        }.joined(separator: " · ")
+        guard language == .spanish else { return result }
         let terms: [(String, String)] = [
             ("Visual consistency", "Coherencia visual"), ("Art direction", "Dirección artística"),
             ("Edit intent", "Objetivo de edición"), ("Domain", "Dominio"),
@@ -39,9 +43,36 @@ struct DisplayLocalization: Sendable {
             ("Context", "Contexto"), ("Accessibility", "Accesibilidad"), ("Conversion", "Conversión"),
             ("Positioning", "Posicionamiento"), ("Acquisition", "Adquisición"), ("Channel", "Canal"),
             ("Creative", "Creatividad"), ("Story", "Narrativa"), ("Method", "Método"),
-            ("Agent", "Agente"), ("Governance", "Gobernanza"), ("Commerce", "Comercio")
+            ("Agent", "Agente"), ("Governance", "Gobernanza"), ("Commerce", "Comercio"),
+            ("Action", "Acción"), ("Assessment", "Evaluación"), ("Audience", "Audiencia"),
+            ("Automation", "Automatización"), ("Bias", "Sesgo"), ("Budget", "Presupuesto"),
+            ("Calculation", "Cálculo"), ("Communication", "Comunicación"), ("Comparison", "Comparación"),
+            ("Constraints", "Restricciones"), ("Content", "Contenido"), ("Contingency", "Contingencia"),
+            ("Contract", "Contrato"), ("Control", "Control"), ("Currentness", "Actualidad"),
+            ("Curriculum", "Programa educativo"), ("Customer", "Cliente"), ("Data modeling", "Modelo de datos"),
+            ("Decision", "Decisión"), ("Delivery", "Entrega"), ("Diagnosis", "Diagnóstico"),
+            ("Economics", "Economía"), ("Editing", "Edición"), ("Error prevention", "Prevención de errores"),
+            ("Exercise selection", "Selección de ejercicios"), ("Experience", "Experiencia"), ("Feasibility", "Viabilidad"),
+            ("Feedback", "Retroalimentación"), ("Fit", "Adecuación"), ("Format", "Formato"),
+            ("General", "General"), ("Genre", "Género"), ("Geography", "Geografía"),
+            ("Go to market", "Salida al mercado"), ("Inference", "Inferencia"), ("Input validation", "Validación de entradas"),
+            ("Instruction", "Instrucción"), ("Interface", "Interfaz"), ("Legal information", "Información jurídica"),
+            ("Load management", "Gestión de carga"), ("Logic", "Lógica"), ("Logistics", "Logística"),
+            ("Market", "Mercado"), ("Memory", "Memoria"), ("Mission", "Misión"),
+            ("Needs", "Necesidades"), ("Observability", "Observabilidad"), ("Offer", "Oferta"),
+            ("Orchestration", "Orquestación"), ("Outcome", "Resultado"), ("Ownership", "Responsabilidad"),
+            ("Persuasion", "Persuasión"), ("Platform", "Plataforma"), ("Practice", "Práctica"),
+            ("Programming", "Programación"), ("Progression", "Progresión"), ("Purpose", "Propósito"),
+            ("Recovery", "Recuperación"), ("Relationship", "Relación"), ("Repair", "Reparación"),
+            ("Reporting", "Informes"), ("Research design", "Diseño de investigación"), ("Reservations", "Reservas"),
+            ("Retention", "Retención"), ("Rules", "Reglas"), ("Schedule", "Calendario"),
+            ("Scope", "Alcance"), ("Sources", "Fuentes"), ("State", "Estado"),
+            ("Structure", "Estructura"), ("Synthesis", "Síntesis"), ("Time", "Tiempo"),
+            ("Tone", "Tono"), ("Tracking", "Seguimiento"), ("Transfer", "Transferencia"),
+            ("Trust", "Confianza"), ("Usability", "Usabilidad"), ("Validation", "Validación"),
+            ("Visual communication", "Comunicación visual"), ("Visual design", "Diseño visual"), ("Visual", "Visual")
         ]
-        for (source, target) in terms {
+        for (source, target) in terms.sorted(by: { $0.0.count > $1.0.count }) {
             result = result.replacingOccurrences(of: "\\b\(NSRegularExpression.escapedPattern(for: source))\\b", with: target, options: [.regularExpression, .caseInsensitive])
         }
         return result

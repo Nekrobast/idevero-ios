@@ -2,7 +2,11 @@ import Foundation
 
 struct SpecializedCompiler {
     func compile(_ analysis: PromptAnalysis) -> String {
+        let analysis = respectingExclusions(analysis)
         let selected = analysis.discoveries.filter(DiscoverySemantics.isCompilerIncluded)
+        if DisplayLanguage.detect(in: analysis.input) == .english && !["EMAIL", "APPLICATION", "WEB"].contains(analysis.task) {
+            return english(analysis, selected)
+        }
         switch analysis.task {
         case "EMAIL":
             return DisplayLanguage.detect(in: analysis.input) == .english
@@ -19,7 +23,25 @@ struct SpecializedCompiler {
     }
     private func bullets(_ values: [Discovery], language: DisplayLanguage = .spanish) -> String {
         let display = DisplayLocalization(language: language)
-        return values.map { "- \(display.text($0.concept)): \(display.text($0.reason))" }.joined(separator: "\n")
+        return values.map {
+            let inferred = ($0.sourceProvenance ?? [$0.provenance]).contains(.appleModel) && ![.userExplicit, .userAccepted, .userLocked].contains($0.provenance)
+            return "- \(display.text($0.concept)): \(display.text(inferred ? EpistemicText.conditional($0.reason) : $0.reason))"
+        }.joined(separator: "\n")
+    }
+    private func respectingExclusions(_ analysis: PromptAnalysis) -> PromptAnalysis {
+        guard var context = analysis.domainContext else { return analysis }
+        let excluded = analysis.discoveries.filter { $0.state == .excluded }
+        func allowed(_ text: String) -> Bool {
+            let key = DiscoverySemantics.identity(concept: text)
+            return !excluded.contains { item in
+                key == DiscoverySemantics.identity(concept: item.concept) ||
+                (item.anchor?.isEmpty == false && key == DiscoverySemantics.identity(concept: item.anchor!))
+            }
+        }
+        context = DomainContext(language: context.language, primaryJobStatus: context.primaryJobStatus, primaryJobCandidates: context.primaryJobCandidates.filter(allowed), actors: context.actors.filter(allowed), entities: context.entities.filter(allowed), relationships: context.relationships.filter(allowed), workflows: context.workflows.filter(allowed), decisions: context.decisions.filter(allowed), constraints: context.constraints.filter(allowed), calibratedItems: context.calibratedItems?.filter { allowed($0.text) }, lifecycle: context.lifecycle)
+        var copy = analysis
+        copy.domainContext = context
+        return copy
     }
     private func section(_ title: String, _ values: [Discovery]) -> String {
         guard !values.isEmpty else { return "" }
@@ -42,7 +64,7 @@ struct SpecializedCompiler {
         return blocks.isEmpty ? "" : "\n\n" + blocks.joined(separator: "\n\n")
     }
     private func product(_ a: PromptAnalysis, _ ds: [Discovery]) -> String {
-        let language = DisplayLanguage(rawValue: a.domainContext?.language ?? "") ?? .detect(in: a.input)
+        let language = DisplayLanguage.detect(in: a.input)
         if language == .english { return productEnglish(a, ds) }
         let domain = ds.filter { ($0.sourceProvenance ?? [$0.provenance]).contains(.appleModel) }
         let primitives = domain.filter { $0.semanticRole == SemanticRole.domainPrimitive.rawValue }
@@ -64,6 +86,8 @@ struct SpecializedCompiler {
         Diseña y especifica \(a.task == "WEB" ? "un producto web" : "una aplicación") que consiga este resultado: \(a.outcome)
 
         \(domainBlock)
+
+        \(technicalLiterals(a, language: .spanish))
 
         Trabajo principal
         \(primaryJobText(a, language: .spanish))\(explicitBlock)\(confirmedDomain)\(inferredDomain)\(unknowns(a, language: .spanish))
@@ -90,6 +114,8 @@ struct SpecializedCompiler {
         Design and specify \(a.task == "WEB" ? "a web product" : "an application") that achieves this outcome: \(a.outcome)
 
         \(domainContextBlock(a, language: .english))
+
+        \(technicalLiterals(a, language: .english))
 
         Primary job
         \(primaryJobText(a, language: .english))\(explicitBlock)\(confirmed)\(inferred)\(unknowns(a, language: .english))
@@ -152,12 +178,12 @@ struct SpecializedCompiler {
         var blocks: [String] = []
         if !established.isEmpty {
             let heading = language == .spanish ? "Contexto inferido que conviene validar" : "Inferred context to validate"
-            blocks.append(heading + "\n" + established.map { "- \($0.text)" }.joined(separator: "\n"))
+            blocks.append(heading + "\n" + established.map { "- \(EpistemicText.conditional($0.text))" }.joined(separator: "\n"))
         }
         if !conditional.isEmpty {
             let heading = language == .spanish ? "Patrones que dependen del caso" : "Case-dependent patterns"
             let prefix = language == .spanish ? "Puede ser relevante, según el objetivo elegido: " : "Depending on the chosen objective, it may be relevant to consider: "
-            blocks.append(heading + "\n" + conditional.map { "- \(prefix)\($0.text)" }.joined(separator: "\n"))
+            blocks.append(heading + "\n" + conditional.map { "- \(prefix)\(EpistemicText.conditional($0.text))" }.joined(separator: "\n"))
         }
         return title + "\n" + notice + (blocks.isEmpty ? "" : "\n\n" + blocks.joined(separator: "\n\n"))
     }
@@ -176,7 +202,20 @@ struct SpecializedCompiler {
             : "The priority objective still needs confirmation. Plausible alternatives:\n") + candidates
     }
     private func groupedRequirements(primitives: [Discovery], workflows: [Discovery], decisions: [Discovery], remaining: [Discovery]) -> String {
-        [primitives, workflows, decisions, remaining].flatMap { $0 }.map { "- \($0.concept): \($0.reason)" }.joined(separator: "\n")
+        bullets([primitives, workflows, decisions, remaining].flatMap { $0 })
+    }
+    private func technicalLiterals(_ analysis: PromptAnalysis, language: DisplayLanguage) -> String {
+        let pattern = "\\b(?:[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+|[A-Z][A-Z0-9]{1,}(?:-[A-Z0-9]+)*|[a-z]+(?:[A-Z][a-z0-9]+)+)\\b"
+        guard let expression = try? NSRegularExpression(pattern: pattern) else { return "" }
+        let policy = UserFacingTextPolicy(language: language)
+        var seen = Set<String>()
+        let values = expression.matches(in: analysis.input, range: NSRange(analysis.input.startIndex..., in: analysis.input)).compactMap { match -> String? in
+            guard let range = Range(match.range, in: analysis.input) else { return nil }
+            let value = String(analysis.input[range])
+            return policy.isSafeDisplay(value, minimumLength: 2) && seen.insert(value).inserted ? value : nil
+        }
+        guard !values.isEmpty else { return "" }
+        return (language == .spanish ? "Literales técnicos explícitos — conservar exactamente" : "Explicit technical literals — preserve exactly") + "\n" + values.map { "- \($0)" }.joined(separator: "\n")
     }
     private func sectionBody(_ title: String, _ values: [Discovery]) -> String {
         guard !values.isEmpty else { return "" }
@@ -221,5 +260,21 @@ struct SpecializedCompiler {
 
     Mantén la intención original, resuelve dependencias, evita supuestos no respaldados y entrega un resultado específico, ejecutable y revisado. No infles el alcance con elementos opcionales sin valor material.\(work(a))
     """ }
-    private func work(_ a: PromptAnalysis) -> String { guard a.target == "CHATGPT WORK" else { return "" }; return "\n\nEjecución en ChatGPT Work: inspecciona primero los archivos y el estado real; conserva arquitectura, datos e identidad; planifica internamente; modifica lo mínimo necesario; ejecuta build y pruebas pertinentes; inspecciona el resultado, corrige fallos y entrega el artefacto final con pruebas y limitaciones reales. No reconstruyas un proyecto existente ni te limites a explicar." }
+    private func english(_ a: PromptAnalysis, _ ds: [Discovery]) -> String {
+        let instruction: String
+        switch a.task {
+        case "IMAGE": instruction = "Choose one coherent art direction and describe what should be visible: clear subject and action, intentional composition and framing, viewpoint, depth, atmosphere, motivated light, palette, materials and physically compatible movement. Avoid incompatible periods, styles or lighting. Specify aspect ratio only when useful for the intended use."
+        case "IMAGE_EDITING": instruction = "Edit only the requested area. Preserve faces, identity, pose, clothing, proportions, perspective, framing, style and resolution elsewhere. Reconstruct backgrounds, shadows, reflections, grain and light only as needed to integrate the change. Do not reinterpret or beautify unrelated areas."
+        case "SPREADSHEET": instruction = "Build an operational workbook. Separate master data, transactions and summaries. Define columns, IDs, types, validation, relationships, formulas and calculated fields. Protect formulas and avoid manually maintaining derived values. Use filters, conditional formatting and dashboards only when they support a decision. Test normal and edge cases, document updates and avoid unnecessary macros."
+        case "TRAVEL": instruction = "Create a feasible itinerary rather than a list of places. Group by area and account for travel, meals, queues, check-in, visits and rest. Respect opening times, closures and reservations; identify what needs current verification. Provide a reasonable daily pace, transport, booking decisions and alternatives for weather, closures or fatigue. Do not invent prices or availability."
+        case "SHOPPING", "RESEARCH": instruction = "Define the actual decision, scope and comparison criteria. Verify current prices, availability and specifications where relevant. Prefer primary and official sources and cross-check material claims. Separate facts, inference and opinion. Compare alternatives consistently, explain trade-offs and condition recommendations on use and budget. Do not invent sources or certainty."
+        default: instruction = "Preserve the original intent, resolve dependencies and avoid unsupported assumptions. Deliver a specific, executable and reviewed result without inflating scope with optional items lacking material value."
+        }
+        return "Original request: “\(a.input)”\n\nExpected outcome\n\(a.outcome)\n\n" + instruction + "\n\nCriteria and requirements\n" + bullets(ds, language: .english) + unknowns(a, language: .english) + work(a)
+    }
+    private func work(_ a: PromptAnalysis) -> String {
+        guard a.target == "CHATGPT WORK" else { return "" }
+        if DisplayLanguage.detect(in: a.input) == .english { return "\n\nExecution in ChatGPT Work: inspect files and actual state first; preserve architecture, data and identity; plan internally; make minimal changes; run relevant builds and tests; inspect and correct the result; deliver the final artifact with evidence and actual limitations. Do not rebuild an existing project or stop at an explanation." }
+        return "\n\nEjecución en ChatGPT Work: inspecciona primero los archivos y el estado real; conserva arquitectura, datos e identidad; planifica internamente; modifica lo mínimo necesario; ejecuta build y pruebas pertinentes; inspecciona el resultado, corrige fallos y entrega el artefacto final con pruebas y limitaciones reales. No reconstruyas un proyecto existente ni te limites a explicar."
+    }
 }

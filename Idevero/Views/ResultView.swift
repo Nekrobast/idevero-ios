@@ -6,8 +6,11 @@ struct ResultView: View {
     let onState: (String, DiscoveryState) -> Void
     let onRegenerate: () -> Void
     let onReanalyze: () -> Void
+    var isWorking = false
+    var completionMessage: String? = nil
     let onSave: () -> Void
     @State private var showDiscoveries = false
+    @State private var showUpdateChoices = false
     private var language: DisplayLanguage { .detect(in: analysis.input) }
     private func ui(_ spanish: String, _ english: String) -> String { language == .spanish ? spanish : english }
 
@@ -59,11 +62,13 @@ struct ResultView: View {
                 HStack(spacing: 8) { resultActions }
                 VStack(alignment: .leading, spacing: 8) { resultActions }
             }
+            .disabled(isWorking)
 
             DisclosureGroup(isExpanded: $showDiscoveries) {
                 LazyVStack(alignment: .leading, spacing: 0) {
                     ForEach(displayedDiscoveries) { item in
                         DiscoveryRow(item: item, language: .detect(in: analysis.input), onState: onState)
+                            .disabled(isWorking)
                         if item.id != displayedDiscoveries.last?.id { Divider() }
                     }
                 }
@@ -83,6 +88,11 @@ struct ResultView: View {
             .accessibilityIdentifier("discoveriesDisclosure")
         }
         .padding(.top, 8)
+        .confirmationDialog(ui("Elige cómo actualizar el prompt", "Choose how to update the prompt"), isPresented: $showUpdateChoices, titleVisibility: .visible) {
+            Button(ui("Regenerar prompt", "Regenerate prompt"), action: onRegenerate)
+            Button(ui("Reanalizar necesidades", "Reanalyze needs"), action: onReanalyze)
+            Button(ui("Cancelar", "Cancel"), role: .cancel) {}
+        }
     }
 
     @ViewBuilder
@@ -90,10 +100,8 @@ struct ResultView: View {
         Button(ui("Copiar", "Copy")) { UIPasteboard.general.string = analysis.prompt }
         ShareLink(item: analysis.prompt) { Text(ui("Compartir", "Share")) }
         Button(ui("Guardar", "Save"), action: onSave)
-        Menu(ui("Actualizar", "Update")) {
-            Button(ui("Regenerar prompt", "Regenerate prompt"), action: onRegenerate)
-            Button(ui("Reanalizar necesidades", "Reanalyze needs"), action: onReanalyze)
-        }
+        Button(ui("Actualizar", "Update")) { showUpdateChoices = true }
+            .accessibilityHint(ui("Elige regenerar el prompt o reanalizar las necesidades", "Choose to regenerate the prompt or reanalyze needs"))
     }
 }
 

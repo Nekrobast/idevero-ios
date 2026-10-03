@@ -7,6 +7,8 @@ final class CreateViewModel: ObservableObject {
     @Published var providerName = "Local Expert"
     @Published var isGenerating = false
     @Published var errorMessage: String?
+    @Published var completionMessage: String?
+    @Published private(set) var updateFeedbackRevision: UInt64 = 0
     private let coordinator: IntelligenceCoordinator
     private var generationSequence: UInt64 = 0
 
@@ -15,16 +17,7 @@ final class CreateViewModel: ObservableObject {
     }
 
     var decisions: DiscoveryDecisions {
-        let values = analysis?.discoveries ?? []
-        let locked = values.filter { $0.state == .locked }
-        let excluded = values.filter { $0.state == .excluded }
-        let accepted = values.filter { $0.provenance == .userAccepted }
-        return DiscoveryDecisions(
-            locked: Set(locked.map(\.id)), excluded: Set(excluded.map(\.id)), accepted: Set(accepted.map(\.id)),
-            lockedSemantic: Set(locked.map(DiscoverySemantics.identity)),
-            excludedSemantic: Set(excluded.map(DiscoverySemantics.identity)),
-            acceptedSemantic: Set(accepted.map(DiscoverySemantics.identity))
-        )
+        analysis.map(DiscoveryDecisions.capture) ?? .init()
     }
 
     func generate() async {
@@ -32,11 +25,13 @@ final class CreateViewModel: ObservableObject {
         let generation = generationSequence
         isGenerating = true
         errorMessage = nil
+        completionMessage = nil
         defer {
             if generation == generationSequence { isGenerating = false }
         }
         do {
-            let (result, provider) = try await coordinator.analyze(idea)
+            let captured = decisions.scoped(to: idea)
+            let (result, provider) = captured.analysisID == nil ? try await coordinator.analyze(idea) : try await coordinator.reanalyze(idea, decisions: captured)
             guard generation == generationSequence, !Task.isCancelled else { return }
             analysis = result
             providerName = provider
@@ -47,25 +42,67 @@ final class CreateViewModel: ObservableObject {
     }
 
     func setState(_ state: DiscoveryState, id: String) async {
+        guard !isGenerating else { return }
         guard var current = analysis, let index = current.discoveries.firstIndex(where: { $0.id == id }) else { return }
         current.discoveries[index] = DiscoverySemantics.transition(current.discoveries[index], to: state)
-        analysis = try? await coordinator.regenerate(current)
+        await recompile(current)
     }
 
-    func regenerate() async { guard let current = analysis else { return }; analysis = try? await coordinator.regenerate(current) }
+    func regenerate() async {
+        guard !isGenerating, let current = analysis else { return }
+        await recompile(current)
+    }
+
+    private func recompile(_ current: PromptAnalysis) async {
+        generationSequence &+= 1
+        let generation = generationSequence
+        isGenerating = true
+        errorMessage = nil
+        completionMessage = nil
+        updateFeedbackRevision &+= 1
+        defer {
+            if generation == generationSequence {
+                isGenerating = false
+                updateFeedbackRevision &+= 1
+            }
+        }
+        do {
+            try Task.checkCancellation()
+            // Give the published operation state a presentation opportunity;
+            // completion remains visible even when local work takes one frame.
+            await Task.yield()
+            try Task.checkCancellation()
+            let rebuilt = try await coordinator.regenerate(current)
+            guard generation == generationSequence, !Task.isCancelled else { return }
+            analysis = rebuilt
+            completionMessage = DisplayLanguage.detect(in: rebuilt.input) == .spanish ? "Prompt actualizado" : "Prompt updated"
+        } catch {
+            guard generation == generationSequence, !Task.isCancelled else { return }
+            errorMessage = error.localizedDescription
+        }
+    }
     func reanalyze() async {
         generationSequence &+= 1
         let generation = generationSequence
         isGenerating = true
         errorMessage = nil
+        completionMessage = nil
+        updateFeedbackRevision &+= 1
         defer {
-            if generation == generationSequence { isGenerating = false }
+            if generation == generationSequence {
+                isGenerating = false
+                updateFeedbackRevision &+= 1
+            }
         }
         do {
+            try Task.checkCancellation()
+            await Task.yield()
+            try Task.checkCancellation()
             let result = try await coordinator.reanalyze(idea, decisions: decisions)
             guard generation == generationSequence, !Task.isCancelled else { return }
             analysis = result.0
             providerName = result.1
+            completionMessage = DisplayLanguage.detect(in: result.0.input) == .spanish ? "Prompt actualizado" : "Prompt updated"
         } catch {
             guard generation == generationSequence, !Task.isCancelled else { return }
             errorMessage = error.localizedDescription
