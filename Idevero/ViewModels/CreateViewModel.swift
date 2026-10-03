@@ -54,8 +54,21 @@ final class CreateViewModel: ObservableObject {
 
     func regenerate() async { guard let current = analysis else { return }; analysis = try? await coordinator.regenerate(current) }
     func reanalyze() async {
-        isGenerating = true; defer { isGenerating = false }
-        do { let result = try await coordinator.reanalyze(idea, decisions: decisions); analysis = result.0; providerName = result.1 }
-        catch { errorMessage = error.localizedDescription }
+        generationSequence &+= 1
+        let generation = generationSequence
+        isGenerating = true
+        errorMessage = nil
+        defer {
+            if generation == generationSequence { isGenerating = false }
+        }
+        do {
+            let result = try await coordinator.reanalyze(idea, decisions: decisions)
+            guard generation == generationSequence, !Task.isCancelled else { return }
+            analysis = result.0
+            providerName = result.1
+        } catch {
+            guard generation == generationSequence, !Task.isCancelled else { return }
+            errorMessage = error.localizedDescription
+        }
     }
 }
