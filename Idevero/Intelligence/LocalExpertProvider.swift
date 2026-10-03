@@ -2,9 +2,12 @@ import Foundation
 
 struct DiscoveryDecisions: Codable, Sendable {
     var locked: Set<String> = []; var excluded: Set<String> = []; var accepted: Set<String> = []
+    var lockedSemantic: Set<String>? = nil
+    var excludedSemantic: Set<String>? = nil
+    var acceptedSemantic: Set<String>? = nil
 }
 
-struct LocalExpertProvider: IntelligenceProvider {
+struct LocalExpertProvider: LocalIntelligenceProvider {
     let name = "Local Expert"
     private let suppliedStore: KnowledgeStore?
     init(store: KnowledgeStore? = nil) { suppliedStore = store }

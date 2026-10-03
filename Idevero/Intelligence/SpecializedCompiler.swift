@@ -2,7 +2,7 @@ import Foundation
 
 struct SpecializedCompiler {
     func compile(_ analysis: PromptAnalysis) -> String {
-        let selected = analysis.discoveries.filter { [.included, .locked].contains($0.state) && [.core, .highValue].contains($0.priority) }
+        let selected = analysis.discoveries.filter(DiscoverySemantics.isCompilerIncluded)
         switch analysis.task {
         case "EMAIL":
             return DisplayLanguage.detect(in: analysis.input) == .english
@@ -54,7 +54,10 @@ struct SpecializedCompiler {
         let explicit = ds.filter { [.userExplicit, .userAccepted, .userLocked].contains($0.provenance) && !domainIDs.contains($0.id) }
         let domainBlock = domainContextBlock(a, language: .spanish)
         let explicitBlock = explicit.isEmpty ? "" : "\n\nRequisitos expresos o bloqueados\n" + bullets(explicit)
-        let confirmedDomain = domain.isEmpty ? "" : "\n\nRequisitos sectoriales confirmados\n" + groupedRequirements(primitives: primitives, workflows: workflows, decisions: decisions, remaining: remaining)
+        let confirmed = domain.filter { [.userAccepted, .userLocked, .userExplicit].contains($0.provenance) }
+        let inferred = domain.filter { ![.userAccepted, .userLocked, .userExplicit].contains($0.provenance) }
+        let confirmedDomain = confirmed.isEmpty ? "" : "\n\nContexto o requisitos confirmados\n" + bullets(confirmed)
+        let inferredDomain = inferred.isEmpty ? "" : "\n\nContexto inferido que conviene validar\n" + groupedRequirements(primitives: primitives.filter { inferred.map(\.id).contains($0.id) }, workflows: workflows.filter { inferred.map(\.id).contains($0.id) }, decisions: decisions.filter { inferred.map(\.id).contains($0.id) }, remaining: remaining.filter { inferred.map(\.id).contains($0.id) })
         return """
         Encargo original: «\(a.input)».
 
@@ -63,7 +66,7 @@ struct SpecializedCompiler {
         \(domainBlock)
 
         Trabajo principal
-        \(primaryJobText(a, language: .spanish))\(explicitBlock)\(confirmedDomain)\(unknowns(a, language: .spanish))
+        \(primaryJobText(a, language: .spanish))\(explicitBlock)\(confirmedDomain)\(inferredDomain)\(unknowns(a, language: .spanish))
 
         Diseño del producto
         Una vez elegido el problema principal, define de forma proporcional el flujo, modelo de información, navegación, persistencia, estados, validaciones y criterios de aceptación que ese problema necesite. No conviertas entidades del dominio en dashboards, alertas, automatizaciones o integraciones salvo que un workflow confirmado lo justifique.
@@ -76,7 +79,10 @@ struct SpecializedCompiler {
         let domain = ds.filter { ($0.sourceProvenance ?? [$0.provenance]).contains(.appleModel) }
         let domainIDs = Set(domain.map(\.id))
         let explicit = ds.filter { [.userExplicit, .userAccepted, .userLocked].contains($0.provenance) && !domainIDs.contains($0.id) }
-        let confirmed = domain.isEmpty ? "" : "\n\nConfirmed domain requirements\n" + bullets(domain, language: .english)
+        let confirmedItems = domain.filter { [.userAccepted, .userLocked, .userExplicit].contains($0.provenance) }
+        let inferredItems = domain.filter { ![.userAccepted, .userLocked, .userExplicit].contains($0.provenance) }
+        let confirmed = confirmedItems.isEmpty ? "" : "\n\nConfirmed context or requirements\n" + bullets(confirmedItems, language: .english)
+        let inferred = inferredItems.isEmpty ? "" : "\n\nInferred context to validate\n" + bullets(inferredItems, language: .english)
         let explicitBlock = explicit.isEmpty ? "" : "\n\nExplicit or locked requirements\n" + bullets(explicit, language: .english)
         return """
         Original request: “\(a.input)”.
@@ -86,7 +92,7 @@ struct SpecializedCompiler {
         \(domainContextBlock(a, language: .english))
 
         Primary job
-        \(primaryJobText(a, language: .english))\(explicitBlock)\(confirmed)\(unknowns(a, language: .english))
+        \(primaryJobText(a, language: .english))\(explicitBlock)\(confirmed)\(inferred)\(unknowns(a, language: .english))
 
         Product design
         Once the primary problem is chosen, define only the proportionate workflow, information model, navigation, persistence, states, validation and acceptance criteria it requires. Do not turn domain entities into dashboards, alerts, automation or integrations unless a confirmed workflow justifies them.
@@ -96,13 +102,26 @@ struct SpecializedCompiler {
         """
     }
     private func domainContextBlock(_ a: PromptAnalysis, language: DisplayLanguage) -> String {
-        guard let context = a.domainContext, !context.isEmpty else {
+        guard let context = a.domainContext else {
             return language == .spanish
                 ? "Contexto del dominio\nNo presupongas procesos sectoriales que no estén respaldados; utiliza las preguntas por confirmar para fijar el alcance."
                 : "Domain context\nDo not assume unsupported sector workflows; use the questions to confirm the scope."
         }
+        switch context.resolvedLifecycle {
+        case .rejected:
+            return language == .spanish
+                ? "Contexto del dominio\nEl contexto sectorial propuesto no superó la validación. No reutilices elementos descartados ni los conviertas en requisitos."
+                : "Domain context\nThe proposed domain context did not pass validation. Do not reuse rejected elements or turn them into requirements."
+        case .empty:
+            return language == .spanish
+                ? "Contexto del dominio\nNo hay contexto sectorial validado suficiente. Mantén el diseño adaptable y confirma el trabajo principal antes de especializarlo."
+                : "Domain context\nThere is not enough validated domain context. Keep the design adaptable and confirm the primary job before specializing it."
+        case .valid:
+            break
+        }
         if let calibrated = context.calibratedItems, !calibrated.isEmpty {
-            return calibratedDomainContextBlock(calibrated, language: language)
+            let policy = UserFacingTextPolicy(language: language)
+            return calibratedDomainContextBlock(calibrated.filter { policy.isSafeDisplay($0.text) }, language: language)
         }
         let elements = Array((context.actors + context.entities).prefix(5))
         let relationships = Array(context.relationships.prefix(4))
@@ -132,7 +151,7 @@ struct SpecializedCompiler {
         let conditional = items.filter { $0.status == .caseDependent }.prefix(3)
         var blocks: [String] = []
         if !established.isEmpty {
-            let heading = language == .spanish ? "Conocimiento sectorial fiable" : "Reliable domain knowledge"
+            let heading = language == .spanish ? "Contexto inferido que conviene validar" : "Inferred context to validate"
             blocks.append(heading + "\n" + established.map { "- \($0.text)" }.joined(separator: "\n"))
         }
         if !conditional.isEmpty {

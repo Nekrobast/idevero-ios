@@ -3,7 +3,7 @@ import SwiftData
 
 @Model
 final class PromptRecord {
-    var id: UUID
+    @Attribute(.unique) var id: UUID
     var title: String
     var originalIdea: String
     var generatedPrompt: String
@@ -21,7 +21,7 @@ final class PromptRecord {
     var isFavorite: Bool
 
     init(analysis: PromptAnalysis) {
-        self.id = UUID()
+        self.id = analysis.analysisID
         self.title = analysis.title
         self.originalIdea = analysis.input
         self.generatedPrompt = analysis.prompt
@@ -69,5 +69,19 @@ final class PromptRecord {
         discoveriesData = (try? JSONEncoder().encode(analysis.discoveries)) ?? discoveriesData
         analysisData = (try? JSONEncoder().encode(analysis)) ?? analysisData
         intelligenceMode = analysis.intelligenceMode; updatedAt = .now
+    }
+
+    @discardableResult
+    static func upsert(_ analysis: PromptAnalysis, in context: ModelContext) throws -> PromptRecord {
+        if let existing = try context.fetch(FetchDescriptor<PromptRecord>())
+            .first(where: { $0.id == analysis.analysisID }) {
+            existing.update(from: analysis)
+            try context.save()
+            return existing
+        }
+        let record = PromptRecord(analysis: analysis)
+        context.insert(record)
+        try context.save()
+        return record
     }
 }

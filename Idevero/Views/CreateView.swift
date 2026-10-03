@@ -60,8 +60,7 @@ struct CreateView: View {
                                 }
                             }
                         }) {
-                            context.insert(PromptRecord(analysis: analysis))
-                            try? context.save()
+                            try? PromptRecord.upsert(analysis, in: context)
                         }
                         .id(ScrollAnchor.result)
                     }

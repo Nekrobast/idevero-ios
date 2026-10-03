@@ -80,9 +80,10 @@ struct LocalDiscoveryEngine {
     private func normalize(_ input: [Discovery], decisions: DiscoveryDecisions) -> [Discovery] {
         var seen = Set<String>(), output: [Discovery] = []
         for var d in input { let key = d.concept.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current); guard !seen.contains(key) else { continue }; seen.insert(key)
-            if decisions.excluded.contains(d.id) || decisions.excluded.contains(key) { d.state = .excluded; d.priority = .outOfScope }
-            else if decisions.locked.contains(d.id) || decisions.locked.contains(key) { d.state = .locked; d.priority = .core; d.provenance = .userLocked }
-            else if decisions.accepted.contains(d.id) || decisions.accepted.contains(key) { d.state = .included; d.provenance = .userAccepted }
+            let semantic = DiscoverySemantics.identity(d)
+            if decisions.excluded.contains(d.id) || decisions.excluded.contains(key) || decisions.excludedSemantic?.contains(semantic) == true { d = DiscoverySemantics.transition(d, to: .excluded) }
+            else if decisions.locked.contains(d.id) || decisions.locked.contains(key) || decisions.lockedSemantic?.contains(semantic) == true { d = DiscoverySemantics.transition(d, to: .locked) }
+            else if decisions.accepted.contains(d.id) || decisions.accepted.contains(key) || decisions.acceptedSemantic?.contains(semantic) == true { d = DiscoverySemantics.transition(d, to: .included) }
             output.append(d)
         }; return output
     }
