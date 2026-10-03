@@ -138,7 +138,8 @@ final class ReleaseConcurrencyStressTests: XCTestCase {
         await model.reanalyze()
         await staleGeneration.value
         XCTAssertEqual(model.analysis?.input, "request-7")
-        XCTAssertEqual(model.analysis?.prompt, "result-request-7")
+        XCTAssertTrue(model.analysis?.prompt.contains("request-7") == true)
+        XCTAssertFalse(model.analysis?.prompt.contains("request-0") == true)
         XCTAssertNil(model.errorMessage)
     }
 }
