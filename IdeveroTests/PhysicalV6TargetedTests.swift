@@ -80,6 +80,18 @@ final class PhysicalV6TargetedTests: XCTestCase {
         XCTAssertEqual(frame(jobs).validated(for: request).primaryJobCandidates, Array(jobs.prefix(2)))
     }
 
+    func testActionNounsInSectorNamesAreNotExplicitWorkflowEvidence() {
+        let request = "I want an app for recording artists and management consultants"
+        let jobs = ["Record the artists", "Manage the consultants"]
+        XCTAssertTrue(frame(jobs).validated(for: request).primaryJobCandidates.isEmpty)
+    }
+
+    func testNegatedObjectiveCannotBecomeAPriorityAlternative() {
+        let request = "I want an app to manage manuscripts and not track sales"
+        let jobs = ["Manage the manuscripts", "Track the sales"]
+        XCTAssertEqual(frame(jobs).validated(for: request).primaryJobCandidates, [jobs[0]])
+    }
+
     @MainActor
     func testRealViewModelRestoresPriorityAuthorityWhenReanalysisOmitsTheFindings() async throws {
         let model = CreateViewModel(coordinator: IntelligenceCoordinator(foundation: TargetedPriorityProvider()))

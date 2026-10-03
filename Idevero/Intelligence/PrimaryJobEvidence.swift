@@ -29,9 +29,15 @@ struct PrimaryJobEvidence {
             .split(separator: " ").map(String.init)
     }
 
-    private func objective(_ text: String, inherited: String? = nil) -> (action: String, objects: Set<String>)? {
+    private func objective(_ text: String, inherited: String? = nil, explicit: Bool = false) -> (action: String, objects: Set<String>)? {
         let words = tokens(text)
-        let index = words.firstIndex { Self.actions[$0] != nil }
+        if explicit && words.contains(where: { ["no", "not", "never", "sin", "without", "avoid", "evitar"].contains($0) }) { return nil }
+        let verbs: Set<String> = ["gestionar", "administrar", "seguir", "registrar", "controlar", "inspeccionar", "revisar", "comparar", "coordinar", "programar", "asignar", "organizar", "planificar", "manage", "track", "monitor", "record", "register", "control", "inspect", "review", "compare", "coordinate", "schedule", "assign", "organize", "organise", "plan"]
+        let index = words.indices.first { position in
+            guard Self.actions[words[position]] != nil else { return false }
+            guard explicit else { return true }
+            return verbs.contains(words[position]) && (position == 0 || ["to", "para", "quiero", "necesito", "want", "need"].contains(words[position - 1]))
+        }
         guard let action = index.flatMap({ Self.actions[words[$0]] }) ?? inherited else { return nil }
         let content = index.map { Array(words.dropFirst($0 + 1)) } ?? words
         let stop: Set<String> = ["de", "del", "la", "las", "el", "los", "un", "una", "unos", "unas", "para", "por", "con", "y", "the", "a", "an", "of", "for", "with", "and", "their", "each", "app", "application", "aplicacion"]
@@ -45,7 +51,7 @@ struct PrimaryJobEvidence {
         let clauses = request.replacingOccurrences(of: "\\b(?:and|y|e)\\b|[;,]", with: "\n", options: [.regularExpression, .caseInsensitive]).components(separatedBy: "\n")
         var inherited: String?
         return clauses.compactMap { clause in
-            guard let value = objective(clause, inherited: inherited) else { return nil }
+            guard let value = objective(clause, inherited: inherited, explicit: true) else { inherited = nil; return nil }
             inherited = value.action
             return value
         }

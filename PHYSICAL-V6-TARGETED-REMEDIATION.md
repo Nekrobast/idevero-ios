@@ -34,7 +34,8 @@ Only two new test files were added. No production file changed before the RED ru
 | Actual Update selection entry, visible explanatory title | RED CONFIRMED |
 
 Supplementary tests added after that RED run cover meaningful paraphrase
-deduplication, action-object recombination, and actual ViewModel reanalysis with
+deduplication, action-object recombination, action nouns versus verb intent,
+negated objectives, and actual ViewModel reanalysis with
 accepted/locked priority authority omitted by the model. They are not claimed as
 pre-fix executed RED tests. History reanalysis runs after regeneration once the
 first previously failing assertion passes.
@@ -63,7 +64,9 @@ object must be supported under the same action. Model confidence, sector names,
 anchors and ESTABLISHED labels are not independent evidence. Generic bilingual
 action forms and plural/article normalization preserve supported wording and
 deduplicate equivalent alternatives. A single surviving option does not create
-a two-way priority question. Without two distinct supported alternatives, the
+a two-way priority question. Source action intent must be explicit rather than
+an action noun inside a sector name; negated clauses are not positive evidence.
+Without two distinct supported alternatives, the
 existing open primary clarification is used.
 
 The actual Foundation boundary and context builder use that filter. Validated
