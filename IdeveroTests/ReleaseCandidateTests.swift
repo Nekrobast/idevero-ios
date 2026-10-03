@@ -55,7 +55,20 @@ final class ReleaseCandidateTests: XCTestCase {
     }
 
     func testReleaseHoldoutTwelveDiverseRequests() throws {
-        let requests = ["comprar bicicleta", "móvil con buenas fotos por 500 euros", "Japón 7 días", "imagen de un samurái bajo la lluvia", "quitar una persona de una foto", "rutina de gimnasio tres días", "resumir contrato", "organiza un torneo", "plan meals for one week", "presentación comercial", "automatizar facturas", "app para técnicos de campo"]
+        let requests = [
+            "Quiero crear una app para profesionales",
+            "Quiero crear una app para técnicos de mantenimiento industrial",
+            "Escribe un email breve de agradecimiento",
+            "Crea una web para un restaurante",
+            "Investiga opciones de aislamiento térmico para una vivienda",
+            "Analiza una hoja de cálculo de ventas y resume tendencias",
+            "Build a simple website for a local bakery",
+            "Integra HL7_FHIR e ISO_27001 en el diseño técnico",
+            "Relaciona SKU_ID y VAT_ID sin exponer tokens internos",
+            "logo",
+            "Crea una app y una web para gestionar reservas",
+            "Mejora mi aplicación existente sin rehacer su arquitectura"
+        ]
         let results = try requests.map { try local.analyze($0, decisions: .init()) }
         XCTAssertEqual(results.count, 12)
         XCTAssertTrue(results.allSatisfy { !$0.prompt.isEmpty && !$0.task.isEmpty && !$0.intent.isEmpty })
@@ -99,6 +112,32 @@ final class ReleaseConcurrencyStressTests: XCTestCase {
         await model.generate()
         await old.value
         XCTAssertEqual(model.analysis?.input, "request-7")
+        XCTAssertNil(model.errorMessage)
+    }
+
+    func testNewerSlowGenerationRetainsAuthorityAfterOlderFastResult() async {
+        let model = CreateViewModel(coordinator: IntelligenceCoordinator(foundation: RCOrderedProvider()))
+        model.idea = "request-7"
+        let oldFast = Task { await model.generate() }
+        try? await Task.sleep(nanoseconds: 3_000_000)
+        model.idea = "request-0"
+        let currentSlow = Task { await model.generate() }
+        await oldFast.value
+        await currentSlow.value
+        XCTAssertEqual(model.analysis?.input, "request-0")
+        XCTAssertEqual(model.analysis?.prompt, "result-request-0")
+    }
+
+    func testReanalysisInvalidatesAnEarlierGeneration() async {
+        let model = CreateViewModel(coordinator: IntelligenceCoordinator(foundation: RCOrderedProvider()))
+        model.idea = "request-0"
+        let staleGeneration = Task { await model.generate() }
+        try? await Task.sleep(nanoseconds: 3_000_000)
+        model.idea = "request-7"
+        await model.reanalyze()
+        await staleGeneration.value
+        XCTAssertEqual(model.analysis?.input, "request-7")
+        XCTAssertEqual(model.analysis?.prompt, "result-request-7")
         XCTAssertNil(model.errorMessage)
     }
 }
