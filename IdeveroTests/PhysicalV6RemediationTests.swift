@@ -120,6 +120,41 @@ final class PhysicalV6RemediationTests: XCTestCase {
         XCTAssertFalse(model.isGenerating)
         XCTAssertEqual(local.calls, 1)
     }
+
+    @MainActor
+    func testEquivalentAppleParaphraseRetainsAuthorityWithoutMergingDistinctConcepts() async throws {
+        let model = CreateViewModel(coordinator: IntelligenceCoordinator(foundation: V6ParaphraseProvider()))
+        model.idea = "Quiero una app para gestionar reparaciones"
+        await model.generate()
+        await model.setState(.locked, id: "initial")
+        await model.reanalyze()
+        let values = try XCTUnwrap(model.analysis).discoveries
+        XCTAssertEqual(values.filter { $0.state == .locked }.count, 1)
+        XCTAssertTrue(values.contains { $0.concept == "Registro histórico de inspecciones de cada unidad" && $0.state == .locked })
+        XCTAssertTrue(values.contains { $0.concept == "Calendario comercial" && $0.state != .locked })
+    }
+
+    func testExcludedFindingCannotReturnThroughDomainContext() async throws {
+        var analysis = try await LocalExpertProvider().analyze("Quiero una app para gestionar reparaciones")
+        let text = "historial de inspecciones por unidad"
+        analysis.discoveries = [Discovery(id: "excluded", concept: text, reason: "Conserva los estados anteriores de la unidad para comparar intervenciones.", lens: "Datos", priority: .outOfScope, provenance: .appleModel, state: .excluded, dependencies: [], confidence: "HIGH", semanticRole: "CORE_WORKFLOW", anchor: text)]
+        analysis.domainContext = DomainContext(language: "es", primaryJobStatus: "DEFINED", primaryJobCandidates: [], actors: [], entities: [], relationships: [], workflows: [text], decisions: [], constraints: [], calibratedItems: [DomainContextItem(kind: "WORKFLOW", text: text, status: .established, decisionRelevance: "HIGH")], lifecycle: .valid)
+        XCTAssertFalse(SpecializedCompiler().compile(analysis).contains(text))
+    }
+}
+
+private actor V6ParaphraseProvider: IntelligenceProvider {
+    nonisolated let name = "Equivalent wording fixture"
+    private var calls = 0
+    func availability() async -> IntelligenceAvailability { .ready }
+    func analyze(_ request: String) async throws -> PromptAnalysis {
+        calls += 1
+        var analysis = try await LocalExpertProvider().analyze(request)
+        let concept = calls == 1 ? "Historial de revisiones por unidad" : "Registro histórico de inspecciones de cada unidad"
+        analysis.discoveries = [Discovery(id: calls == 1 ? "initial" : "new-id", concept: concept, reason: "Conserva el estado observado para apoyar la siguiente decisión profesional.", lens: "Dominio", priority: .highValue, provenance: .appleModel, state: .included, dependencies: [], confidence: "HIGH", semanticRole: "CORE_WORKFLOW", anchor: "unidad")]
+        analysis.discoveries.append(Discovery(id: "distinct", concept: "Calendario comercial", reason: "Organiza acciones comerciales independientes de las inspecciones.", lens: "Contexto", priority: .optional, provenance: .appleModel, state: .optional, dependencies: [], confidence: "MEDIUM", semanticRole: "OPTIONAL_FEATURE", anchor: "unidad"))
+        return analysis
+    }
 }
 
 private actor V6ChangingProvider: IntelligenceProvider {
@@ -160,4 +195,5 @@ private final class V6SlowCompiler: LocalIntelligenceProvider, @unchecked Sendab
         return try LocalExpertProvider().recompile(analysis)
     }
 }
+
 
