@@ -8,6 +8,7 @@ final class CreateViewModel: ObservableObject {
     @Published var isGenerating = false
     @Published var errorMessage: String?
     @Published var completionMessage: String?
+    @Published private(set) var updateFeedbackRevision: UInt64 = 0
     private let coordinator: IntelligenceCoordinator
     private var generationSequence: UInt64 = 0
 
@@ -58,8 +59,19 @@ final class CreateViewModel: ObservableObject {
         isGenerating = true
         errorMessage = nil
         completionMessage = nil
-        defer { if generation == generationSequence { isGenerating = false } }
+        updateFeedbackRevision &+= 1
+        defer {
+            if generation == generationSequence {
+                isGenerating = false
+                updateFeedbackRevision &+= 1
+            }
+        }
         do {
+            try Task.checkCancellation()
+            // Give the published operation state a presentation opportunity;
+            // completion remains visible even when local work takes one frame.
+            await Task.yield()
+            try Task.checkCancellation()
             let rebuilt = try await coordinator.regenerate(current)
             guard generation == generationSequence, !Task.isCancelled else { return }
             analysis = rebuilt
@@ -75,10 +87,17 @@ final class CreateViewModel: ObservableObject {
         isGenerating = true
         errorMessage = nil
         completionMessage = nil
+        updateFeedbackRevision &+= 1
         defer {
-            if generation == generationSequence { isGenerating = false }
+            if generation == generationSequence {
+                isGenerating = false
+                updateFeedbackRevision &+= 1
+            }
         }
         do {
+            try Task.checkCancellation()
+            await Task.yield()
+            try Task.checkCancellation()
             let result = try await coordinator.reanalyze(idea, decisions: decisions)
             guard generation == generationSequence, !Task.isCancelled else { return }
             analysis = result.0

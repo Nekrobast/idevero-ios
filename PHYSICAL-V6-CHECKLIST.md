@@ -1,10 +1,10 @@
-# IDEVERO 0.2.8 build 11 — Physical Quality V6 retest
+# IDEVERO 0.2.8 build 12 — Physical Quality V6 retest
 
 Do not pre-fill results. CI does not prove Foundation Models runtime quality.
 
 DEVICE: iPhone 17 Pro Max
 IOS:
-IDEVERO: 0.2.8 build 11
+IDEVERO: 0.2.8 build 12
 APPLE FOUNDATION MODELS: AVAILABLE / UNAVAILABLE
 
 ## Test 1 — Apicultores
@@ -101,4 +101,23 @@ SCREENSHOTS ATTACHED: YES / NO
 
 Check all perspective labels are human/localized and contain no machine IDs.
 
-PHYSICAL QUALITY V6: AWAITING IPHONE RETEST
+PHYSICAL QUALITY V6: AWAITING FINAL IPHONE RETEST
+
+## Historical evidence — do not overwrite
+
+Build 10: Physical Quality V6 FAIL.
+Build 11: FAIL — only Primary Job alternatives and update feedback remain.
+Build 11 physically passed the event request, technical literals, compact email,
+English pipeline, Include/Exclude/Lock, History, machine-ID display and bottom clearance.
+
+## Targeted build 12 checks
+
+For a broad domain request, check the priority question does not offer unsupported
+sector workflows. Use a new unrelated domain. For one explicit workflow, verify
+no second workflow is invented; for two explicit objectives verify neither is lost.
+Repeat in Spanish and English, and with accepted/locked workflow authority.
+
+Open Actualizar: a native choice with an explicit title must appear. Regenerate
+and reanalyze from both Create and History. Check screen-level feedback stays
+visible while scrolling, controls disable during work, repeated updates announce
+completion, and errors/cancellation leave the controls usable. Record VoiceOver.

@@ -67,6 +67,37 @@ final class PhysicalV6TargetedTests: XCTestCase {
         XCTAssertFalse(question.contains("deliveries"))
     }
 
+    func testSupportedParaphrasesAreDeduplicatedWithoutLosingDistinctObjectives() {
+        let request = "I want an app to manage manuscript loans and returns"
+        let jobs = ["Manage manuscript loans", "Managing the manuscript loan", "Manage manuscript returns"]
+        let validated = frame(jobs).validated(for: request)
+        XCTAssertEqual(validated.primaryJobCandidates, [jobs[0], jobs[2]])
+    }
+
+    func testExplicitActionsCannotBeRecombinedWithDifferentObjects() {
+        let request = "I want an app to manage manuscript loans and track manuscript returns"
+        let jobs = ["Manage manuscript loans", "Track manuscript returns", "Track manuscript loans"]
+        XCTAssertEqual(frame(jobs).validated(for: request).primaryJobCandidates, Array(jobs.prefix(2)))
+    }
+
+    @MainActor
+    func testRealViewModelRestoresPriorityAuthorityWhenReanalysisOmitsTheFindings() async throws {
+        let model = CreateViewModel(coordinator: IntelligenceCoordinator(foundation: TargetedPriorityProvider()))
+        model.idea = "Quiero una app para una biblioteca musical"
+        await model.generate()
+        await model.setState(.included, id: "selected")
+        await model.setState(.locked, id: "locked")
+        let id = model.analysis?.analysisID
+        await model.reanalyze()
+        let result = try XCTUnwrap(model.analysis)
+        XCTAssertEqual(result.analysisID, id)
+        XCTAssertEqual(result.domainContext?.primaryJobCandidates.count, 2)
+        XCTAssertTrue(result.unknowns.first?.contains("Registrar préstamos de instrumentos") == true)
+        XCTAssertTrue(result.unknowns.first?.contains("Gestionar devoluciones de instrumentos") == true)
+        XCTAssertTrue(result.discoveries.contains { $0.provenance == .userAccepted })
+        XCTAssertTrue(result.discoveries.contains { $0.provenance == .userLocked })
+    }
+
     func testRecompileUsesAcceptedAndLockedWorkflowAuthorityButNotAppleSelfClaims() async throws {
         var analysis = try await LocalExpertProvider().analyze("Quiero una app para una biblioteca musical")
         let jobs = ["Registrar préstamos de instrumentos", "Gestionar devoluciones de instrumentos", "Planificar conciertos de instrumentos"]
@@ -119,6 +150,21 @@ final class PhysicalV6TargetedTests: XCTestCase {
         await task.value
         XCTAssertFalse(model.isGenerating)
         XCTAssertNil(model.completionMessage)
+    }
+}
+
+private actor TargetedPriorityProvider: IntelligenceProvider {
+    nonisolated let name = "Priority authority omission fixture"
+    private var calls = 0
+    func availability() async -> IntelligenceAvailability { .ready }
+    func analyze(_ request: String) async throws -> PromptAnalysis {
+        calls += 1
+        var analysis = try await LocalExpertProvider().analyze(request)
+        analysis.domainContext = DomainContext(language: "es", primaryJobStatus: "UNDERSPECIFIED", primaryJobCandidates: [], actors: [], entities: [], relationships: [], workflows: [], decisions: [], constraints: [])
+        analysis.discoveries = calls == 1 ? ["Registrar préstamos de instrumentos", "Gestionar devoluciones de instrumentos"].enumerated().map { index, text in
+            Discovery(id: index == 0 ? "selected" : "locked", concept: text, reason: "Define una operación distinta que el usuario puede confirmar expresamente.", lens: "Flujo", priority: .optional, provenance: .appleModel, state: .optional, dependencies: [], confidence: "LOW", semanticRole: "CORE_WORKFLOW", anchor: text)
+        } : []
+        return analysis
     }
 }
 

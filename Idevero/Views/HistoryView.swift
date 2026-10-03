@@ -50,6 +50,7 @@ struct HistoryDetailView: View {
             if let errorMessage = model.errorMessage { Text(errorMessage).foregroundStyle(.red).padding() }
         }
         .navigationTitle(DisplayLocalization(language: .detect(in: record.originalIdea)).text(record.title))
+        .safeAreaInset(edge: .top, spacing: 0) { OperationFeedbackView(model: model) }
         .navigationBarTitleDisplayMode(.inline)
     }
 

@@ -10,6 +10,7 @@ struct ResultView: View {
     var completionMessage: String? = nil
     let onSave: () -> Void
     @State private var showDiscoveries = false
+    @State private var showUpdateChoices = false
     private var language: DisplayLanguage { .detect(in: analysis.input) }
     private func ui(_ spanish: String, _ english: String) -> String { language == .spanish ? spanish : english }
 
@@ -57,16 +58,6 @@ struct ResultView: View {
                 .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(.quaternary))
                 .accessibilityIdentifier("generatedPrompt")
 
-            if isWorking {
-                ProgressView(ui("Actualizando prompt…", "Updating prompt…"))
-                    .accessibilityIdentifier("generationProgress")
-            } else if let completionMessage {
-                Text(completionMessage)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .accessibilityIdentifier("generationStatus")
-            }
-
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 8) { resultActions }
                 VStack(alignment: .leading, spacing: 8) { resultActions }
@@ -97,6 +88,11 @@ struct ResultView: View {
             .accessibilityIdentifier("discoveriesDisclosure")
         }
         .padding(.top, 8)
+        .confirmationDialog(ui("Elige cómo actualizar el prompt", "Choose how to update the prompt"), isPresented: $showUpdateChoices, titleVisibility: .visible) {
+            Button(ui("Regenerar prompt", "Regenerate prompt"), action: onRegenerate)
+            Button(ui("Reanalizar necesidades", "Reanalyze needs"), action: onReanalyze)
+            Button(ui("Cancelar", "Cancel"), role: .cancel) {}
+        }
     }
 
     @ViewBuilder
@@ -104,10 +100,8 @@ struct ResultView: View {
         Button(ui("Copiar", "Copy")) { UIPasteboard.general.string = analysis.prompt }
         ShareLink(item: analysis.prompt) { Text(ui("Compartir", "Share")) }
         Button(ui("Guardar", "Save"), action: onSave)
-        Menu(ui("Actualizar", "Update")) {
-            Button(ui("Regenerar prompt", "Regenerate prompt"), action: onRegenerate)
-            Button(ui("Reanalizar necesidades", "Reanalyze needs"), action: onReanalyze)
-        }
+        Button(ui("Actualizar", "Update")) { showUpdateChoices = true }
+            .accessibilityHint(ui("Elige regenerar el prompt o reanalizar las necesidades", "Choose to regenerate the prompt or reanalyze needs"))
     }
 }
 

@@ -28,7 +28,7 @@ struct SemanticDomainFrame: Sendable {
 
     func validated(for request: String) -> SemanticDomainFrame {
         let status = RequestGrounding(request: request).hasExplicitWorkflow ? primaryJobStatus : "UNDERSPECIFIED"
-        return SemanticDomainFrame(primaryJobStatus: status, primaryJobCandidates: primaryJobCandidates, actors: actors, entities: entities, relationships: relationships, workflows: workflows, decisions: decisions, constraints: constraints, contextItems: contextItems, requestValidated: true)
+        return SemanticDomainFrame(primaryJobStatus: status, primaryJobCandidates: PrimaryJobEvidence(request: request).candidates(primaryJobCandidates), actors: actors, entities: entities, relationships: relationships, workflows: workflows, decisions: decisions, constraints: constraints, contextItems: contextItems, requestValidated: true)
     }
 }
 
@@ -250,6 +250,7 @@ struct DomainContextBuilder: Sendable {
             }.prefix(maximum).map { $0 }
         }
         var jobs = selected(frame.primaryJobCandidates, maximum: 3).filter { policy.isNaturalJob($0) && semantic.supports($0, frame: frame) }
+        if !originalRequest.isEmpty { jobs = PrimaryJobEvidence(request: originalRequest).candidates(jobs) }
         if Set(jobs.map { $0.lowercased() }).count < 2 { jobs = [] }
         let calibrated = frame.contextItems.compactMap { item -> DomainContextItem? in
             let clean = item.text.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -336,6 +337,9 @@ struct AppleUnknownSelector: Sendable {
         var candidates = unknowns.filter { impactScore($0) >= 3 && informative($0, policy: policy) }
 
         if frame.primaryJobStatus.uppercased() == "UNDERSPECIFIED" {
+            if frame.requestValidated {
+                candidates.removeAll { ["PRIMARY_JOB", "PRODUCT_DIRECTION"].contains($0.level.uppercased()) }
+            }
             let options = frame.primaryJobCandidates.filter(policy.isNaturalJob).prefix(3)
             let question: String
             if options.count >= 2 {
