@@ -76,7 +76,9 @@ struct PrimaryJobEvidence {
         }.prefix(3))
     }
 
-    static func validate(_ analysis: PromptAnalysis) -> PromptAnalysis {
+    // This projection is for questions/compilation, not a replacement for the
+    // stored domain frame. Regeneration must preserve its source metadata.
+    static func displayProjection(of analysis: PromptAnalysis) -> PromptAnalysis {
         guard let context = analysis.domainContext, context.primaryJobStatus == "UNDERSPECIFIED" else { return analysis }
         let values = PrimaryJobEvidence(request: analysis.input, authority: analysis.discoveries).candidates(context.primaryJobCandidates)
         let jobs = values.count >= 2 ? values : []

@@ -73,6 +73,13 @@ The actual Foundation boundary and context builder use that filter. Validated
 model primary questions cannot bypass the deterministic question. Recompilation
 also validates restored context after existing user decisions are protected;
 authority/discovery identity and persistence/upsert implementation are unchanged.
+Validation is a display/compilation projection. The source domain frame remains
+intact during regeneration and in saved snapshots. Run 37141389242 identified
+an initial regression in testDomainFrameSurvivesHistoryAndRegenerate; production
+was corrected to preserve metadata rather than changing that original test.
+Targeted tests now assert the same exact safe alternatives in the projection,
+retain their actual question/output assertions, and additionally require source
+frame equality. No original test or physical display requirement was weakened.
 
 Actualizar opens a native titled confirmation dialog. Operations still call
 the same handlers; Create and History share screen-level native feedback above

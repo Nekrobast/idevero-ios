@@ -103,7 +103,8 @@ final class PhysicalV6TargetedTests: XCTestCase {
         await model.reanalyze()
         let result = try XCTUnwrap(model.analysis)
         XCTAssertEqual(result.analysisID, id)
-        XCTAssertEqual(result.domainContext?.primaryJobCandidates.count, 2)
+        XCTAssertEqual(PrimaryJobEvidence.displayProjection(of: result).domainContext?.primaryJobCandidates.count, 2)
+        XCTAssertTrue(result.domainContext?.primaryJobCandidates.isEmpty == true, "Reanalysis source metadata must not be replaced by a display projection.")
         XCTAssertTrue(result.unknowns.first?.contains("Registrar préstamos de instrumentos") == true)
         XCTAssertTrue(result.unknowns.first?.contains("Gestionar devoluciones de instrumentos") == true)
         XCTAssertTrue(result.discoveries.contains { $0.provenance == .userAccepted })
@@ -119,7 +120,8 @@ final class PhysicalV6TargetedTests: XCTestCase {
         analysis.domainContext = DomainContext(language: "es", primaryJobStatus: "UNDERSPECIFIED", primaryJobCandidates: jobs, actors: [], entities: [], relationships: [], workflows: [], decisions: [], constraints: [])
         analysis = PromptAnalysis(analysisID: analysis.analysisID, title: analysis.title, input: analysis.input, task: analysis.task, intent: analysis.intent, domain: analysis.domain, secondaryDomains: analysis.secondaryDomains, target: analysis.target, outcome: analysis.outcome, elaboration: analysis.elaboration, discoveries: analysis.discoveries, unknowns: ["¿Qué trabajo principal: \(jobs.joined(separator: "; "))?"], prompt: analysis.prompt, qualityNotes: analysis.qualityNotes, intelligenceMode: analysis.intelligenceMode, analyzedAt: analysis.analyzedAt, domainContext: analysis.domainContext)
         let rebuilt = try LocalExpertProvider().recompile(analysis)
-        XCTAssertEqual(rebuilt.domainContext?.primaryJobCandidates, Array(jobs.prefix(2)))
+        XCTAssertEqual(PrimaryJobEvidence.displayProjection(of: rebuilt).domainContext?.primaryJobCandidates, Array(jobs.prefix(2)))
+        XCTAssertEqual(rebuilt.domainContext, analysis.domainContext, "Preserve the source frame while validating its user-facing projection.")
         XCTAssertFalse(rebuilt.unknowns.joined().contains(jobs[2]))
         XCTAssertEqual(rebuilt.discoveries[0].provenance, .userAccepted)
         XCTAssertEqual(rebuilt.discoveries[1].state, .locked)
@@ -133,7 +135,9 @@ final class PhysicalV6TargetedTests: XCTestCase {
         }
         analysis.domainContext = DomainContext(language: "en", primaryJobStatus: "UNDERSPECIFIED", primaryJobCandidates: jobs, actors: [], entities: [], relationships: [], workflows: [], decisions: [], constraints: [])
         let rebuilt = try LocalExpertProvider().recompile(analysis)
-        XCTAssertTrue(rebuilt.domainContext?.primaryJobCandidates.isEmpty == true)
+        XCTAssertTrue(PrimaryJobEvidence.displayProjection(of: rebuilt).domainContext?.primaryJobCandidates.isEmpty == true)
+        XCTAssertEqual(rebuilt.domainContext, analysis.domainContext)
+        for job in jobs { XCTAssertFalse(rebuilt.unknowns.joined().contains(job)) }
         XCTAssertEqual(rebuilt.discoveries[1].state, .excluded)
     }
 
