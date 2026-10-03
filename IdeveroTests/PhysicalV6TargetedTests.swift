@@ -74,7 +74,7 @@ final class PhysicalV6TargetedTests: XCTestCase {
             Discovery(id: "authority-\(index)", concept: job, reason: "Determina la operación que el usuario ha elegido para su aplicación.", lens: "Flujo", priority: .highValue, provenance: index == 0 ? .userAccepted : index == 1 ? .userLocked : .appleModel, state: index == 1 ? .locked : .included, dependencies: [], confidence: "HIGH", semanticRole: "CORE_WORKFLOW", anchor: job)
         }
         analysis.domainContext = DomainContext(language: "es", primaryJobStatus: "UNDERSPECIFIED", primaryJobCandidates: jobs, actors: [], entities: [], relationships: [], workflows: [], decisions: [], constraints: [])
-        analysis.unknowns = ["¿Qué trabajo principal: \(jobs.joined(separator: "; "))?"]
+        analysis = PromptAnalysis(analysisID: analysis.analysisID, title: analysis.title, input: analysis.input, task: analysis.task, intent: analysis.intent, domain: analysis.domain, secondaryDomains: analysis.secondaryDomains, target: analysis.target, outcome: analysis.outcome, elaboration: analysis.elaboration, discoveries: analysis.discoveries, unknowns: ["¿Qué trabajo principal: \(jobs.joined(separator: "; "))?"], prompt: analysis.prompt, qualityNotes: analysis.qualityNotes, intelligenceMode: analysis.intelligenceMode, analyzedAt: analysis.analyzedAt, domainContext: analysis.domainContext)
         let rebuilt = try LocalExpertProvider().recompile(analysis)
         XCTAssertEqual(rebuilt.domainContext?.primaryJobCandidates, Array(jobs.prefix(2)))
         XCTAssertFalse(rebuilt.unknowns.joined().contains(jobs[2]))
