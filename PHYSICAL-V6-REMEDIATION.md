@@ -76,4 +76,3 @@ generated manifest; physical results must be filled only after iPhone retest.
 
 Foundation Models physical runtime cannot be validated on a hosted simulator.
 Physical Quality V6 must remain AWAITING IPHONE RETEST for any new candidate.
-

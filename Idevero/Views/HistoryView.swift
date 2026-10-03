@@ -67,4 +67,3 @@ struct HistoryDetailView: View {
 
     private func persist() { guard let analysis = model.analysis else { return }; record.update(from: analysis); try? context.save() }
 }
-

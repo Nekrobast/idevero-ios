@@ -13,4 +13,3 @@ if (!project.includes('CURRENT_PROJECT_VERSION = 11') || !project.includes('MARK
 const production = spawnSync('git', ['grep', '-n', '-E', 'OPENAI_API_KEY|api.openai.com', '--', 'Idevero'], { encoding: 'utf8' });
 if (production.status !== 1) throw new Error('Paid API audit failed: ' + production.stdout + production.stderr);
 console.log('PASS: hard-code additions audit; unchanged conservative identity; 0.2.8 build 11; no OpenAI API');
-

@@ -469,6 +469,9 @@ struct AppleDiscoveryMerger: Sendable {
             }
             discovery.priority = disposition.priority
             discovery.state = disposition.state
+            if (frame?.requestValidated == true || !(frame?.contextItems.isEmpty ?? true)) && !grounded && [SemanticRole.coreWorkflow.rawValue, SemanticRole.decisionInput.rawValue].contains(item.semanticRole) {
+                discovery.confidence = "LOW"
+            }
             discovery.semanticRole = item.semanticRole
             discovery.anchor = item.anchor
             accepted.append(discovery)
@@ -554,4 +557,3 @@ struct AppleDiscoveryMerger: Sendable {
         return score
     }
 }
-

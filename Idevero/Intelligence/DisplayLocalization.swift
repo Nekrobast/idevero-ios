@@ -90,4 +90,3 @@ struct DisplayLocalization: Sendable {
         return values[value] ?? value.capitalized
     }
 }
-

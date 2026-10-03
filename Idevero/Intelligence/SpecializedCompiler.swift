@@ -278,4 +278,3 @@ struct SpecializedCompiler {
         return "\n\nEjecución en ChatGPT Work: inspecciona primero los archivos y el estado real; conserva arquitectura, datos e identidad; planifica internamente; modifica lo mínimo necesario; ejecuta build y pruebas pertinentes; inspecciona el resultado, corrige fallos y entrega el artefacto final con pruebas y limitaciones reales. No reconstruyas un proyecto existente ni te limites a explicar."
     }
 }
-

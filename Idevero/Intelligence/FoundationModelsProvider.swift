@@ -233,4 +233,3 @@ struct FoundationModelsProvider: IntelligenceProvider {
     }
     #endif
 }
-

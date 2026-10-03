@@ -25,4 +25,3 @@ final class PhysicalV6FeedbackUITests: XCTestCase {
         XCTAssertTrue(status.isHittable)
     }
 }
-

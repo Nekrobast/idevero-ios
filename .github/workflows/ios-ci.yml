@@ -295,4 +295,3 @@ jobs:
             device-platform.log
           if-no-files-found: error
           retention-days: 7
-

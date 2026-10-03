@@ -165,4 +165,3 @@ private struct EditorTextHeightKey: PreferenceKey {
         value = max(value, nextValue())
     }
 }
-

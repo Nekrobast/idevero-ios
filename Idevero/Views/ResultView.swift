@@ -57,12 +57,6 @@ struct ResultView: View {
                 .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(.quaternary))
                 .accessibilityIdentifier("generatedPrompt")
 
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 8) { resultActions }
-                VStack(alignment: .leading, spacing: 8) { resultActions }
-            }
-            .disabled(isWorking)
-
             if isWorking {
                 ProgressView(ui("Actualizando prompt…", "Updating prompt…"))
                     .accessibilityIdentifier("generationProgress")
@@ -72,6 +66,12 @@ struct ResultView: View {
                     .foregroundStyle(.secondary)
                     .accessibilityIdentifier("generationStatus")
             }
+
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) { resultActions }
+                VStack(alignment: .leading, spacing: 8) { resultActions }
+            }
+            .disabled(isWorking)
 
             DisclosureGroup(isExpanded: $showDiscoveries) {
                 LazyVStack(alignment: .leading, spacing: 0) {
@@ -256,4 +256,3 @@ private struct MetadataBadge: View {
             .accessibilityLabel("\(accessibilityPrefix): \(text)")
     }
 }
-

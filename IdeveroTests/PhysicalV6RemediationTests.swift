@@ -170,6 +170,7 @@ final class PhysicalV6RemediationTests: XCTestCase {
         let finding = SemanticFinding(concept: "clasificación diaria de encargos", reason: "Este proceso es necesario para decidir el orden de los encargos del oficio.", lens: "Dominio", semanticRole: "CORE_WORKFLOW", anchor: "clasificación diaria de encargos")
         let merged = AppleDiscoveryMerger(store: try KnowledgeStore.load()).merge(local: [], findings: [finding], request: "Quiero una app para restauradores", frame: validated)
         XCTAssertEqual(merged.first?.state, .optional)
+        XCTAssertEqual(merged.first?.confidence, "LOW")
         XCTAssertFalse(merged.first?.reason.contains("necesario") == true)
     }
 
@@ -276,5 +277,3 @@ private final class V6SlowCompiler: LocalIntelligenceProvider, @unchecked Sendab
         return try LocalExpertProvider().recompile(analysis)
     }
 }
-
-

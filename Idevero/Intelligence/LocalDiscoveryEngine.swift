@@ -116,4 +116,3 @@ struct LocalDiscoveryEngine {
         return strategy.quality.map { "Verificar: \($0)" } + (discoveries.contains { $0.priority == .core && $0.state != .excluded } ? [] : ["Falta un requisito CORE utilizable"])
     }
 }
-

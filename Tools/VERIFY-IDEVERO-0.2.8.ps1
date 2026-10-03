@@ -20,4 +20,3 @@ Write-Host "PASS: IDEVERO 0.2.8 IPA integrity preflight"
 Write-Host "SHA-256: $actual"
 Write-Host "Build: 11; source commit: $($candidateManifest.sourceCommit)"
 Write-Host "Physical Quality V6: AWAITING IPHONE RETEST"
-

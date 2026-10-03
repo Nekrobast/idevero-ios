@@ -73,4 +73,3 @@ actor IntelligenceCoordinator {
         return try local.recompile(copy)
     }
 }
-
