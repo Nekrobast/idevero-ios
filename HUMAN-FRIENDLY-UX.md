@@ -11,8 +11,10 @@ P1: “idempotencia”, “persistencia”, “arquitectura de información”, 
 provenance and perspective dominate the ordinary card. Action effects lack hints.
 P1: generic application strategy titles expose specialist vocabulary. Provider
 names and Settings “backend” are developer-facing rather than benefit-facing.
-P2 deferred: Spanish app-shell tabs for an English request; app-shell localization
-needs an explicit app-language policy, separate from request-language result cards.
+P1: Spanish app-shell tabs/settings for an English request; corrected with a
+session-only presentation language following the explicit request (no new storage).
+P0: English task titles could expose an underscore; corrected in the existing
+display-only task formatter, without changing routing or compiler content.
 P2 deferred: cosmetic email punctuation; History title truncation; broader authored
 knowledge wording outside this bounded UX phase. No global UI rewrite.
 
@@ -44,3 +46,16 @@ literals from the card design examples. Existing tests remain unchanged.
 
 Physical V6 build 12 PASS is recorded separately in PHYSICAL-V6-BUILD12-PASS.md.
 Any new UX IPA is AWAITING IPHONE UX RETEST, never physical UX PASS from CI.
+
+## Pre-production CI evidence
+
+Commit b0e7d6e03bbc27a8b84a1e77a279115eacc52c62, run 37189861405:
+compiled and executed. Initial four invariant unit contracts PASS; 142 unit tests
+with one physical-only skip and zero failures. New English and Spanish UI tests
+failed at the missing Add / Añadir action respectively: 2 confirmed UX REDs.
+Five existing UI tests PASS. Device artifact correctly not built after RED.
+Additional projection and interaction tests are supplemental, not pre-fix REDs.
+
+The English shell and task-title audit fixes are display-only. The audit also
+compares History persistence handlers and the physical tab-bar clearance reader
+byte-for-byte with the baseline. No semantic engine or authority changes.

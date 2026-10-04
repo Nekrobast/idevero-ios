@@ -2,13 +2,21 @@ import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
 const base = 'fc5b5b5fc1763adcc1d11ae0022dfde545e56051';
-const frozen = ['Idevero/Intelligence', 'Idevero/Models', 'Idevero/ViewModels', 'Idevero/Views/OperationFeedbackView.swift', 'Idevero/Views/RootView.swift', 'Idevero/Views/HistoryView.swift'];
+const frozen = ['Idevero/Models', 'Idevero/ViewModels', 'Idevero/Views/OperationFeedbackView.swift'];
 for (const path of frozen) {
   if (execFileSync('git', ['diff', base, '--', path], { encoding: 'utf8' }).trim()) throw new Error('Frozen semantic/runtime surface changed: ' + path);
 }
-const allowed = new Set(['Idevero/Views/DiscoveryPresentation.swift', 'Idevero/Views/ResultView.swift', 'Idevero/Views/CreateView.swift', 'Idevero/Views/SettingsView.swift', 'Idevero/Knowledge/DiscoveryDisplayMetadata.json']);
+const allowed = new Set(['Idevero/Views/DiscoveryPresentation.swift', 'Idevero/Views/AppDisplayLanguage.swift', 'Idevero/Views/ResultView.swift', 'Idevero/Views/CreateView.swift', 'Idevero/Views/SettingsView.swift', 'Idevero/Views/RootView.swift', 'Idevero/Views/HistoryView.swift', 'Idevero/Intelligence/DisplayLocalization.swift', 'Idevero/Knowledge/DiscoveryDisplayMetadata.json']);
 for (const path of execFileSync('git', ['diff', '--name-only', base, '--', 'Idevero'], { encoding: 'utf8' }).trim().split(/\r?\n/).filter(Boolean)) {
   if (!allowed.has(path)) throw new Error('Unexpected production edit: ' + path);
+}
+for (const path of execFileSync('git', ['diff', '--name-only', base, '--', 'Idevero/Intelligence'], { encoding: 'utf8' }).trim().split(/\r?\n/).filter(Boolean)) {
+  if (path !== 'Idevero/Intelligence/DisplayLocalization.swift') throw new Error('Intelligence changed: ' + path);
+}
+for (const [path, marker] of [['Idevero/Views/HistoryView.swift', '    private func setState'], ['Idevero/Views/RootView.swift', 'private struct TabBarClearanceReader']]) {
+  const original = execFileSync('git', ['show', base + ':' + path], { encoding: 'utf8' }).replaceAll('\r\n', '\n');
+  const current = readFileSync(path, 'utf8').replaceAll('\r\n', '\n');
+  if (original.slice(original.indexOf(marker)).trim() !== current.slice(current.indexOf(marker)).trim()) throw new Error('Persistence handlers or tab-bar clearance changed');
 }
 const concepts = JSON.parse(readFileSync('Idevero/Knowledge/Concepts.json')).concepts;
 const strategies = JSON.parse(readFileSync('Idevero/Knowledge/StrategyPacks.json')).strategies;

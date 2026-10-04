@@ -51,6 +51,8 @@ final class HumanFriendlyUXUITests: XCTestCase {
         }
         XCTAssertFalse(app.buttons["Bloquear"].exists)
         XCTAssertFalse(app.buttons["Añadir"].exists)
+        XCTAssertTrue(app.tabBars.buttons["History"].exists)
+        XCTAssertFalse(app.tabBars.buttons["Historial"].exists)
         XCTAssertGreaterThanOrEqual(add.frame.height, 44)
     }
 

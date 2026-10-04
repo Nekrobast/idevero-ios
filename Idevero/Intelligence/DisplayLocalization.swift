@@ -79,7 +79,7 @@ struct DisplayLocalization: Sendable {
     }
 
     func task(_ value: String) -> String {
-        guard language == .spanish else { return value.capitalized }
+        guard language == .spanish else { return value.replacingOccurrences(of: "_", with: " ").capitalized }
         let values = [
             "APPLICATION": "Aplicación", "WEB": "Web", "EMAIL": "Email", "IMAGE": "Imagen",
             "IMAGE_EDITING": "Edición de imagen", "SPREADSHEET": "Hoja de cálculo", "TRAVEL": "Viaje",

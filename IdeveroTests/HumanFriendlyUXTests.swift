@@ -157,4 +157,15 @@ final class HumanFriendlyUXTests: XCTestCase {
         literal.originalRequest = "Use sample_key for records"
         XCTAssertTrue(literal.title.contains("sample_key"))
     }
+
+    func testTaskTitleAndAccessibleActionEffectsUseHumanCopy() {
+        XCTAssertEqual(DisplayLocalization(language: .english).task("IMAGE_EDITING"), "Image Editing")
+        for language in [DisplayLanguage.spanish, .english] {
+            let display = DiscoveryPresentation(item: finding(), language: language)
+            for state in [DiscoveryState.included, .locked, .excluded] {
+                XCTAssertFalse(display.actionHint(state).isEmpty)
+                XCTAssertFalse(display.actionHint(state).contains(state.rawValue))
+            }
+        }
+    }
 }

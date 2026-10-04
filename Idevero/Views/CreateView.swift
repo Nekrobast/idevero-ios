@@ -5,6 +5,7 @@ struct CreateView: View {
     @StateObject private var model = CreateViewModel()
     @Environment(\.modelContext) private var context
     @Environment(\.ideveroTabBarClearance) private var tabBarClearance
+    @Environment(\.appDisplayLanguageChanged) private var languageChanged
     @FocusState private var isIdeaFocused: Bool
     private var language: DisplayLanguage { .detect(in: model.idea) }
     private func ui(_ es: String, _ en: String) -> String { language == .spanish ? es : en }
@@ -91,6 +92,7 @@ struct CreateView: View {
             }
         }
         .navigationTitle("Idevero")
+        .onChange(of: model.idea) { _, request in languageChanged(.detect(in: request)) }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {

@@ -12,23 +12,24 @@ struct RuntimeAppMetadata {
 
 struct SettingsView: View {
     private let metadata = RuntimeAppMetadata()
+    @Environment(\.appDisplayLanguage) private var language
 
     var body: some View {
         List {
-            Section("Inteligencia") {
-                LabeledContent("Modo", value: "Automático")
-                Text("Apple Intelligence cuando está disponible; conocimiento integrado de Idevero en cualquier otro caso.")
+            Section(language.ui("Inteligencia", "Intelligence")) {
+                LabeledContent(language.ui("Modo", "Mode"), value: language.ui("Automático", "Automatic"))
+                Text(language.ui("Apple Intelligence cuando está disponible; conocimiento integrado de Idevero en cualquier otro caso.", "Apple Intelligence when available; Idevero’s built-in knowledge otherwise."))
                     .font(.footnote).foregroundStyle(.secondary)
             }
-            Section("Privacidad") {
-                Label("Historial guardado en el dispositivo", systemImage: "iphone")
-                Label("No necesitas una cuenta", systemImage: "lock")
+            Section(language.ui("Privacidad", "Privacy")) {
+                Label(language.ui("Historial guardado en el dispositivo", "History saved on your device"), systemImage: "iphone")
+                Label(language.ui("No necesitas una cuenta", "No account needed"), systemImage: "lock")
             }
-            Section("Versión") {
-                LabeledContent("Versión", value: metadata.version)
-                LabeledContent("Build", value: metadata.build)
+            Section(language.ui("Versión", "Version")) {
+                LabeledContent(language.ui("Versión", "Version"), value: metadata.version)
+                LabeledContent(language.ui("Compilación", "Build"), value: metadata.build)
             }
         }
-        .navigationTitle("Ajustes")
+        .navigationTitle(language.ui("Ajustes", "Settings"))
     }
 }

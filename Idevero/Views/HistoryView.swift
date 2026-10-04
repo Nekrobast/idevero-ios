@@ -2,13 +2,14 @@ import SwiftUI
 import SwiftData
 
 struct HistoryView: View {
+    @Environment(\.appDisplayLanguage) private var language
     @Query(sort: \PromptRecord.createdAt, order: .reverse) private var records: [PromptRecord]
     @Environment(\.modelContext) private var context
 
     var body: some View {
         Group {
             if records.isEmpty {
-                ContentUnavailableView("Sin prompts guardados", systemImage: "clock", description: Text("Los prompts que guardes aparecerán aquí."))
+                ContentUnavailableView(language.ui("Sin prompts guardados", "No saved prompts"), systemImage: "clock", description: Text(language.ui("Los prompts que guardes aparecerán aquí.", "Prompts you save will appear here.")))
             } else {
                 List {
                     ForEach(records) { record in
@@ -23,12 +24,13 @@ struct HistoryView: View {
                 }
             }
         }
-        .navigationTitle("Historial")
+        .navigationTitle(language.ui("Historial", "History"))
     }
 }
 
 struct HistoryDetailView: View {
     let record: PromptRecord
+    @Environment(\.appDisplayLanguageChanged) private var languageChanged
     @Environment(\.modelContext) private var context
     @StateObject private var model: CreateViewModel
 
@@ -52,6 +54,7 @@ struct HistoryDetailView: View {
         .navigationTitle(DisplayLocalization(language: .detect(in: record.originalIdea)).text(record.title))
         .safeAreaInset(edge: .top, spacing: 0) { OperationFeedbackView(model: model) }
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear { languageChanged(.detect(in: record.originalIdea)) }
     }
 
     private func setState(_ id: String, _ state: DiscoveryState) {
