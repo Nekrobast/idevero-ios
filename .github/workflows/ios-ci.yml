@@ -34,6 +34,18 @@ jobs:
       - name: Audit build-13 frozen runtime and targeted presentation
         run: node Tools/audit-presentation-remediation.mjs
 
+      - name: Verify consolidated production equivalence to physical build 14
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code 61eb2a8490b1bcfcbedbaadfda18b4746035326f HEAD -- Idevero IdeveroTests IdeveroUITests Idevero.xcodeproj Tools
+          git diff --name-only 61eb2a8490b1bcfcbedbaadfda18b4746035326f HEAD | while IFS= read -r changed; do
+            case "$changed" in
+              *.md|.github/workflows/ios-ci.yml) ;;
+              *) echo "Unexpected consolidation change: $changed"; exit 1 ;;
+            esac
+          done
+
       - name: Select installed Xcode
         shell: bash
         run: |
@@ -271,7 +283,9 @@ jobs:
               "sourceTree": os.environ["SOURCE_TREE"], "runID": os.environ["GITHUB_RUN_ID"],
               "runAttempt": os.environ["GITHUB_RUN_ATTEMPT"], "ipa": "Idevero-iOS-0.2.9-DeviceUnsigned.ipa",
               "ipaSHA256": os.environ["IPA_SHA256"], "architecture": "arm64", "platform": "iPhoneOS",
-              "signing": "unsigned", "physicalQualityV6Baseline": "PASS — 0.2.8 build 12", "humanFriendlyUXBaseline": "PARTIAL PASS — 0.2.9 build 13", "humanFriendlyUX": "AWAITING IPHONE RETEST"
+              "signing": "unsigned", "physicalQualityV6Baseline": "PASS — 0.2.8 build 12", "humanFriendlyUXBaseline": "PHYSICAL PASS — 0.2.9 build 14", "humanFriendlyUX": "AWAITING IPHONE RETEST",
+              "humanFriendlyUXPhysicalBaseline": {"status": "PHYSICAL PASS", "sourceCommit": "61eb2a8490b1bcfcbedbaadfda18b4746035326f", "ipaSHA256": "b40ea64b7a955d2d3145b1820619fadcb64f92e8c08e7f833a47e0ad63333638"},
+              "productionEquivalentToPhysicalBaseline": True
           }
           with open("DeviceArtifact/manifest.json", "w") as output:
               json.dump(manifest, output, indent=2)
@@ -291,6 +305,9 @@ jobs:
             PHYSICAL-V6-BUILD12-PASS.md
             HUMAN-FRIENDLY-UX.md
             HUMAN-FRIENDLY-UX-BUILD13-PHYSICAL.md
+            HUMAN-FRIENDLY-UX-BUILD14-PHYSICAL.md
+            RELEASE-CONSOLIDATION-GIT-AUDIT.md
+            RELEASE-0.2.9-CONSOLIDATED.md
             HUMAN-FRIENDLY-UX-TARGETED-REMEDIATION.md
             DeviceArtifact/HUMAN-FRIENDLY-UX-BUILD14-RETEST.md
             DeviceArtifact/VERIFY-IDEVERO-0.2.9-BUILD14.ps1

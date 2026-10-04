@@ -1,6 +1,8 @@
 # 0.2.9 build 14 — targeted iPhone UX retest
 
-HUMAN-FRIENDLY UX TARGETED REMEDIATION: AWAITING IPHONE RETEST
+HUMAN-FRIENDLY UX TARGETED REMEDIATION: PHYSICAL PASS — tested commit 61eb2a8490b1bcfcbedbaadfda18b4746035326f
+
+Authorized user report received 2026-10-04: see HUMAN-FRIENDLY-UX-BUILD14-PHYSICAL.md for the exact tested IPA, confirmed sequence and scope. The checklist below is preserved as the original test plan, not proof that unreported items were exercised. A newly packaged consolidated IPA has its own hash and is not misrepresented as physically installed.
 
 Build 13 physical result remains PARTIAL PASS — TARGETED PRESENTATION REMEDIATION REQUIRED. Physical V6 build 12 remains PASS. Neither certifies this candidate.
 
@@ -17,7 +19,7 @@ Install only the new build-14 IPA matching its final GREEN commit, manifest and 
 - Create and History share the same card treatment. Regenerate/Reanalyze feedback, grounding, compiled prompt and persistence remain correct.
 - No invented local objects, jobs or requirements. Use an unseen request as a holdout.
 
-RESULT: NOT RUN
-DEVICE / IOS:
-IPA SHA-256:
-NOTES / SCREENSHOTS:
+RESULT: PHYSICAL PASS — authorized scope in HUMAN-FRIENDLY-UX-BUILD14-PHYSICAL.md
+DEVICE / IOS: Real iPhone; precise model/iOS not restated in this authorized report.
+IPA SHA-256: b40ea64b7a955d2d3145b1820619fadcb64f92e8c08e7f833a47e0ad63333638
+NOTES / SCREENSHOTS: User-reported evidence; PRE-1.0 VISUAL POLISH / NON-BLOCKING floating tab-bar overlap, no inaccessible content reported.
