@@ -39,3 +39,9 @@ Current version/build: 0.2.9 / 14. Production has not been changed; no new IPA o
 ## Initial targeted harness failure (NOT feature RED)
 
 Run 37226325313 on commit 600ca73922a4e336881cc8489d53b9416469742d allocated macos-26 / GitHub Actions 1000000100. All 13 isolation simulations and actual diff gate PASS. Native XCTest did not execute: Bash rejected empty EXTRA array under nounset. Artifact 11311583356 is harness diagnostics only, not XCTest or IPA validation. Fix only the new workflow command by initializing its testing selector array with the UI target. Do not remove nounset or change any assertions. Feature RED remains unproven until native test assertions actually fail.
+
+## Native feature RED in progress and unpublished pages
+
+Corrected harness commit: 84b6c0979aa2aa9ad9405cd420e5a15e9f394336. Run 37226446216 allocated macos-26 / GitHub Actions 1000000101; isolation simulations and diff gate PASS; native targeted XCTest is running. No feature RED conclusion or production fix before its actual assertion results.
+
+Privacy and Support ES/EN drafts are prepared under docs, with legal-owner/contact/effective-date placeholders. Three static HTML pages parse, have no broken relative links, and contain no scripts/external assets. GitHub Pages is suitable for this public repository, but is NOT activated; technically expected URLs are documented only as provisional, not live/final and not app configuration. No human identity, email or domain fabricated. No production modified, no new IPA generated, no new build number.

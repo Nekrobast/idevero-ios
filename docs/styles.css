@@ -1,0 +1,2 @@
+html{font:100%/1.65 system-ui,sans-serif;color-scheme:light dark}body{max-width:52rem;margin:auto;padding:1.25rem}header,nav{display:flex;flex-wrap:wrap;gap:1rem}main{margin-block:2rem}h1,h2,h3{line-height:1.25}article{margin-block:3rem}a{color:inherit;text-decoration:underline;text-underline-offset:.2em;display:inline-block;min-height:2.75rem;align-content:center}a:focus-visible{outline:3px solid currentColor;outline-offset:4px}.draft{padding:1rem;border:2px solid currentColor}strong{overflow-wrap:anywhere}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+

@@ -5,7 +5,13 @@
   "snapshots": {
     ".github/workflows/minimal-remediation-targeted.yml": "3342c049cd52d82a886a860c14edd0081d99343365263e6d2a836bd600ff395a",
     "IdeveroUITests/MinimalComplianceSaveUITests.swift": "2588fd2fc3681cfe9504b0d4d96a973c72287c8f62a6a1c3aaf1e8b75651e589",
-    "PRE-1.0-MINIMAL-REMEDIATION.md": "bb354e6449a1f22f26245a599b5b997fd63da8e97bbc0d6512e60ac70eace52f",
+    "PRE-1.0-MINIMAL-REMEDIATION.md": "c47a9a34745c380a09275b156e5274cd4ada0f01aa4c4a61af2872b35ff1a91f",
+    "docs/.nojekyll": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "docs/index.html": "833ad5a6e6063ed067e3cc08a7926665ea52fbf3c65b0c673c96943eeff4931c",
+    "docs/PAGES-PREPARATION.md": "4b8416dca42c1ca4b57437af51bb8aaef74a10945494218300c62c19dd39a3a6",
+    "docs/privacy.html": "3678b8c32cfa22563ac3badfae529f0a78ecce5f22e1e8c5e227a63f7da07333",
+    "docs/styles.css": "859dde11493b4f7d039ee91600e8a7a1d180c0ac1c5012c296c0e96a6bc52c61",
+    "docs/support.html": "74303a116035a29d71f4feadbdd6b8fe6cc262350790775b988d0b2a7193a984",
     "Tools/audit-authorized-remediation.mjs": "0a63d83fd854be6741378b3b5f891bb18141ef38f3658aff96b86d5f20be6fee",
     "Tools/test-authorized-remediation.mjs": "3026d874c3359699cf73d258b33e186d3e8e96c661a20a7a6ea20b9b3d8dad00",
     ".github/workflows/ios-ci.yml": "0674c30055612f9e08b03f0d9409d56188b5219abc0ad9791e9fd29784b5ec2e"
