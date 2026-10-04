@@ -3,9 +3,9 @@
   "base": "36b36c2463e00e3ef148f7d8ac7fe8f7a99d6a1d",
   "physicalBaseline": "61eb2a8490b1bcfcbedbaadfda18b4746035326f",
   "snapshots": {
-    ".github/workflows/minimal-remediation-targeted.yml": "30f427f0a387048606e7d2c2a3f2c73949cda31532b2a867bd54bb8e3d079311",
+    ".github/workflows/minimal-remediation-targeted.yml": "3342c049cd52d82a886a860c14edd0081d99343365263e6d2a836bd600ff395a",
     "IdeveroUITests/MinimalComplianceSaveUITests.swift": "2588fd2fc3681cfe9504b0d4d96a973c72287c8f62a6a1c3aaf1e8b75651e589",
-    "PRE-1.0-MINIMAL-REMEDIATION.md": "2256d730f8202d9b72a6b78de96c3a58a4fcc7ce3a2902b8e1263fc6b278ab4a",
+    "PRE-1.0-MINIMAL-REMEDIATION.md": "bb354e6449a1f22f26245a599b5b997fd63da8e97bbc0d6512e60ac70eace52f",
     "Tools/audit-authorized-remediation.mjs": "0a63d83fd854be6741378b3b5f891bb18141ef38f3658aff96b86d5f20be6fee",
     "Tools/test-authorized-remediation.mjs": "3026d874c3359699cf73d258b33e186d3e8e96c661a20a7a6ea20b9b3d8dad00",
     ".github/workflows/ios-ci.yml": "0674c30055612f9e08b03f0d9409d56188b5219abc0ad9791e9fd29784b5ec2e"

@@ -36,3 +36,6 @@ After confirmed feature RED: minimal Settings/native system links with centraliz
 Human input pending: legal responsible party, support contact, approved hosting/public URLs. No publication, account change, purchase or App Store signing.
 Current version/build: 0.2.9 / 14. Production has not been changed; no new IPA or GREEN claim.
 
+## Initial targeted harness failure (NOT feature RED)
+
+Run 37226325313 on commit 600ca73922a4e336881cc8489d53b9416469742d allocated macos-26 / GitHub Actions 1000000100. All 13 isolation simulations and actual diff gate PASS. Native XCTest did not execute: Bash rejected empty EXTRA array under nounset. Artifact 11311583356 is harness diagnostics only, not XCTest or IPA validation. Fix only the new workflow command by initializing its testing selector array with the UI target. Do not remove nounset or change any assertions. Feature RED remains unproven until native test assertions actually fail.

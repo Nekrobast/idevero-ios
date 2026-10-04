@@ -40,16 +40,15 @@ jobs:
         run: |
           set -euo pipefail
           set -o pipefail
-          EXTRA=()
+          TARGETS=("-only-testing:IdeveroUITests/MinimalComplianceSaveUITests")
           if test -f IdeveroTests/MinimalComplianceSaveTests.swift; then
-            EXTRA+=("-only-testing:IdeveroTests/MinimalComplianceSaveTests")
+            TARGETS+=("-only-testing:IdeveroTests/MinimalComplianceSaveTests")
           fi
           xcodebuild -project Idevero.xcodeproj -scheme Idevero \
             -destination "platform=iOS Simulator,id=$SIMULATOR_UDID" \
             -derivedDataPath DerivedData-Targeted \
             -resultBundlePath FeatureContracts.xcresult \
-            -only-testing:IdeveroUITests/MinimalComplianceSaveUITests \
-            "${EXTRA[@]}" clean test | tee targeted-xcodebuild.log
+            "${TARGETS[@]}" clean test | tee targeted-xcodebuild.log
       - name: Retain RED or GREEN native evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -60,4 +59,3 @@ jobs:
             FeatureContracts.xcresult
             devices.json
           retention-days: 7
-
