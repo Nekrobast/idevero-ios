@@ -9,7 +9,17 @@ permissions:
 
 jobs:
   targeted-contracts:
-    if: contains(github.event.head_commit.message, '[feature-red]') || contains(github.event.head_commit.message, '[targeted-green]')
+    if: contains(github.event.head_commit.message, '[feature-red]') || contains(github.event.head_commit.message, '[targeted-green]') || contains(github.event.head_commit.message, '[support-targeted]')
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - kind: large-normal
+            device: iPhone 17 Pro Max
+            content-size: large
+          - kind: compact-accessibility-large
+            device: iPhone 16e
+            content-size: accessibility-large
     runs-on: macos-26
     timeout-minutes: 30
     steps:
@@ -20,7 +30,9 @@ jobs:
         run: |
           node Tools/test-authorized-remediation.mjs
           node Tools/audit-authorized-remediation.mjs
-      - name: Select installed Xcode and large iPhone
+      - name: Select installed Xcode and requested iPhone
+        env:
+          TARGET_DEVICE: ${{ matrix.device }}
         shell: bash
         run: |
           set -euo pipefail
@@ -30,20 +42,27 @@ jobs:
           xcodebuild -version
           xcrun simctl list devices available -j > devices.json
           python3 <<'PY' >> "$GITHUB_ENV"
-          import json
+          import json, os
           devices = [d for rows in json.load(open("devices.json"))["devices"].values() for d in rows if d.get("isAvailable")]
-          chosen = next(d for d in devices if d["name"] == "iPhone 17 Pro Max")
+          chosen = next(d for d in devices if d["name"] == os.environ["TARGET_DEVICE"])
           print("SIMULATOR_UDID=" + chosen["udid"])
+          print("SIMULATOR_NAME=" + chosen["name"])
           PY
+          { sw_vers; xcodebuild -version; swift --version; } > targeted-environment.log
+      - name: Boot simulator and apply required Dynamic Type
+        shell: bash
+        run: |
+          set -euo pipefail
+          defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool false
+          xcrun simctl boot "$SIMULATOR_UDID" || true
+          xcrun simctl bootstatus "$SIMULATOR_UDID" -b
+          xcrun simctl ui "$SIMULATOR_UDID" content_size "${{ matrix.content-size }}"
       - name: Run native targeted feature contracts
         shell: bash
         run: |
           set -euo pipefail
           set -o pipefail
           TARGETS=("-only-testing:IdeveroUITests/MinimalComplianceSaveUITests")
-          if test -f IdeveroTests/MinimalComplianceSaveTests.swift; then
-            TARGETS+=("-only-testing:IdeveroTests/MinimalComplianceSaveTests")
-          fi
           xcodebuild -project Idevero.xcodeproj -scheme Idevero \
             -destination "platform=iOS Simulator,id=$SIMULATOR_UDID" \
             -derivedDataPath DerivedData-Targeted \
@@ -53,9 +72,10 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: minimal-remediation-targeted-${{ github.sha }}
+          name: minimal-remediation-targeted-${{ matrix.kind }}-${{ github.sha }}
           path: |
             targeted-xcodebuild.log
             FeatureContracts.xcresult
             devices.json
+            targeted-environment.log
           retention-days: 7

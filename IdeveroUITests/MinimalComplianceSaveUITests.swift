@@ -29,19 +29,43 @@ final class MinimalComplianceSaveUITests: XCTestCase {
         reach(button, in: app)
         button.tap()
     }
+    private func settingsEvidence(_ name: String, app: XCUIApplication, element: XCUIElement) {
+        let hierarchy = XCTAttachment(string: app.debugDescription)
+        hierarchy.name = "Settings-\(name)-hierarchy"
+        hierarchy.lifetime = .keepAlways
+        add(hierarchy)
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "Settings-\(name)-viewport"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+        let materialized = element.exists
+        let elementDetails = materialized ? "type=\(element.elementType.rawValue) frame=\(element.frame) hittable=\(element.isHittable) label=\(element.label)" : "not materialized"
+        print("SETTINGS EVIDENCE \(name): viewport=\(app.frame) supportExists=\(materialized) \(elementDetails) tabBar=\(app.tabBars.firstMatch.frame)")
+    }
     func testSettingsPrivacyAndSupportHaveIdentifiableAccessibleAccess() {
         let app = launch()
         app.tabBars.buttons["Ajustes"].tap()
         let privacy = app.descendants(matching: .any)["privacyPolicyAccess"].firstMatch
         let support = app.descendants(matching: .any)["supportAccess"].firstMatch
+        settingsEvidence("before-scroll", app: app, element: support)
         XCTAssertTrue(privacy.waitForExistence(timeout: 5), "Settings must expose Privacy Policy, not just privacy claims.")
         XCTAssertTrue(privacy.label.contains("Política de privacidad"))
         reach(privacy, in: app)
         XCTAssertGreaterThanOrEqual(privacy.frame.height, 44)
+        privacy.tap()
+        XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 5))
+        app.alerts.buttons["Aceptar"].tap()
+        // A native List materializes off-screen rows when the user scrolls.
+        // Reach Support BEFORE asserting existence; preserve every original assertion.
+        reach(support, in: app)
+        settingsEvidence("after-scroll", app: app, element: support)
         XCTAssertTrue(support.waitForExistence(timeout: 5), "Settings must expose Support.")
         XCTAssertTrue(support.label.contains("Soporte"))
         reach(support, in: app)
         XCTAssertGreaterThanOrEqual(support.frame.height, 44)
+        support.tap()
+        XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 5))
+        app.alerts.buttons["Aceptar"].tap()
     }
     func testSaveSuccessIsConfirmedAfterPersistence() {
         let app = launch()
@@ -98,4 +122,3 @@ final class MinimalComplianceSaveUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["persistenceSuccess"].waitForExistence(timeout: 5))
     }
 }
-
