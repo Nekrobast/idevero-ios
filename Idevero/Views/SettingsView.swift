@@ -17,12 +17,12 @@ struct SettingsView: View {
         List {
             Section("Inteligencia") {
                 LabeledContent("Modo", value: "Automático")
-                Text("Apple Foundation Models cuando está disponible; Local Expert en cualquier otro caso.")
+                Text("Apple Intelligence cuando está disponible; conocimiento integrado de Idevero en cualquier otro caso.")
                     .font(.footnote).foregroundStyle(.secondary)
             }
             Section("Privacidad") {
                 Label("Historial guardado en el dispositivo", systemImage: "iphone")
-                Label("Sin cuenta ni backend", systemImage: "lock")
+                Label("No necesitas una cuenta", systemImage: "lock")
             }
             Section("Versión") {
                 LabeledContent("Versión", value: metadata.version)

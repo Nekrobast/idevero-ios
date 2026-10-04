@@ -1,0 +1,316 @@
+{
+  "schema": 1,
+  "entries": [
+    {
+      "ids": [
+        "K_USER_OUTCOME",
+        "S_app_0"
+      ],
+      "title": {
+        "es": "Lo que realmente quieres conseguir",
+        "en": "What you really want to achieve"
+      },
+      "explanation": {
+        "es": "Aclara qué resultado haría útil esta petición.",
+        "en": "Clarifies which result would make this request useful."
+      }
+    },
+    {
+      "ids": [
+        "K_USE_CONTEXT",
+        "S_app_1"
+      ],
+      "title": {
+        "es": "Quién va a usarlo y cómo",
+        "en": "Who will use it and how"
+      },
+      "explanation": {
+        "es": "Ayuda a adaptarlo a las personas y a su forma de usarlo.",
+        "en": "Helps adapt it to the people and the way they will use it."
+      }
+    },
+    {
+      "ids": [
+        "S_app_2",
+        "K_PRIMARY_CTA"
+      ],
+      "title": {
+        "es": "Lo más importante que debe poder hacer",
+        "en": "The most important thing it should do"
+      },
+      "explanation": {
+        "es": "Centra la propuesta en una acción útil, sin dispersarla.",
+        "en": "Keeps the proposal focused on one useful action."
+      }
+    },
+    {
+      "ids": [
+        "S_app_3"
+      ],
+      "title": {
+        "es": "Cómo se hará paso a paso",
+        "en": "How it will work step by step"
+      },
+      "explanation": {
+        "es": "Explica cómo empezar, avanzar y completar la tarea.",
+        "en": "Explains how to start, continue and finish the task."
+      }
+    },
+    {
+      "ids": [
+        "S_app_4"
+      ],
+      "title": {
+        "es": "Otras tareas que también pueden hacer falta",
+        "en": "Other tasks that may also be needed"
+      },
+      "explanation": {
+        "es": "Incluye cómo consultar, corregir o repetir una tarea.",
+        "en": "Includes how to look up, correct or repeat a task."
+      }
+    },
+    {
+      "ids": [
+        "S_app_5",
+        "S_web_5"
+      ],
+      "title": {
+        "es": "Cómo organizar la información",
+        "en": "How to organize the information"
+      },
+      "explanation": {
+        "es": "Agrupa la información para que sea fácil encontrar lo que necesitas.",
+        "en": "Groups information so you can easily find what you need."
+      }
+    },
+    {
+      "ids": [
+        "S_app_6"
+      ],
+      "title": {
+        "es": "Cómo moverte entre las pantallas",
+        "en": "How to move between screens"
+      },
+      "explanation": {
+        "es": "Aclara dónde encontrar cada cosa y cómo llegar a ella.",
+        "en": "Clarifies where to find things and how to get there."
+      }
+    },
+    {
+      "ids": [
+        "S_app_7",
+        "K_DATA_MODEL"
+      ],
+      "title": {
+        "es": "Qué información necesita guardar",
+        "en": "What information needs to be saved"
+      },
+      "explanation": {
+        "es": "Define qué datos se guardan y cómo se conectan entre sí.",
+        "en": "Defines which data is saved and how it connects."
+      }
+    },
+    {
+      "ids": [
+        "S_app_8"
+      ],
+      "title": {
+        "es": "De dónde viene la información y si está al día",
+        "en": "Where information comes from and whether it is current"
+      },
+      "explanation": {
+        "es": "Ayuda a comprobar si la información sigue siendo útil.",
+        "en": "Helps check whether the information is still useful."
+      }
+    },
+    {
+      "ids": [
+        "S_app_10"
+      ],
+      "title": {
+        "es": "Cómo se guardan y actualizan los datos",
+        "en": "How data is saved and kept up to date"
+      },
+      "explanation": {
+        "es": "Aclara dónde se guarda la información y cómo se mantienen sus cambios.",
+        "en": "Clarifies where information is saved and how changes are kept."
+      }
+    },
+    {
+      "ids": [
+        "S_app_11",
+        "K_OFFLINE_FIELD_USE"
+      ],
+      "title": {
+        "es": "Qué hacer cuando no hay conexión",
+        "en": "What to do without a connection"
+      },
+      "explanation": {
+        "es": "Aclara qué se puede seguir haciendo y cómo recuperar los cambios.",
+        "en": "Clarifies what can still be done and how to recover changes."
+      }
+    },
+    {
+      "ids": [
+        "S_app_13",
+        "K_IMPORT_EXPORT"
+      ],
+      "title": {
+        "es": "Cómo llevar tus datos dentro y fuera",
+        "en": "How to bring your data in and take it out"
+      },
+      "explanation": {
+        "es": "Permite reutilizar información existente o guardar una copia.",
+        "en": "Helps reuse existing information or keep a copy."
+      }
+    },
+    {
+      "ids": [
+        "S_app_14",
+        "K_ACCESS_ROLES"
+      ],
+      "title": {
+        "es": "Quién puede ver o hacer cada cosa",
+        "en": "Who can see or do each thing"
+      },
+      "explanation": {
+        "es": "Aclara quién puede acceder a la información y realizar cambios.",
+        "en": "Clarifies who can access information and make changes."
+      }
+    },
+    {
+      "ids": [
+        "S_app_15",
+        "K_EMPTY_ERROR_RECOVERY"
+      ],
+      "title": {
+        "es": "Qué mostrar mientras esperas o si algo falla",
+        "en": "What to show while waiting or if something fails"
+      },
+      "explanation": {
+        "es": "Ayuda a saber qué ocurre y cómo continuar sin perderte.",
+        "en": "Helps you understand what is happening and how to continue."
+      }
+    },
+    {
+      "ids": [
+        "S_app_16",
+        "K_RESPONSIVE_CONTEXT"
+      ],
+      "title": {
+        "es": "Que sea fácil de usar para más personas",
+        "en": "Make it easier for more people to use"
+      },
+      "explanation": {
+        "es": "Adapta textos, controles y pantallas a distintas necesidades y dispositivos.",
+        "en": "Adapts text, controls and screens to different needs and devices."
+      }
+    },
+    {
+      "ids": [
+        "S_app_17"
+      ],
+      "title": {
+        "es": "Que funcione bien y proteja la información",
+        "en": "Make it work well and protect information"
+      },
+      "explanation": {
+        "es": "Ajusta la rapidez y la protección a lo que realmente necesitas.",
+        "en": "Matches speed and protection to what you actually need."
+      }
+    },
+    {
+      "ids": [
+        "S_app_18"
+      ],
+      "title": {
+        "es": "Comprobar que resuelve lo que necesitas",
+        "en": "Check that it solves what you need"
+      },
+      "explanation": {
+        "es": "Comprueba el resultado importante, no solo que las pantallas funcionen.",
+        "en": "Checks the important result, not just whether screens work."
+      }
+    },
+    {
+      "ids": [
+        "K_IDEMPOTENCY",
+        "S_automation_4"
+      ],
+      "title": {
+        "es": "Evitar duplicados y acciones repetidas",
+        "en": "Avoid duplicates and repeated actions"
+      },
+      "explanation": {
+        "es": "Evita que una misma tarea se registre o se haga dos veces por error.",
+        "en": "Prevents the same task from being recorded or performed twice by mistake."
+      }
+    },
+    {
+      "ids": [
+        "K_STATUS_LIFECYCLE"
+      ],
+      "title": {
+        "es": "Qué puede pasar en cada momento",
+        "en": "What can happen at each stage"
+      },
+      "explanation": {
+        "es": "Aclara la situación actual y qué se puede hacer a continuación.",
+        "en": "Clarifies the current situation and what can happen next."
+      }
+    },
+    {
+      "ids": [
+        "K_AUDIT_TRAIL",
+        "K_EVENT_HISTORY"
+      ],
+      "title": {
+        "es": "Saber qué cambió y cuándo",
+        "en": "Know what changed and when"
+      },
+      "explanation": {
+        "es": "Conserva los cambios para poder entender lo que pasó.",
+        "en": "Keeps changes so you can understand what happened."
+      }
+    },
+    {
+      "ids": [
+        "K_ASSET_REGISTRY"
+      ],
+      "title": {
+        "es": "Distinguir cada elemento que necesitas seguir",
+        "en": "Tell apart each item you need to track"
+      },
+      "explanation": {
+        "es": "Ayuda a reconocer cada elemento sin confundirlo con otro.",
+        "en": "Helps recognize each item without confusing it with another."
+      }
+    },
+    {
+      "ids": [
+        "K_CURRENTNESS"
+      ],
+      "title": {
+        "es": "Comprobar que la información sigue al día",
+        "en": "Check that information is still current"
+      },
+      "explanation": {
+        "es": "Evita decidir con información que ya ha cambiado.",
+        "en": "Avoids deciding with information that has already changed."
+      }
+    },
+    {
+      "ids": [
+        "K_CURRENT_STATE"
+      ],
+      "title": {
+        "es": "Saber cómo están las cosas ahora",
+        "en": "Know how things stand now"
+      },
+      "explanation": {
+        "es": "Usa lo que ya ocurrió para entender la situación actual.",
+        "en": "Uses what has already happened to understand the current situation."
+      }
+    }
+  ]
+}

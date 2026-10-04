@@ -19,7 +19,7 @@ struct ResultView: View {
     }
 
     private var displayedProviderName: String {
-        usedAppleAugmentation ? "Apple Foundation Models" : "Local Expert"
+        usedAppleAugmentation ? "Apple Intelligence" : ui("Conocimiento de Idevero", "Idevero’s built-in knowledge")
     }
 
     private var displayedDiscoveries: [Discovery] {
@@ -65,9 +65,13 @@ struct ResultView: View {
             .disabled(isWorking)
 
             DisclosureGroup(isExpanded: $showDiscoveries) {
+                Text(ui("Ideas y detalles que pueden mejorar tu petición. Puedes añadirlos, mantenerlos siempre o quitarlos.", "Ideas and details that can improve your request. You can add them, always keep them or remove them."))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
                 LazyVStack(alignment: .leading, spacing: 0) {
                     ForEach(displayedDiscoveries) { item in
-                        DiscoveryRow(item: item, language: .detect(in: analysis.input), onState: onState)
+                        DiscoveryRow(item: item, language: .detect(in: analysis.input), originalRequest: analysis.input, onState: onState)
                             .disabled(isWorking)
                         if item.id != displayedDiscoveries.last?.id { Divider() }
                     }
@@ -108,145 +112,73 @@ struct ResultView: View {
 private struct DiscoveryRow: View {
     let item: Discovery
     let language: DisplayLanguage
+    let originalRequest: String
     let onState: (String, DiscoveryState) -> Void
-
-    private var provenances: [DiscoveryProvenance] {
-        var values = item.sourceProvenance ?? [item.provenance]
-        if !values.contains(item.provenance) { values.insert(item.provenance, at: 0) }
-        return values
-    }
-
-    private var displayedLens: String {
-        guard (item.sourceProvenance ?? [item.provenance]).contains(.appleModel),
-              let raw = item.semanticRole,
-              let role = SemanticRole(rawValue: raw) else { return DisplayLocalization(language: language).lens(item.lens) }
-        return UserFacingTextPolicy(language: language).displayLens(for: role)
-    }
-
-    private var display: DisplayLocalization { DisplayLocalization(language: language) }
-    private func ui(_ spanish: String, _ english: String) -> String { language == .spanish ? spanish : english }
+    @State private var showDetails = false
+    private var display: DiscoveryPresentation { .init(item: item, language: language, originalRequest: originalRequest) }
+    private func ui(_ es: String, _ en: String) -> String { language == .spanish ? es : en }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(display.text(item.concept))
-                        .font(.headline)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Spacer(minLength: 0)
-                    priorityBadge
-                }
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(display.text(item.concept))
-                        .font(.headline)
-                        .fixedSize(horizontal: false, vertical: true)
-                    priorityBadge
-                }
-            }
-
-            Text(display.text(item.reason))
+        VStack(alignment: .leading, spacing: 10) {
+            Text(display.title)
+                .font(.headline)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityAddTraits(.isHeader)
+            Text(display.explanation)
                 .font(.subheadline)
+                .fixedSize(horizontal: false, vertical: true)
+            Text(display.priority + " · " + display.state)
+                .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
-
-            Text((language == .spanish ? "Perspectiva: " : "Perspective: ") + displayedLens)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 6) {
-                    ForEach(provenances, id: \.self) { provenance in
-                        MetadataBadge(
-                            text: provenance.displayName(language: language),
-                            emphasized: provenance == .appleModel,
-                            accessibilityPrefix: ui("Procedencia", "Provenance")
-                        )
-                    }
-                    MetadataBadge(text: item.state.displayName(language: language), emphasized: false, accessibilityPrefix: ui("Estado", "State"))
-                }
-            }
-
+                .accessibilityLabel(ui("Importancia y decisión: ", "Importance and decision: ") + display.priority + ". " + display.state)
             ViewThatFits(in: .horizontal) {
-                HStack(spacing: 12) { discoveryActions }
-                VStack(alignment: .leading, spacing: 6) { discoveryActions }
+                HStack(spacing: 8) { actions }
+                VStack(alignment: .leading, spacing: 8) { actions }
             }
-            .font(.caption.weight(.semibold))
-            .buttonStyle(.borderless)
+            .buttonStyle(.bordered)
+            DisclosureGroup(isExpanded: $showDetails) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(display.fullReason)
+                    Text(ui("De dónde sale esta recomendación", "Where this recommendation comes from"))
+                        .fontWeight(.semibold)
+                    ForEach(display.sourceDescriptions, id: \.self) { Text($0) }
+                    Text(ui("Perspectiva: ", "Perspective: ") + display.perspective)
+                    if display.title != display.technicalTitle {
+                        Text(ui("Término técnico: ", "Technical term: ") + display.technicalTitle)
+                    }
+                }
+                .font(.subheadline)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 6)
+            } label: {
+                Text(ui("¿Por qué me recomienda esto?", "Why is this recommended?"))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(minHeight: 44)
+            }
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 12)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("discoveryRow")
     }
 
-    private var priorityBadge: some View {
-        MetadataBadge(text: item.priority.displayName(language: language), emphasized: item.priority == .core, accessibilityPrefix: ui("Prioridad", "Priority"))
-    }
-
     @ViewBuilder
-    private var discoveryActions: some View {
-        Button(ui("Incluir", "Include")) { onState(item.id, .included) }
-            .frame(minHeight: 44)
-        Button(ui("Bloquear", "Lock")) { onState(item.id, .locked) }
-            .frame(minHeight: 44)
-        Button(ui("Excluir", "Exclude"), role: .destructive) { onState(item.id, .excluded) }
-            .frame(minHeight: 44)
+    private var actions: some View {
+        action(.included)
+        action(.locked)
+        action(.excluded)
     }
-}
 
-private extension DiscoveryProvenance {
-    func displayName(language: DisplayLanguage) -> String {
-        if language == .english {
-            switch self {
-            case .userExplicit: return "User request"
-            case .localKnowledge: return "Local knowledge"
-            case .appleModel: return "Apple inference"
-            case .userAccepted: return "User accepted"
-            case .userLocked: return "User locked"
-            case .placeholder: return "Placeholder"
-            }
+    private func action(_ state: DiscoveryState) -> some View {
+        Button(role: state == .excluded ? .destructive : nil) {
+            onState(item.id, state)
+        } label: {
+            Text(display.actionTitle(state))
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(minWidth: 44, minHeight: 44)
         }
-        switch self {
-        case .userExplicit: return "Petición del usuario"
-        case .localKnowledge: return "Conocimiento local"
-        case .appleModel: return "Inferencia de Apple"
-        case .userAccepted: return "Aceptado por el usuario"
-        case .userLocked: return "Bloqueado por el usuario"
-        case .placeholder: return "Marcador"
-        }
-    }
-}
-
-private extension DiscoveryState {
-    func displayName(language: DisplayLanguage) -> String {
-        if language == .english {
-            switch self { case .included: return "Included"; case .locked: return "Locked"; case .optional: return "Optional"; case .excluded: return "Excluded"; case .pending: return "Pending" }
-        }
-        switch self { case .included: return "Incluido"; case .locked: return "Bloqueado"; case .optional: return "Opcional"; case .excluded: return "Excluido"; case .pending: return "Pendiente" }
-    }
-}
-
-private extension RequirementPriority {
-    func displayName(language: DisplayLanguage) -> String {
-        if language == .english {
-            switch self { case .core: return "Core"; case .highValue: return "High value"; case .optional: return "Optional"; case .outOfScope: return "Out of scope" }
-        }
-        switch self { case .core: return "Esencial"; case .highValue: return "Alto valor"; case .optional: return "Opcional"; case .outOfScope: return "Fuera de alcance" }
-    }
-}
-
-private struct MetadataBadge: View {
-    let text: String
-    let emphasized: Bool
-    let accessibilityPrefix: String
-
-    var body: some View {
-        Text(text)
-            .font(.caption2.weight(.semibold))
-            .lineLimit(1)
-            .padding(.horizontal, 7)
-            .padding(.vertical, 4)
-            .foregroundStyle(emphasized ? Color.indigo : Color.secondary)
-            .background((emphasized ? Color.indigo : Color.secondary).opacity(0.12), in: Capsule())
-            .accessibilityLabel("\(accessibilityPrefix): \(text)")
+        .accessibilityHint(display.actionHint(state))
+        // Preserve the existing UI-test selector, not a user-visible label.
+        .accessibilityIdentifier(state == .excluded ? "Excluir" : "discoveryAction-" + state.rawValue)
     }
 }

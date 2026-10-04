@@ -28,6 +28,9 @@ jobs:
       - name: Audit Physical V6 production additions
         run: node Tools/audit-physical-v6.mjs
 
+      - name: Audit isolated presentation and bilingual metadata
+        run: node Tools/audit-human-friendly-ux.mjs
+
       - name: Select installed Xcode
         shell: bash
         run: |
@@ -108,7 +111,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo '# IDEVERO 0.2.8 build 12 — responsive UI validation'
+            echo '# IDEVERO 0.2.9 build 13 — responsive UI validation'
             echo
             echo "- Commit: \`$SOURCE_COMMIT\`"
             echo "- Run: \`$GITHUB_RUN_ID\`"
@@ -124,7 +127,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: idevero-xcode-results-0.2.8
+          name: idevero-xcode-results-0.2.9
           path: |
             xcodebuild-large.log
             xcodebuild-small.log
@@ -180,8 +183,8 @@ jobs:
           EXECUTABLE="$APP/Idevero"
           test -d "$APP" && test -f "$INFO" && test -f "$EXECUTABLE"
           test "$(plutil -extract CFBundleIdentifier raw "$INFO")" = "com.aitor93.idevero"
-          test "$(plutil -extract CFBundleShortVersionString raw "$INFO")" = "0.2.8"
-          test "$(plutil -extract CFBundleVersion raw "$INFO")" = "12"
+          test "$(plutil -extract CFBundleShortVersionString raw "$INFO")" = "0.2.9"
+          test "$(plutil -extract CFBundleVersion raw "$INFO")" = "13"
           test "$(plutil -extract MinimumOSVersion raw "$INFO")" = "17.0"
           lipo -archs "$EXECUTABLE" | grep -qw arm64
           xcrun vtool -show-build "$EXECUTABLE" | tee device-platform.log
@@ -193,10 +196,10 @@ jobs:
           mkdir -p DeviceArtifact/Payload
           ditto "$APP" DeviceArtifact/Payload/Idevero.app
           cd DeviceArtifact
-          /usr/bin/zip -qry Idevero-iOS-0.2.8-DeviceUnsigned.ipa Payload
-          unzip -t Idevero-iOS-0.2.8-DeviceUnsigned.ipa | tee ipa-integrity.log
-          shasum -a 256 Idevero-iOS-0.2.8-DeviceUnsigned.ipa | tee Idevero-iOS-0.2.8-DeviceUnsigned.ipa.sha256
-          cp Idevero-iOS-0.2.8-DeviceUnsigned.ipa.sha256 SHA256SUMS.txt
+          /usr/bin/zip -qry Idevero-iOS-0.2.9-DeviceUnsigned.ipa Payload
+          unzip -t Idevero-iOS-0.2.9-DeviceUnsigned.ipa | tee ipa-integrity.log
+          shasum -a 256 Idevero-iOS-0.2.9-DeviceUnsigned.ipa | tee Idevero-iOS-0.2.9-DeviceUnsigned.ipa.sha256
+          cp Idevero-iOS-0.2.9-DeviceUnsigned.ipa.sha256 SHA256SUMS.txt
 
       - name: Verify re-signability on a disposable copy
         shell: bash
@@ -210,16 +213,16 @@ jobs:
       - name: Download responsive UI validation evidence
         uses: actions/download-artifact@v4
         with:
-          name: idevero-xcode-results-0.2.8
+          name: idevero-xcode-results-0.2.9
           path: SimulatorEvidence
 
       - name: Create device build report
         shell: bash
         run: |
           set -euo pipefail
-          SHA256="$(cut -d ' ' -f 1 DeviceArtifact/Idevero-iOS-0.2.8-DeviceUnsigned.ipa.sha256)"
+          SHA256="$(cut -d ' ' -f 1 DeviceArtifact/Idevero-iOS-0.2.9-DeviceUnsigned.ipa.sha256)"
           {
-            echo '# IDEVERO 0.2.8 build 12 — iPhoneOS unsigned build'
+            echo '# IDEVERO 0.2.9 build 13 — iPhoneOS unsigned build'
             echo
             echo "- Commit: \`$SOURCE_COMMIT\`"
             echo "- Run: \`$GITHUB_RUN_ID\`"
@@ -232,7 +235,7 @@ jobs:
           } > DeviceArtifact/DEVICE-BUILD-REPORT.md
           cp SimulatorEvidence/UI-VALIDATION-REPORT.md DeviceArtifact/
           {
-            echo '# IDEVERO 0.2.8 build 12 — Xcode CI build'
+            echo '# IDEVERO 0.2.9 build 13 — Xcode CI build'
             echo
             echo "- Commit: \`$SOURCE_COMMIT\`"
             echo "- Run: \`$GITHUB_RUN_ID\`"
@@ -244,7 +247,7 @@ jobs:
           } > DeviceArtifact/XCODE-CI-BUILD-REPORT.md
           xcrun xcresulttool get test-results summary --path SimulatorEvidence/TestResults-Large.xcresult > DeviceArtifact/test-summary.json
           {
-            echo '# IDEVERO 0.2.8 build 12 — XCTest CI report'
+            echo '# IDEVERO 0.2.9 build 13 — XCTest CI report'
             echo
             echo "- Commit: \`$SOURCE_COMMIT\`"
             echo "- Run: \`$GITHUB_RUN_ID\`"
@@ -254,36 +257,38 @@ jobs:
             echo '```'
           } > DeviceArtifact/XCTEST-CI-REPORT.md
           cp QUALITY-V5-REPORT.md QUALITY-V4-REPORT.md QUALITY-023-024-025-026.md DeviceArtifact/
-          cp PHYSICAL-V6-CHECKLIST.md Tools/VERIFY-IDEVERO-0.2.8.ps1 DeviceArtifact/
+          cp HUMAN-FRIENDLY-UX-RETEST.md Tools/VERIFY-IDEVERO-0.2.9.ps1 DeviceArtifact/
           test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
           export IPA_SHA256="$SHA256"
           export SOURCE_TREE="$(git rev-parse HEAD^{tree})"
           python3 <<'PY'
           import json, os
           manifest = {
-              "version": "0.2.8", "build": 12, "sourceCommit": os.environ["SOURCE_COMMIT"],
+              "version": "0.2.9", "build": 13, "sourceCommit": os.environ["SOURCE_COMMIT"],
               "sourceTree": os.environ["SOURCE_TREE"], "runID": os.environ["GITHUB_RUN_ID"],
-              "runAttempt": os.environ["GITHUB_RUN_ATTEMPT"], "ipa": "Idevero-iOS-0.2.8-DeviceUnsigned.ipa",
+              "runAttempt": os.environ["GITHUB_RUN_ATTEMPT"], "ipa": "Idevero-iOS-0.2.9-DeviceUnsigned.ipa",
               "ipaSHA256": os.environ["IPA_SHA256"], "architecture": "arm64", "platform": "iPhoneOS",
-              "signing": "unsigned", "physicalQualityV6": "AWAITING FINAL IPHONE RETEST"
+              "signing": "unsigned", "physicalQualityV6Baseline": "PASS — 0.2.8 build 12", "humanFriendlyUX": "AWAITING IPHONE UX RETEST"
           }
           with open("DeviceArtifact/manifest.json", "w") as output:
               json.dump(manifest, output, indent=2)
           PY
 
-      - name: Upload private 0.2.8 device artifact
+      - name: Upload 0.2.9 device artifact
         uses: actions/upload-artifact@v4
         with:
-          name: idevero-device-build-0.2.8
+          name: idevero-device-build-0.2.9
           path: |
-            DeviceArtifact/Idevero-iOS-0.2.8-DeviceUnsigned.ipa
-            DeviceArtifact/Idevero-iOS-0.2.8-DeviceUnsigned.ipa.sha256
+            DeviceArtifact/Idevero-iOS-0.2.9-DeviceUnsigned.ipa
+            DeviceArtifact/Idevero-iOS-0.2.9-DeviceUnsigned.ipa.sha256
             DeviceArtifact/SHA256SUMS.txt
             DeviceArtifact/manifest.json
             PHYSICAL-V6-REMEDIATION.md
             PHYSICAL-V6-TARGETED-REMEDIATION.md
-            DeviceArtifact/PHYSICAL-V6-CHECKLIST.md
-            DeviceArtifact/VERIFY-IDEVERO-0.2.8.ps1
+            PHYSICAL-V6-BUILD12-PASS.md
+            HUMAN-FRIENDLY-UX.md
+            DeviceArtifact/HUMAN-FRIENDLY-UX-RETEST.md
+            DeviceArtifact/VERIFY-IDEVERO-0.2.9.ps1
             DeviceArtifact/DEVICE-BUILD-REPORT.md
             DeviceArtifact/UI-VALIDATION-REPORT.md
             DeviceArtifact/QUALITY-V5-REPORT.md
