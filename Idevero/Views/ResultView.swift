@@ -72,17 +72,31 @@ struct ResultView: View {
                     discoverySection(ui("Lo más importante", "Most important"), items: summary.important)
                     discoverySection(ui("También puede ayudar", "May also help"), items: summary.recommended)
                     if !summary.more.isEmpty {
-                        DisclosureGroup(isExpanded: $showMoreRecommendations) {
-                            discoverySection(ui("Más recomendaciones", "More recommendations"), items: summary.more)
-                        } label: {
-                            Text(showMoreRecommendations
-                                 ? ui("Mostrar menos recomendaciones", "Show fewer recommendations")
-                                 : ui("Ver más recomendaciones (\(summary.more.count))", "See more recommendations (\(summary.more.count))"))
-                                .fixedSize(horizontal: false, vertical: true)
+                        VStack(alignment: .leading, spacing: 8) {
+                            Button { showMoreRecommendations.toggle() } label: {
+                                HStack {
+                                    Text(showMoreRecommendations
+                                         ? ui("Mostrar menos recomendaciones", "Show fewer recommendations")
+                                         : ui("Ver más recomendaciones (\(summary.more.count))", "See more recommendations (\(summary.more.count))"))
+                                        .fixedSize(horizontal: false, vertical: true)
+                                    Spacer(minLength: 8)
+                                    Image(systemName: showMoreRecommendations ? "chevron.down" : "chevron.right")
+                                        .accessibilityHidden(true)
+                                }
                                 .frame(minHeight: 44)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .foregroundStyle(.tint)
+                            .accessibilityIdentifier("moreRecommendations")
+                            .accessibilityValue(showMoreRecommendations ? ui("Expandido", "Expanded") : ui("Contraído", "Collapsed"))
+                            .accessibilityHint(ui("Todas las recomendaciones siguen disponibles. Expande o contrae el resto.", "All recommendations remain available. Expand or collapse the rest."))
+                            if showMoreRecommendations {
+                                discoverySection(ui("Más recomendaciones", "More recommendations"), items: summary.more)
+                            }
                         }
-                        .accessibilityIdentifier("moreRecommendations")
-                        .accessibilityHint(ui("Todas las recomendaciones siguen disponibles. Expande o contrae el resto.", "All recommendations remain available. Expand or collapse the rest."))
+                        .accessibilityElement(children: .contain)
+                        .accessibilityIdentifier("moreRecommendationsSection")
                     }
                 }
                 .padding(.top, 8)
