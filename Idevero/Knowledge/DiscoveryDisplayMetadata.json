@@ -1,0 +1,1132 @@
+{
+  "schema": 1,
+  "entries": [
+    {
+      "ids": [
+        "K_USER_OUTCOME",
+        "S_app_0"
+      ],
+      "title": {
+        "es": "Lo que realmente quieres conseguir",
+        "en": "What you really want to achieve"
+      },
+      "explanation": {
+        "es": "Aclara qué resultado haría útil esta petición.",
+        "en": "Clarifies which result would make this request useful."
+      }
+    },
+    {
+      "ids": [
+        "K_USE_CONTEXT",
+        "S_app_1"
+      ],
+      "title": {
+        "es": "Quién va a usarlo y cómo",
+        "en": "Who will use it and how"
+      },
+      "explanation": {
+        "es": "Ayuda a adaptarlo a las personas y a su forma de usarlo.",
+        "en": "Helps adapt it to the people and the way they will use it."
+      }
+    },
+    {
+      "ids": [
+        "S_app_2",
+        "K_PRIMARY_CTA"
+      ],
+      "title": {
+        "es": "Lo más importante que debe poder hacer",
+        "en": "The most important thing it should do"
+      },
+      "explanation": {
+        "es": "Centra la propuesta en una acción útil, sin dispersarla.",
+        "en": "Keeps the proposal focused on one useful action."
+      }
+    },
+    {
+      "ids": [
+        "S_app_3"
+      ],
+      "title": {
+        "es": "Cómo se hará paso a paso",
+        "en": "How it will work step by step"
+      },
+      "explanation": {
+        "es": "Explica cómo empezar, avanzar y completar la tarea.",
+        "en": "Explains how to start, continue and finish the task."
+      }
+    },
+    {
+      "ids": [
+        "S_app_4"
+      ],
+      "title": {
+        "es": "Otras tareas que también pueden hacer falta",
+        "en": "Other tasks that may also be needed"
+      },
+      "explanation": {
+        "es": "Incluye cómo consultar, corregir o repetir una tarea.",
+        "en": "Includes how to look up, correct or repeat a task."
+      }
+    },
+    {
+      "ids": [
+        "S_app_5",
+        "S_web_5"
+      ],
+      "title": {
+        "es": "Cómo organizar la información",
+        "en": "How to organize the information"
+      },
+      "explanation": {
+        "es": "Agrupa la información para que sea fácil encontrar lo que necesitas.",
+        "en": "Groups information so you can easily find what you need."
+      }
+    },
+    {
+      "ids": [
+        "S_app_6"
+      ],
+      "title": {
+        "es": "Cómo moverte entre las pantallas",
+        "en": "How to move between screens"
+      },
+      "explanation": {
+        "es": "Aclara dónde encontrar cada cosa y cómo llegar a ella.",
+        "en": "Clarifies where to find things and how to get there."
+      }
+    },
+    {
+      "ids": [
+        "S_app_7",
+        "K_DATA_MODEL"
+      ],
+      "title": {
+        "es": "Qué información necesita guardar",
+        "en": "What information needs to be saved"
+      },
+      "explanation": {
+        "es": "Define qué datos se guardan y cómo se conectan entre sí.",
+        "en": "Defines which data is saved and how it connects."
+      }
+    },
+    {
+      "ids": [
+        "S_app_8"
+      ],
+      "title": {
+        "es": "De dónde viene la información y si está al día",
+        "en": "Where information comes from and whether it is current"
+      },
+      "explanation": {
+        "es": "Ayuda a comprobar si la información sigue siendo útil.",
+        "en": "Helps check whether the information is still useful."
+      }
+    },
+    {
+      "ids": [
+        "S_app_10"
+      ],
+      "title": {
+        "es": "Cómo se guardan y actualizan los datos",
+        "en": "How data is saved and kept up to date"
+      },
+      "explanation": {
+        "es": "Aclara dónde se guarda la información y cómo se mantienen sus cambios.",
+        "en": "Clarifies where information is saved and how changes are kept."
+      }
+    },
+    {
+      "ids": [
+        "S_app_11",
+        "K_OFFLINE_FIELD_USE"
+      ],
+      "title": {
+        "es": "Qué hacer cuando no hay conexión",
+        "en": "What to do without a connection"
+      },
+      "explanation": {
+        "es": "Aclara qué se puede seguir haciendo y cómo recuperar los cambios.",
+        "en": "Clarifies what can still be done and how to recover changes."
+      }
+    },
+    {
+      "ids": [
+        "S_app_13",
+        "K_IMPORT_EXPORT"
+      ],
+      "title": {
+        "es": "Cómo llevar tus datos dentro y fuera",
+        "en": "How to bring your data in and take it out"
+      },
+      "explanation": {
+        "es": "Permite reutilizar información existente o guardar una copia.",
+        "en": "Helps reuse existing information or keep a copy."
+      }
+    },
+    {
+      "ids": [
+        "S_app_14",
+        "K_ACCESS_ROLES"
+      ],
+      "title": {
+        "es": "Quién puede ver o hacer cada cosa",
+        "en": "Who can see or do each thing"
+      },
+      "explanation": {
+        "es": "Aclara quién puede acceder a la información y realizar cambios.",
+        "en": "Clarifies who can access information and make changes."
+      }
+    },
+    {
+      "ids": [
+        "S_app_15",
+        "K_EMPTY_ERROR_RECOVERY"
+      ],
+      "title": {
+        "es": "Qué mostrar mientras esperas o si algo falla",
+        "en": "What to show while waiting or if something fails"
+      },
+      "explanation": {
+        "es": "Ayuda a saber qué ocurre y cómo continuar sin perderte.",
+        "en": "Helps you understand what is happening and how to continue."
+      }
+    },
+    {
+      "ids": [
+        "S_app_16",
+        "K_RESPONSIVE_CONTEXT"
+      ],
+      "title": {
+        "es": "Que sea fácil de usar para más personas",
+        "en": "Make it easier for more people to use"
+      },
+      "explanation": {
+        "es": "Adapta textos, controles y pantallas a distintas necesidades y dispositivos.",
+        "en": "Adapts text, controls and screens to different needs and devices."
+      }
+    },
+    {
+      "ids": [
+        "S_app_17"
+      ],
+      "title": {
+        "es": "Que funcione bien y proteja la información",
+        "en": "Make it work well and protect information"
+      },
+      "explanation": {
+        "es": "Ajusta la rapidez y la protección a lo que realmente necesitas.",
+        "en": "Matches speed and protection to what you actually need."
+      }
+    },
+    {
+      "ids": [
+        "S_app_18"
+      ],
+      "title": {
+        "es": "Comprobar que resuelve lo que necesitas",
+        "en": "Check that it solves what you need"
+      },
+      "explanation": {
+        "es": "Comprueba el resultado importante, no solo que las pantallas funcionen.",
+        "en": "Checks the important result, not just whether screens work."
+      }
+    },
+    {
+      "ids": [
+        "K_IDEMPOTENCY",
+        "S_automation_4"
+      ],
+      "title": {
+        "es": "Evitar duplicados y acciones repetidas",
+        "en": "Avoid duplicates and repeated actions"
+      },
+      "explanation": {
+        "es": "Evita que una misma tarea se registre o se haga dos veces por error.",
+        "en": "Prevents the same task from being recorded or performed twice by mistake."
+      }
+    },
+    {
+      "ids": [
+        "K_STATUS_LIFECYCLE"
+      ],
+      "title": {
+        "es": "Qué puede pasar en cada momento",
+        "en": "What can happen at each stage"
+      },
+      "explanation": {
+        "es": "Aclara la situación actual y qué se puede hacer a continuación.",
+        "en": "Clarifies the current situation and what can happen next."
+      }
+    },
+    {
+      "ids": [
+        "K_AUDIT_TRAIL",
+        "K_EVENT_HISTORY"
+      ],
+      "title": {
+        "es": "Saber qué cambió y cuándo",
+        "en": "Know what changed and when"
+      },
+      "explanation": {
+        "es": "Conserva los cambios para poder entender lo que pasó.",
+        "en": "Keeps changes so you can understand what happened."
+      }
+    },
+    {
+      "ids": [
+        "K_ASSET_REGISTRY"
+      ],
+      "title": {
+        "es": "Distinguir cada elemento que necesitas seguir",
+        "en": "Tell apart each item you need to track"
+      },
+      "explanation": {
+        "es": "Ayuda a reconocer cada elemento sin confundirlo con otro.",
+        "en": "Helps recognize each item without confusing it with another."
+      }
+    },
+    {
+      "ids": [
+        "K_CURRENTNESS"
+      ],
+      "title": {
+        "es": "Comprobar que la información sigue al día",
+        "en": "Check that information is still current"
+      },
+      "explanation": {
+        "es": "Evita decidir con información que ya ha cambiado.",
+        "en": "Avoids deciding with information that has already changed."
+      }
+    },
+    {
+      "ids": [
+        "K_CURRENT_STATE"
+      ],
+      "title": {
+        "es": "Saber cómo están las cosas ahora",
+        "en": "Know how things stand now"
+      },
+      "explanation": {
+        "es": "Usa lo que ya ocurrió para entender la situación actual.",
+        "en": "Uses what has already happened to understand the current situation."
+      }
+    },
+    {
+      "ids": [
+        "K_TRIGGER",
+        "S_automation_0"
+      ],
+      "title": {
+        "es": "Cuándo debe empezar una acción",
+        "en": "When an action should start"
+      },
+      "explanation": {
+        "es": "Aclara qué debe ocurrir para empezar y con qué frecuencia.",
+        "en": "Clarifies what starts the action and how often."
+      }
+    },
+    {
+      "ids": [
+        "K_FAILURE_RECOVERY",
+        "S_automation_5"
+      ],
+      "title": {
+        "es": "Qué hacer cuando algo falla",
+        "en": "What to do when something fails"
+      },
+      "explanation": {
+        "es": "Aclara cómo volver a intentarlo o continuar sin perder el trabajo.",
+        "en": "Clarifies how to try again or continue without losing work."
+      }
+    },
+    {
+      "ids": [
+        "K_HUMAN_APPROVAL",
+        "S_agent_5"
+      ],
+      "title": {
+        "es": "Cuándo necesitas confirmar una acción",
+        "en": "When you need to confirm an action"
+      },
+      "explanation": {
+        "es": "Distingue lo que puede continuar solo de lo que necesita tu confirmación.",
+        "en": "Separates what can continue on its own from what needs your confirmation."
+      }
+    },
+    {
+      "ids": [
+        "K_SOURCE_PROVENANCE"
+      ],
+      "title": {
+        "es": "De dónde viene la información y si está al día",
+        "en": "Where information comes from and whether it is current"
+      },
+      "explanation": {
+        "es": "Ayuda a comprobar el origen de la información y si sigue siendo útil.",
+        "en": "Helps check where information comes from and whether it is still useful."
+      }
+    },
+    {
+      "ids": [
+        "K_LOCATION_CONTEXT"
+      ],
+      "title": {
+        "es": "Tener en cuenta dónde ocurre",
+        "en": "Account for where it happens"
+      },
+      "explanation": {
+        "es": "Aclara si el lugar cambia lo que necesitas hacer.",
+        "en": "Clarifies whether the location changes what you need to do."
+      }
+    },
+    {
+      "ids": [
+        "K_STAKEHOLDERS"
+      ],
+      "title": {
+        "es": "Quién participa y qué responsabilidad tiene",
+        "en": "Who takes part and what they are responsible for"
+      },
+      "explanation": {
+        "es": "Aclara quién interviene y de qué se encarga cada persona.",
+        "en": "Clarifies who is involved and what each person is responsible for."
+      }
+    },
+    {
+      "ids": [
+        "K_INSPECTION_RECORD"
+      ],
+      "title": {
+        "es": "Comprobar y dejar constancia de las revisiones",
+        "en": "Check and keep a record of reviews"
+      },
+      "explanation": {
+        "es": "Ayuda a saber qué se revisó, cuándo y cuál fue el resultado.",
+        "en": "Helps you know what was reviewed, when and with what result."
+      }
+    },
+    {
+      "ids": [
+        "K_THRESHOLD"
+      ],
+      "title": {
+        "es": "Cuándo un cambio necesita atención",
+        "en": "When a change needs attention"
+      },
+      "explanation": {
+        "es": "Aclara a partir de qué punto conviene actuar.",
+        "en": "Clarifies the point at which action may be needed."
+      }
+    },
+    {
+      "ids": [
+        "K_ACTION_ALERT",
+        "S_app_12"
+      ],
+      "title": {
+        "es": "Avisar cuando hay algo que hacer",
+        "en": "Let you know when something needs doing"
+      },
+      "explanation": {
+        "es": "Relaciona cada aviso con una acción útil.",
+        "en": "Connects each alert to a useful action."
+      }
+    },
+    {
+      "ids": [
+        "K_DEPENDENCY_ORDER",
+        "S_planning_2"
+      ],
+      "title": {
+        "es": "Qué necesita hacerse antes",
+        "en": "What needs to happen first"
+      },
+      "explanation": {
+        "es": "Ordena las tareas que dependen de otras para poder avanzar.",
+        "en": "Orders tasks that depend on other tasks so work can move forward."
+      }
+    },
+    {
+      "ids": [
+        "K_CONTINGENCY",
+        "S_planning_6"
+      ],
+      "title": {
+        "es": "Qué hacer si el plan no funciona",
+        "en": "What to do if the plan does not work"
+      },
+      "explanation": {
+        "es": "Prepara una alternativa cuando no se puede seguir lo previsto.",
+        "en": "Prepares an alternative when the original plan cannot be followed."
+      }
+    },
+    {
+      "ids": [
+        "K_TIME_FEASIBILITY"
+      ],
+      "title": {
+        "es": "Comprobar que hay tiempo suficiente",
+        "en": "Check there is enough time"
+      },
+      "explanation": {
+        "es": "Ajusta lo que se quiere hacer al tiempo disponible.",
+        "en": "Matches what you want to do to the time available."
+      }
+    },
+    {
+      "ids": [
+        "K_FEEDBACK_LOOP",
+        "S_learning_5"
+      ],
+      "title": {
+        "es": "Practicar y saber qué mejorar",
+        "en": "Practice and know what to improve"
+      },
+      "explanation": {
+        "es": "Usa la revisión de lo que haces para corregir y aprender.",
+        "en": "Uses reviews of your work to help you improve and learn."
+      }
+    },
+    {
+      "ids": [
+        "K_INPUT_VALIDATION",
+        "S_spreadsheet_4"
+      ],
+      "title": {
+        "es": "Comprobar los datos antes de usarlos",
+        "en": "Check data before using it"
+      },
+      "explanation": {
+        "es": "Ayuda a detectar datos incompletos o incorrectos.",
+        "en": "Helps detect missing or incorrect data."
+      }
+    },
+    {
+      "ids": [
+        "K_RECONCILIATION",
+        "S_spreadsheet_11"
+      ],
+      "title": {
+        "es": "Comprobar que los datos coinciden",
+        "en": "Check that the data agrees"
+      },
+      "explanation": {
+        "es": "Compara los resultados para detectar diferencias o errores.",
+        "en": "Compares results to detect differences or errors."
+      }
+    },
+    {
+      "ids": [
+        "K_VISUAL_HIERARCHY",
+        "S_presentation_4"
+      ],
+      "title": {
+        "es": "Hacer que lo importante destaque",
+        "en": "Make important things stand out"
+      },
+      "explanation": {
+        "es": "Ordena lo que se ve para entenderlo sin esfuerzo.",
+        "en": "Organizes what is shown so it is easy to understand."
+      }
+    },
+    {
+      "ids": [
+        "K_MOTIVATED_LIGHT",
+        "S_image_4"
+      ],
+      "title": {
+        "es": "De dónde viene la luz",
+        "en": "Where the light comes from"
+      },
+      "explanation": {
+        "es": "Mantiene la iluminación coherente con la escena.",
+        "en": "Keeps lighting consistent with the scene."
+      }
+    },
+    {
+      "ids": [
+        "K_TRADE_OFFS",
+        "S_shopping_7"
+      ],
+      "title": {
+        "es": "Qué ganas y qué pierdes con cada opción",
+        "en": "What you gain and give up with each option"
+      },
+      "explanation": {
+        "es": "Compara ventajas y límites antes de elegir.",
+        "en": "Compares benefits and limitations before choosing."
+      }
+    },
+    {
+      "ids": [
+        "K_RESOURCE_ALLOCATION"
+      ],
+      "title": {
+        "es": "Quién o qué está disponible para cada tarea",
+        "en": "Who or what is available for each task"
+      },
+      "explanation": {
+        "es": "Ayuda a repartir lo disponible sin asignarlo dos veces a la vez.",
+        "en": "Helps assign available resources without double-booking them."
+      }
+    },
+    {
+      "ids": [
+        "K_BACKUP_RECOVERY"
+      ],
+      "title": {
+        "es": "Guardar una copia y recuperar lo perdido",
+        "en": "Keep a copy and recover lost information"
+      },
+      "explanation": {
+        "es": "Aclara cómo recuperar la información si se pierde o se daña.",
+        "en": "Clarifies how to recover information if it is lost or damaged."
+      }
+    },
+    {
+      "ids": [
+        "K_ACCESSIBILITY_NEEDS"
+      ],
+      "title": {
+        "es": "Que pueda usarse con distintas necesidades",
+        "en": "Make it usable with different needs"
+      },
+      "explanation": {
+        "es": "Tiene en cuenta cómo las personas leen y utilizan los controles.",
+        "en": "Accounts for how people read and use controls."
+      }
+    },
+    {
+      "ids": [
+        "S_shopping_0"
+      ],
+      "title": {
+        "es": "Para qué lo vas a usar",
+        "en": "What you will use it for"
+      },
+      "explanation": {
+        "es": "Ajusta la propuesta al uso que necesitas darle.",
+        "en": "Matches the proposal to how you need to use it."
+      }
+    },
+    {
+      "ids": [
+        "S_web_3",
+        "S_email_4"
+      ],
+      "title": {
+        "es": "Qué quieres que haga la persona a continuación",
+        "en": "What you want the person to do next"
+      },
+      "explanation": {
+        "es": "Hace visible el siguiente paso que importa.",
+        "en": "Makes the important next step easy to find."
+      }
+    },
+    {
+      "ids": [
+        "K_VALUE_PROPOSITION",
+        "S_web_2",
+        "S_business_1",
+        "S_marketing_2"
+      ],
+      "title": {
+        "es": "Qué ofrece y por qué elegirlo",
+        "en": "What it offers and why choose it"
+      },
+      "explanation": {
+        "es": "Explica qué aporta y qué lo diferencia de otras opciones.",
+        "en": "Explains what it provides and how it differs from other options."
+      }
+    },
+    {
+      "ids": [
+        "K_SOCIAL_PROOF",
+        "S_web_4",
+        "S_marketing_6"
+      ],
+      "title": {
+        "es": "Mostrar motivos para confiar",
+        "en": "Show reasons to trust it"
+      },
+      "explanation": {
+        "es": "Usa pruebas comprobables y responde a dudas importantes.",
+        "en": "Uses checkable evidence and answers important doubts."
+      }
+    },
+    {
+      "ids": [
+        "K_OBJECTION_HANDLING"
+      ],
+      "title": {
+        "es": "Responder a las dudas antes de decidir",
+        "en": "Answer doubts before deciding"
+      },
+      "explanation": {
+        "es": "Aclara los motivos que podrían impedir dar el siguiente paso.",
+        "en": "Clarifies concerns that could prevent taking the next step."
+      }
+    },
+    {
+      "ids": [
+        "K_SEO_SEARCH_INTENT",
+        "S_web_8"
+      ],
+      "title": {
+        "es": "Ayudar a encontrarlo al buscar",
+        "en": "Help people find it when searching"
+      },
+      "explanation": {
+        "es": "Relaciona el contenido con lo que las personas buscan.",
+        "en": "Connects the content to what people search for."
+      }
+    },
+    {
+      "ids": [
+        "K_PLATFORM_NATIVE_FORMAT",
+        "S_marketing_4",
+        "S_social_0"
+      ],
+      "title": {
+        "es": "Adaptarlo al lugar donde se publicará",
+        "en": "Adapt it to where it will be published"
+      },
+      "explanation": {
+        "es": "Usa un formato que encaje con el lugar donde se va a ver.",
+        "en": "Uses a format suited to where it will be seen."
+      }
+    },
+    {
+      "ids": [
+        "K_HOOK_RETENTION",
+        "S_social_2",
+        "S_social_3",
+        "S_marketing_5"
+      ],
+      "title": {
+        "es": "Captar el interés y mantenerlo",
+        "en": "Catch interest and keep it"
+      },
+      "explanation": {
+        "es": "Aclara cómo empezar y continuar sin perder la atención.",
+        "en": "Clarifies how to begin and continue without losing attention."
+      }
+    },
+    {
+      "ids": [
+        "K_CONVERSION_METRIC",
+        "S_marketing_7",
+        "S_marketing_8",
+        "S_social_7"
+      ],
+      "title": {
+        "es": "Saber si las personas dan el siguiente paso",
+        "en": "Know whether people take the next step"
+      },
+      "explanation": {
+        "es": "Comprueba si ocurre la acción que se busca conseguir.",
+        "en": "Checks whether the intended action happens."
+      }
+    },
+    {
+      "ids": [
+        "K_SLIDE_STORY_ARC",
+        "S_presentation_1"
+      ],
+      "title": {
+        "es": "Contar las ideas en un orden claro",
+        "en": "Present ideas in a clear order"
+      },
+      "explanation": {
+        "es": "Conecta el principio, el desarrollo y el cierre.",
+        "en": "Connects the beginning, the main ideas and the ending."
+      }
+    },
+    {
+      "ids": [
+        "K_VISUAL_EVIDENCE",
+        "S_presentation_3"
+      ],
+      "title": {
+        "es": "Mostrar las pruebas de forma clara",
+        "en": "Show evidence clearly"
+      },
+      "explanation": {
+        "es": "Elige cómo mostrar los datos para que se entienda lo que apoyan.",
+        "en": "Chooses how to show data so its meaning is clear."
+      }
+    },
+    {
+      "ids": [
+        "K_DATA_QUALITY"
+      ],
+      "title": {
+        "es": "Comprobar si los datos son fiables",
+        "en": "Check whether data is reliable"
+      },
+      "explanation": {
+        "es": "Aclara qué datos pueden usarse y cuáles tienen limitaciones.",
+        "en": "Clarifies which data can be used and which has limitations."
+      }
+    },
+    {
+      "ids": [
+        "K_MISSING_OUTLIERS",
+        "S_data_2"
+      ],
+      "title": {
+        "es": "Detectar datos que faltan o resultan extraños",
+        "en": "Detect missing or unusual data"
+      },
+      "explanation": {
+        "es": "Revisa ausencias, repeticiones y valores que necesitan comprobarse.",
+        "en": "Reviews missing, repeated and unusual values that need checking."
+      }
+    },
+    {
+      "ids": [
+        "K_METHOD_FIT",
+        "S_data_4"
+      ],
+      "title": {
+        "es": "Elegir cómo responder a la pregunta",
+        "en": "Choose how to answer the question"
+      },
+      "explanation": {
+        "es": "Usa una forma de analizar que encaje con lo que se quiere saber.",
+        "en": "Uses an analysis approach suited to what you want to know."
+      }
+    },
+    {
+      "ids": [
+        "K_REPRODUCIBILITY",
+        "S_data_3"
+      ],
+      "title": {
+        "es": "Poder repetir y comprobar los pasos",
+        "en": "Be able to repeat and check the steps"
+      },
+      "explanation": {
+        "es": "Deja claro cómo se obtuvo el resultado.",
+        "en": "Makes clear how the result was obtained."
+      }
+    },
+    {
+      "ids": [
+        "K_PREREQUISITES",
+        "S_learning_2"
+      ],
+      "title": {
+        "es": "Qué necesitas saber antes de empezar",
+        "en": "What you need to know before starting"
+      },
+      "explanation": {
+        "es": "Ordena lo que necesitas aprender para poder avanzar.",
+        "en": "Orders what you need to learn so you can move forward."
+      }
+    },
+    {
+      "ids": [
+        "K_RETRIEVAL_PRACTICE",
+        "S_learning_6"
+      ],
+      "title": {
+        "es": "Recordar sin mirar y repasar después",
+        "en": "Recall without looking and review later"
+      },
+      "explanation": {
+        "es": "Ayuda a recordar lo aprendido con práctica y repasos separados.",
+        "en": "Helps retain learning through practice and spaced reviews."
+      }
+    },
+    {
+      "ids": [
+        "K_ASSESSMENT",
+        "S_learning_7"
+      ],
+      "title": {
+        "es": "Comprobar lo que ya sabes hacer",
+        "en": "Check what you can already do"
+      },
+      "explanation": {
+        "es": "Usa resultados observables para decidir el siguiente paso.",
+        "en": "Uses observable results to decide the next step."
+      }
+    },
+    {
+      "ids": [
+        "K_ERROR_REPRODUCTION",
+        "S_debugging_0"
+      ],
+      "title": {
+        "es": "Repetir el problema con un ejemplo pequeño",
+        "en": "Repeat the problem with a small example"
+      },
+      "explanation": {
+        "es": "Ayuda a comprobar cuándo ocurre sin añadir complicaciones.",
+        "en": "Helps check when it happens without adding complications."
+      }
+    },
+    {
+      "ids": [
+        "K_ROOT_CAUSE_EVIDENCE",
+        "S_debugging_3"
+      ],
+      "title": {
+        "es": "Comprobar qué está causando el problema",
+        "en": "Check what is causing the problem"
+      },
+      "explanation": {
+        "es": "Busca pruebas de la causa antes de cambiar nada.",
+        "en": "Looks for evidence of the cause before changing anything."
+      }
+    },
+    {
+      "ids": [
+        "K_REGRESSION_TEST",
+        "S_debugging_6"
+      ],
+      "title": {
+        "es": "Comprobar que lo que funcionaba sigue funcionando",
+        "en": "Check that working behavior still works"
+      },
+      "explanation": {
+        "es": "Detecta si una corrección rompe algo que ya estaba bien.",
+        "en": "Detects whether a fix breaks something that already worked."
+      }
+    },
+    {
+      "ids": [
+        "K_INPUT_OUTPUT_CONTRACT",
+        "S_programming_1"
+      ],
+      "title": {
+        "es": "Qué recibe y qué debe devolver",
+        "en": "What it receives and what it should return"
+      },
+      "explanation": {
+        "es": "Aclara los datos de entrada y el resultado esperado.",
+        "en": "Clarifies incoming data and the expected result."
+      }
+    },
+    {
+      "ids": [
+        "K_EDGE_CASES",
+        "S_programming_4"
+      ],
+      "title": {
+        "es": "Qué hacer en situaciones poco habituales",
+        "en": "What to do in unusual situations"
+      },
+      "explanation": {
+        "es": "Comprueba los casos que pueden fallar aunque sean poco frecuentes.",
+        "en": "Checks cases that can fail even if they are uncommon."
+      }
+    },
+    {
+      "ids": [
+        "K_DEPENDENCY_POLICY",
+        "S_programming_6"
+      ],
+      "title": {
+        "es": "Qué necesita para funcionar",
+        "en": "What it needs to work"
+      },
+      "explanation": {
+        "es": "Aclara qué otras herramientas necesita y si encajan entre sí.",
+        "en": "Clarifies which other tools are needed and whether they work together."
+      }
+    },
+    {
+      "ids": [
+        "K_OBSERVABILITY",
+        "S_automation_6",
+        "S_agent_7",
+        "S_debugging_2"
+      ],
+      "title": {
+        "es": "Saber qué ocurrió y detectar problemas",
+        "en": "Know what happened and detect problems"
+      },
+      "explanation": {
+        "es": "Conserva información útil para entender fallos y continuar.",
+        "en": "Keeps useful information to understand failures and continue."
+      }
+    },
+    {
+      "ids": [
+        "K_MANUAL_OVERRIDE",
+        "S_automation_7"
+      ],
+      "title": {
+        "es": "Poder intervenir cuando lo necesites",
+        "en": "Be able to intervene when needed"
+      },
+      "explanation": {
+        "es": "Permite cambiar o detener una acción automática.",
+        "en": "Allows an automatic action to be changed or stopped."
+      }
+    },
+    {
+      "ids": [
+        "K_STOP_CONDITION",
+        "S_agent_6"
+      ],
+      "title": {
+        "es": "Cuándo debe detenerse",
+        "en": "When it should stop"
+      },
+      "explanation": {
+        "es": "Aclara cuándo terminar o pedir ayuda en vez de continuar.",
+        "en": "Clarifies when to stop or ask for help instead of continuing."
+      }
+    },
+    {
+      "ids": [
+        "K_PERMISSION_BOUNDARY",
+        "S_agent_2"
+      ],
+      "title": {
+        "es": "Qué puede hacer y qué necesita permiso",
+        "en": "What it can do and what needs permission"
+      },
+      "explanation": {
+        "es": "Limita las acciones a lo que se ha autorizado.",
+        "en": "Limits actions to what has been authorized."
+      }
+    },
+    {
+      "ids": [
+        "K_EVALUATION_CASES",
+        "S_agent_8"
+      ],
+      "title": {
+        "es": "Comprobar que actúa como necesitas",
+        "en": "Check that it acts as needed"
+      },
+      "explanation": {
+        "es": "Prueba situaciones concretas para comprobar el resultado y sus límites.",
+        "en": "Tests specific situations to check the result and its limits."
+      }
+    },
+    {
+      "ids": [
+        "S_automation_1"
+      ],
+      "title": {
+        "es": "Qué información recibe y cómo la prepara",
+        "en": "What information it receives and how it prepares it"
+      },
+      "explanation": {
+        "es": "Aclara de dónde llega la información y qué debe hacerse con ella.",
+        "en": "Clarifies where information comes from and what should happen to it."
+      }
+    },
+    {
+      "ids": [
+        "S_automation_2"
+      ],
+      "title": {
+        "es": "Qué hacer según lo que ocurra",
+        "en": "What to do depending on what happens"
+      },
+      "explanation": {
+        "es": "Distingue las situaciones que necesitan acciones diferentes.",
+        "en": "Distinguishes situations that need different actions."
+      }
+    },
+    {
+      "ids": [
+        "S_spreadsheet_2"
+      ],
+      "title": {
+        "es": "Distinguir los registros y conectarlos",
+        "en": "Tell records apart and connect them"
+      },
+      "explanation": {
+        "es": "Evita confundir registros y aclara cómo se relacionan.",
+        "en": "Avoids confusing records and clarifies how they relate."
+      }
+    },
+    {
+      "ids": [
+        "S_spreadsheet_6"
+      ],
+      "title": {
+        "es": "Encontrar datos y calcular lo que falta",
+        "en": "Find data and calculate what is missing"
+      },
+      "explanation": {
+        "es": "Usa los datos existentes para completar la información necesaria.",
+        "en": "Uses existing data to complete needed information."
+      }
+    },
+    {
+      "ids": [
+        "S_spreadsheet_8",
+        "S_spreadsheet_9"
+      ],
+      "title": {
+        "es": "Ver un resumen y detectar lo que necesita atención",
+        "en": "See a summary and spot what needs attention"
+      },
+      "explanation": {
+        "es": "Reúne los resultados importantes para revisarlos con facilidad.",
+        "en": "Brings important results together so they are easy to review."
+      }
+    },
+    {
+      "ids": [
+        "S_business_8"
+      ],
+      "title": {
+        "es": "Cuánto aporta y cuesta cada venta o servicio",
+        "en": "What each sale or service earns and costs"
+      },
+      "explanation": {
+        "es": "Comprueba si lo que se ingresa cubre lo que cuesta ofrecerlo.",
+        "en": "Checks whether earnings cover the cost of providing it."
+      }
+    },
+    {
+      "ids": [
+        "S_marketing_1"
+      ],
+      "title": {
+        "es": "Qué necesita la persona y qué sabe ya",
+        "en": "What the person needs and already knows"
+      },
+      "explanation": {
+        "es": "Ajusta el mensaje a su necesidad y a lo que conoce.",
+        "en": "Matches the message to the person’s need and existing knowledge."
+      }
+    },
+    {
+      "ids": [
+        "S_marketing_3"
+      ],
+      "title": {
+        "es": "Qué se ofrece y qué dificulta aceptarlo",
+        "en": "What is offered and what makes it hard to accept"
+      },
+      "explanation": {
+        "es": "Aclara la propuesta y los obstáculos para dar el siguiente paso.",
+        "en": "Clarifies the offer and obstacles to taking the next step."
+      }
+    },
+    {
+      "ids": [
+        "S_social_4"
+      ],
+      "title": {
+        "es": "Cómo se verá y a qué ritmo avanzará",
+        "en": "How it will look and how quickly it will move"
+      },
+      "explanation": {
+        "es": "Combina imágenes y ritmo para facilitar la comprensión.",
+        "en": "Combines visuals and pacing to make it easy to understand."
+      }
+    }
+  ]
+}
