@@ -1,0 +1,63 @@
+name: Minimal remediation targeted contracts
+
+on:
+  push:
+    branches: [pre-1.0-minimal-remediation]
+
+permissions:
+  contents: read
+
+jobs:
+  targeted-contracts:
+    if: contains(github.event.head_commit.message, '[feature-red]') || contains(github.event.head_commit.message, '[targeted-green]')
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify authorized diff and guardrail simulations
+        run: |
+          node Tools/test-authorized-remediation.mjs
+          node Tools/audit-authorized-remediation.mjs
+      - name: Select installed Xcode and large iPhone
+        shell: bash
+        run: |
+          set -euo pipefail
+          XCODE_APP="$(find /Applications -maxdepth 1 -type d -name 'Xcode*.app' | sort -V | tail -1)"
+          test -n "$XCODE_APP"
+          sudo xcode-select --switch "$XCODE_APP/Contents/Developer"
+          xcodebuild -version
+          xcrun simctl list devices available -j > devices.json
+          python3 <<'PY' >> "$GITHUB_ENV"
+          import json
+          devices = [d for rows in json.load(open("devices.json"))["devices"].values() for d in rows if d.get("isAvailable")]
+          chosen = next(d for d in devices if d["name"] == "iPhone 17 Pro Max")
+          print("SIMULATOR_UDID=" + chosen["udid"])
+          PY
+      - name: Run native targeted feature contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          set -o pipefail
+          EXTRA=()
+          if test -f IdeveroTests/MinimalComplianceSaveTests.swift; then
+            EXTRA+=("-only-testing:IdeveroTests/MinimalComplianceSaveTests")
+          fi
+          xcodebuild -project Idevero.xcodeproj -scheme Idevero \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_UDID" \
+            -derivedDataPath DerivedData-Targeted \
+            -resultBundlePath FeatureContracts.xcresult \
+            -only-testing:IdeveroUITests/MinimalComplianceSaveUITests \
+            "${EXTRA[@]}" clean test | tee targeted-xcodebuild.log
+      - name: Retain RED or GREEN native evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: minimal-remediation-targeted-${{ github.sha }}
+          path: |
+            targeted-xcodebuild.log
+            FeatureContracts.xcresult
+            devices.json
+          retention-days: 7
+

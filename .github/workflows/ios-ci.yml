@@ -28,23 +28,10 @@ jobs:
       - name: Audit Physical V6 production additions
         run: node Tools/audit-physical-v6.mjs
 
-      - name: Audit isolated presentation and bilingual metadata
-        run: node Tools/audit-human-friendly-ux.mjs
-
-      - name: Audit build-13 frozen runtime and targeted presentation
-        run: node Tools/audit-presentation-remediation.mjs
-
-      - name: Verify consolidated production equivalence to physical build 14
-        shell: bash
+      - name: Verify authorized PRE-1.0 remediation isolation
         run: |
-          set -euo pipefail
-          git diff --exit-code 61eb2a8490b1bcfcbedbaadfda18b4746035326f HEAD -- Idevero IdeveroTests IdeveroUITests Idevero.xcodeproj Tools
-          git diff --name-only 61eb2a8490b1bcfcbedbaadfda18b4746035326f HEAD | while IFS= read -r changed; do
-            case "$changed" in
-              *.md|.github/workflows/ios-ci.yml) ;;
-              *) echo "Unexpected consolidation change: $changed"; exit 1 ;;
-            esac
-          done
+          node Tools/test-authorized-remediation.mjs
+          node Tools/audit-authorized-remediation.mjs
 
       - name: Select installed Xcode
         shell: bash
