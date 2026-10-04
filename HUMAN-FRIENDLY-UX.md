@@ -59,3 +59,10 @@ Additional projection and interaction tests are supplemental, not pre-fix REDs.
 The English shell and task-title audit fixes are display-only. The audit also
 compares History persistence handlers and the physical tab-bar clearance reader
 byte-for-byte with the baseline. No semantic engine or authority changes.
+
+Final review adds an authority-aware source-description contract: confirmed or
+removed Apple-origin findings do not ask for confirmation again. Historical
+accept/keep provenance is explained as historical when the current state excludes
+the finding. The underlying provenance array, priority and transitions remain
+unchanged. The provider badge can wrap at larger text sizes. The simulator job
+timeout allows the full large + compact accessibility suites; no test is removed.

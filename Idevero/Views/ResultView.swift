@@ -41,7 +41,7 @@ struct ResultView: View {
 
                 Label(displayedProviderName, systemImage: usedAppleAugmentation ? "sparkles" : "cpu")
                     .font(.caption.weight(.semibold))
-                    .lineLimit(1)
+                    .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
                     .foregroundStyle(usedAppleAugmentation ? Color.indigo : Color.secondary)

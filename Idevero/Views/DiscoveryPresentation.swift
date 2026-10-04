@@ -95,9 +95,19 @@ struct DiscoveryPresentation: Sendable {
             switch $0 {
             case .userExplicit: return ui("Lo indicaste en tu petición.", "You stated it in your request.")
             case .localKnowledge: return ui("Una recomendación del conocimiento integrado de Idevero.", "A recommendation from Idevero’s built-in knowledge.")
-            case .appleModel: return ui("Una sugerencia de Apple Intelligence que conviene confirmar.", "An Apple Intelligence suggestion to confirm.")
-            case .userAccepted: return ui("Decidiste añadirlo a tu petición.", "You chose to add it to your request.")
-            case .userLocked: return ui("Decidiste que se mantenga aunque vuelvas a analizar.", "You chose to keep it even when analyzing again.")
+            case .appleModel:
+                if item.state == .excluded || [.userExplicit, .userAccepted, .userLocked].contains(item.provenance) {
+                    return ui("Esta sugerencia se detectó con Apple Intelligence.", "This suggestion was detected with Apple Intelligence.")
+                }
+                return ui("Una sugerencia de Apple Intelligence que conviene confirmar.", "An Apple Intelligence suggestion to confirm.")
+            case .userAccepted:
+                return item.state == .excluded
+                    ? ui("Antes lo añadiste; ahora no se utilizará.", "You previously added it; it will not be used now.")
+                    : ui("Decidiste añadirlo a tu petición.", "You chose to add it to your request.")
+            case .userLocked:
+                return item.state == .excluded
+                    ? ui("Antes decidiste conservarlo; ahora no se utilizará.", "You previously chose to keep it; it will not be used now.")
+                    : ui("Decidiste que se mantenga aunque vuelvas a analizar.", "You chose to keep it even when analyzing again.")
             case .placeholder: return ui("Falta información que puedes confirmar.", "Some information still needs your confirmation.")
             }
         }

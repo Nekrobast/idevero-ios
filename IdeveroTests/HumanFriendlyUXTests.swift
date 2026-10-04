@@ -168,4 +168,25 @@ final class HumanFriendlyUXTests: XCTestCase {
             }
         }
     }
+
+    func testConfirmedOrRemovedAppleOriginDoesNotRequestAnotherConfirmation() {
+        for language in [DisplayLanguage.spanish, .english] {
+            for authority in [DiscoveryProvenance.userAccepted, .userLocked, .userExplicit] {
+                var item = finding()
+                item.provenance = authority
+                item.sourceProvenance = [.appleModel]
+                let before = item
+                let display = DiscoveryPresentation(item: item, language: language)
+                XCTAssertFalse(display.sourceDescriptions.joined().contains("confirm"))
+                XCTAssertEqual(item, before)
+            }
+            var removed = finding()
+            removed.provenance = .appleModel
+            removed.sourceProvenance = [.appleModel]
+            removed.state = .excluded
+            XCTAssertFalse(DiscoveryPresentation(item: removed, language: language).sourceDescriptions.joined().contains("confirm"))
+            removed.state = .pending
+            XCTAssertTrue(DiscoveryPresentation(item: removed, language: language).sourceDescriptions.joined().contains("confirm"))
+        }
+    }
 }
