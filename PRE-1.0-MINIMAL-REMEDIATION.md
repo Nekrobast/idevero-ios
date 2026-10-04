@@ -1,6 +1,7 @@
 # PRE-1.0 Minimal Compliance + Save Reliability
 
 Stage: confirmed native FEATURE RED; minimal production implementation awaiting targeted GREEN.
+Update: targeted GREEN confirmed; preparing full regression for physically distinguishable build 15.
 
 PHYSICALLY VALIDATED BASELINE: 61eb2a8490b1bcfcbedbaadfda18b4746035326f.
 CONSOLIDATED PRE-1.0 BASELINE: 36b36c2463e00e3ef148f7d8ac7fe8f7a99d6a1d.
@@ -53,3 +54,13 @@ Settings exposes native Privacy Policy and Support rows, localized ES/EN, Dynami
 Create and History persistence use a dedicated feedback boundary. Success is announced only after save returns and dismisses after eight seconds. Throwing saves show a visible accessible error and retry without clearing analysis, prompt, Copy or Share. History restores the exact previously held record fields on a save error; a failed new insertion is removed from the context so it cannot appear as a successful saved record. No global context rollback, schema change, migration or provider change. DEBUG-only generic fault injection is limited to this boundary; Release ignores test environment overrides.
 
 The four original feature UI tests are unchanged. Five supplementary unit contracts cover completion ordering, error/retry, exact History restoration, duplicate-free persistence, and safe unpublished URL configuration. All existing test and production files outside the three authorized views remain frozen. Snapshot entries seal reviewed new helpers/tests and view changes; gate logic, simulations and workflow remain unchanged. Targeted GREEN must pass before full regression or build 15. Any targeted failure requires STOP.
+
+## Targeted GREEN and demonstrated final-gate metadata defect
+
+Run 37228541383 on f17345e9f56b3af5f4996b2e28f28dddf068b506: macos-26 / GitHub Actions 1000000102. All four unchanged feature UI tests PASS, all five new unit tests PASS, zero failures/skips; native TEST SUCCEEDED. All 13 isolation simulations and the actual gate PASS.
+
+Only after this result, build 14 is incremented to 15 in both project configurations; marketing version remains 0.2.9. This distinguishes the remediation IPA from physically validated build 14. Demonstrated defect: the physical audit, bundle assertion, artifact reports, manifest and Windows verifier required build 14, while manifest claimed productionEquivalentToPhysicalBaseline=True despite these authorized production changes. They must not reject the authorized build increment or misrepresent physical validation.
+
+Minimal correction: physical audit changes ONLY its expected build and status text. New build-15 verifier retains the prior verifier's checks; historical build-14 verifier remains untouched. Full-file review seals remain mandatory. The isolation gate additionally enforces exact project 14-to-15 substitution and exact physical-audit build-only correction, even if a wrong full-file seal were supplied. Three new simulations cover those strict exceptions; the original 13 remain intact. The original native pipeline tail must equal its baseline with ONLY explicit build/report/verifier metadata substitutions, truthful production-equivalence False, and the new physical-retest checklist packaged. No native test/build/re-signability commands, assertions, skips, holdout expectations or model files change.
+
+Full CI is triggered by a push on this owned remediation branch, added alongside main to the workflow push filter because the available GitHub connector has no workflow-dispatch operation; no PR is created before all GREEN. Existing PR #9, main and release remain unchanged. Hosting is still inactive. Current candidate physical status remains AWAITING IPHONE RETEST.

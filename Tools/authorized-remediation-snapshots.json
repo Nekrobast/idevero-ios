@@ -5,7 +5,7 @@
   "snapshots": {
     ".github/workflows/minimal-remediation-targeted.yml": "3342c049cd52d82a886a860c14edd0081d99343365263e6d2a836bd600ff395a",
     "IdeveroUITests/MinimalComplianceSaveUITests.swift": "2588fd2fc3681cfe9504b0d4d96a973c72287c8f62a6a1c3aaf1e8b75651e589",
-    "PRE-1.0-MINIMAL-REMEDIATION.md": "4aee48451e88ff3462c0d559cfcc752ce56b1adcb4774c26416e64039c0666cb",
+    "PRE-1.0-MINIMAL-REMEDIATION.md": "5e37cf2b233e4fb347fb43b09809023beeaace273377d0599f42191cd5c173f2",
     "Idevero/Views/SettingsView.swift": "e441dc3cd67ec470907cfdcf58b101af694607b771bfc9cd1c254655c93a86c4",
     "Idevero/Views/CreateView.swift": "bef7ee563a9a2d0583768a61c3523170c4c5a1dc960cfb53638d4458ab67b256",
     "Idevero/Views/HistoryView.swift": "bd550cb3a7ed609df8df2ddf0d0cf3e42a2147f950ec44fc7074900b6282f5e7",
@@ -19,8 +19,12 @@
     "docs/privacy.html": "3678b8c32cfa22563ac3badfae529f0a78ecce5f22e1e8c5e227a63f7da07333",
     "docs/styles.css": "859dde11493b4f7d039ee91600e8a7a1d180c0ac1c5012c296c0e96a6bc52c61",
     "docs/support.html": "74303a116035a29d71f4feadbdd6b8fe6cc262350790775b988d0b2a7193a984",
-    "Tools/audit-authorized-remediation.mjs": "0a63d83fd854be6741378b3b5f891bb18141ef38f3658aff96b86d5f20be6fee",
-    "Tools/test-authorized-remediation.mjs": "3026d874c3359699cf73d258b33e186d3e8e96c661a20a7a6ea20b9b3d8dad00",
-    ".github/workflows/ios-ci.yml": "0674c30055612f9e08b03f0d9409d56188b5219abc0ad9791e9fd29784b5ec2e"
+    "Tools/audit-authorized-remediation.mjs": "92061888fb4055bf5788820d0c1b8663e0d7fe09d802697fe39dae102882e23a",
+    "Tools/test-authorized-remediation.mjs": "78588c4ff7580ec6ee98c1983990aba797a6cc5d6ba4ec1469f754d634dcb3fd",
+    ".github/workflows/ios-ci.yml": "647febaedf266203bb1d6034c82acede0af948ec7a001eae9394d3a0239f888b",
+    "Idevero.xcodeproj/project.pbxproj": "51859928581b73c510cac0822a90ff8d67e616057b67c7f89ac6fe40576ec190",
+    "Tools/audit-physical-v6.mjs": "5445c421852bcfc6b6e2f01c456f95ff640ce15fb6d35785e6c4c24b2cad6945",
+    "Tools/VERIFY-IDEVERO-0.2.9-BUILD15.ps1": "3e7ee3e6a9ae83a318c9666dda04059771a0d7e145ac9c7435c9efec6c24a70c",
+    "MINIMAL-REMEDIATION-BUILD15-RETEST.md": "a5643c9e3edf7525f7ddaacb5301c8466814dee5b890646692b913460d3bcb44"
   }
 }

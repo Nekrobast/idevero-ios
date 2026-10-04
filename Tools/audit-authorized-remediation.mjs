@@ -11,6 +11,10 @@ export const allowed = new Set([
   'Tools/test-authorized-remediation.mjs',
   'Tools/authorized-remediation-snapshots.json',
   'PRE-1.0-MINIMAL-REMEDIATION.md',
+  'MINIMAL-REMEDIATION-BUILD15-RETEST.md',
+  'Idevero.xcodeproj/project.pbxproj',
+  'Tools/audit-physical-v6.mjs',
+  'Tools/VERIFY-IDEVERO-0.2.9-BUILD15.ps1',
   '.github/workflows/ios-ci.yml',
   '.github/workflows/minimal-remediation-targeted.yml',
   'Idevero/Views/SettingsView.swift',
@@ -32,6 +36,12 @@ export function validateChange(path, before, after, snapshots) {
   if (!allowed.has(path)) throw new Error('Frozen/out-of-scope file: ' + path);
   if (after === null) throw new Error('Deletion prohibited: ' + path);
   if (path === 'Tools/authorized-remediation-snapshots.json') return;
+  if (path === 'Idevero.xcodeproj/project.pbxproj' &&
+      normalized(after) !== normalized(before).replaceAll('CURRENT_PROJECT_VERSION = 14;', 'CURRENT_PROJECT_VERSION = 15;'))
+    throw new Error('Only the authorized build 14 to 15 increment is permitted');
+  if (path === 'Tools/audit-physical-v6.mjs' &&
+      normalized(after) !== normalized(before).replaceAll('CURRENT_PROJECT_VERSION = 14', 'CURRENT_PROJECT_VERSION = 15').replaceAll('build 14;', 'build 15;'))
+    throw new Error('Historical physical audit permits only the build expectation correction');
   // Exact full-file review seal protects mixed files as well as allowed additions.
   // Even an accidental change INSIDE an allowed UI file fails until separately reviewed.
   const expected = snapshots[path];
@@ -74,7 +84,19 @@ export function audit() {
   const workflow = normalized(readFileSync('.github/workflows/ios-ci.yml'));
   const original = normalized(execFileSync('git', ['show', BASE + ':.github/workflows/ios-ci.yml']));
   const marker = '      - name: Select installed Xcode\n';
-  if (workflow.slice(workflow.indexOf(marker)) !== original.slice(original.indexOf(marker)))
+  // Demonstrated build-14 metadata incompatibility: alter only artifact metadata,
+  // never the existing native test/build/re-signability commands or assertions.
+  const expectedTail = original.slice(original.indexOf(marker))
+    .replaceAll('build 14 —', 'build 15 —')
+    .replace('raw "$INFO")" = "14"', 'raw "$INFO")" = "15"')
+    .replace('"version": "0.2.9", "build": 14,', '"version": "0.2.9", "build": 15,')
+    .replace('"productionEquivalentToPhysicalBaseline": True', '"productionEquivalentToPhysicalBaseline": False')
+    .replaceAll('VERIFY-IDEVERO-0.2.9-BUILD14.ps1', 'VERIFY-IDEVERO-0.2.9-BUILD15.ps1')
+    .replace('          cp HUMAN-FRIENDLY-UX-BUILD14-RETEST.md Tools/VERIFY-IDEVERO-0.2.9-BUILD15.ps1 DeviceArtifact/',
+             '          cp HUMAN-FRIENDLY-UX-BUILD14-RETEST.md Tools/VERIFY-IDEVERO-0.2.9-BUILD15.ps1 DeviceArtifact/\n          cp MINIMAL-REMEDIATION-BUILD15-RETEST.md DeviceArtifact/')
+    .replace('            DeviceArtifact/VERIFY-IDEVERO-0.2.9-BUILD15.ps1',
+             '            DeviceArtifact/MINIMAL-REMEDIATION-BUILD15-RETEST.md\n            DeviceArtifact/VERIFY-IDEVERO-0.2.9-BUILD15.ps1');
+  if (workflow.slice(workflow.indexOf(marker)) !== expectedTail)
     throw new Error('Existing XCTest/UI/device gate or artifact pipeline changed');
   console.log('PASS: Authorized Remediation Diff Gate; exact reviewed snapshots; all other files frozen');
   console.log('PHYSICALLY VALIDATED BASELINE ' + PHYSICAL);

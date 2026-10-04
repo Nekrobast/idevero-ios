@@ -19,6 +19,20 @@ const settings = normalized(read(settingsPath));
 simulation('Authorized Settings/Privacy reviewed snapshot', settingsPath,
   settings.replace('Section(language.ui("Privacidad", "Privacy"))', 'Section(language.ui("Política de privacidad", "Privacy policy"))'), true);
 const createPath = 'Idevero/Views/CreateView.swift';
+const projectPath = 'Idevero.xcodeproj/project.pbxproj';
+const project15 = normalized(read(projectPath)).replaceAll('CURRENT_PROJECT_VERSION = 14;', 'CURRENT_PROJECT_VERSION = 15;');
+simulation('Authorized build 14 to 15 only', projectPath, project15, true);
+const wrongProject = project15.replace('MARKETING_VERSION = 0.2.9;', 'MARKETING_VERSION = 1.0;');
+assert.throws(() => validateChange(projectPath, read(projectPath), Buffer.from(wrongProject),
+  {[projectPath]: digest(Buffer.from(wrongProject))}), /Only the authorized build/);
+console.log('Reviewed seal cannot permit unrelated project change: observed FAIL / expected FAIL');
+count++;
+const physicalPath = 'Tools/audit-physical-v6.mjs';
+const wrongPhysical = normalized(read(physicalPath)).replaceAll('CURRENT_PROJECT_VERSION = 14', 'CURRENT_PROJECT_VERSION = 15').replaceAll('build 14;', 'build 15;') + '\n// unrelated guard change\n';
+assert.throws(() => validateChange(physicalPath, read(physicalPath), Buffer.from(wrongPhysical),
+  {[physicalPath]: digest(Buffer.from(wrongPhysical))}), /only the build expectation/);
+console.log('Reviewed seal cannot alter physical protections: observed FAIL / expected FAIL');
+count++;
 const create = normalized(read(createPath));
 simulation('Authorized save error propagation reviewed snapshot', createPath,
   create.replace('try? PromptRecord.upsert(analysis, in: context)', 'do { _ = try PromptRecord.upsert(analysis, in: context) } catch { /* Save feedback belongs here. */ }'), true);
@@ -47,4 +61,3 @@ console.log('Delete allowed UI file: observed FAIL / expected FAIL'); count++;
 assert.throws(() => validateChange('Idevero/Views/Unexpected.swift', null, Buffer.from('import SwiftUI'), {}), /out-of-scope/);
 console.log('Unlisted production addition: observed FAIL / expected FAIL'); count++;
 console.log('PASS: ' + count + ' isolation simulations; no production files modified');
-
