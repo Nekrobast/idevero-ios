@@ -3,6 +3,16 @@ import XCTest
 @MainActor
 final class PresentationRemediationUITests: XCTestCase {
     override func setUpWithError() throws { continueAfterFailure = false }
+    private func captureDiagnostics(_ app: XCUIApplication, name: String) {
+        let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        screenshot.name = name
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+        let hierarchy = XCTAttachment(string: app.debugDescription)
+        hierarchy.name = name + " accessibility hierarchy"
+        hierarchy.lifetime = .keepAlways
+        add(hierarchy)
+    }
     private func open(_ request: String, heading: String) -> XCUIApplication {
         let app = XCUIApplication()
         app.launch()
@@ -23,6 +33,7 @@ final class PresentationRemediationUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Lo más importante"].exists)
         let more = app.buttons["moreRecommendations"]
         for _ in 0..<30 where !more.isHittable { app.swipeUp() }
+        if !more.isHittable { captureDiagnostics(app, name: "Unreachable more recommendations") }
         XCTAssertTrue(more.isHittable)
         XCTAssertGreaterThanOrEqual(more.frame.height, 44)
         XCTAssertTrue(more.label.contains("Ver más recomendaciones"))
@@ -52,6 +63,9 @@ final class PresentationRemediationUITests: XCTestCase {
         XCTAssertEqual(why.label, "Por qué")
         XCTAssertGreaterThanOrEqual(why.frame.height, 44)
         why.tap()
+        if !app.staticTexts["De dónde sale esta recomendación"].firstMatch.exists {
+            captureDiagnostics(app, name: "Missing recommendation source after Why")
+        }
         XCTAssertTrue(app.staticTexts["De dónde sale esta recomendación"].firstMatch.exists)
     }
     func testEnglishGroupingAndSelectedActionCopy() {
