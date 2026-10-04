@@ -3,6 +3,7 @@ import SwiftData
 
 struct CreateView: View {
     @StateObject private var model = CreateViewModel()
+    @StateObject private var persistenceFeedback = PersistenceFeedback(scope: .create)
     @Environment(\.modelContext) private var context
     @Environment(\.ideveroTabBarClearance) private var tabBarClearance
     @Environment(\.appDisplayLanguageChanged) private var languageChanged
@@ -63,7 +64,9 @@ struct CreateView: View {
                                 }
                             }
                         }, isWorking: model.isGenerating, completionMessage: model.completionMessage) {
-                            try? PromptRecord.upsert(analysis, in: context)
+                            persistenceFeedback.save(language: language) {
+                                try PersistenceFeedback.insertOrUpdate(analysis, in: context)
+                            }
                         }
                         .id(ScrollAnchor.result)
                     }
@@ -79,6 +82,7 @@ struct CreateView: View {
             }
             .scrollDismissesKeyboard(.interactively)
             .safeAreaInset(edge: .top, spacing: 0) { OperationFeedbackView(model: model) }
+            .safeAreaInset(edge: .top, spacing: 0) { PersistenceFeedbackView(feedback: persistenceFeedback, language: language) }
             .scrollIndicators(.visible)
             .onChange(of: model.analysis?.analysisID) { _, analysisID in
                 guard analysisID != nil else { return }

@@ -33,6 +33,7 @@ struct HistoryDetailView: View {
     @Environment(\.appDisplayLanguageChanged) private var languageChanged
     @Environment(\.modelContext) private var context
     @StateObject private var model: CreateViewModel
+    @StateObject private var persistenceFeedback = PersistenceFeedback(scope: .history)
 
     init(record: PromptRecord) {
         self.record = record
@@ -53,6 +54,7 @@ struct HistoryDetailView: View {
         }
         .navigationTitle(DisplayLocalization(language: .detect(in: record.originalIdea)).text(record.title))
         .safeAreaInset(edge: .top, spacing: 0) { OperationFeedbackView(model: model) }
+        .safeAreaInset(edge: .top, spacing: 0) { PersistenceFeedbackView(feedback: persistenceFeedback, language: .detect(in: model.idea)) }
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { languageChanged(.detect(in: record.originalIdea)) }
     }
@@ -69,5 +71,10 @@ struct HistoryDetailView: View {
         Task { await model.reanalyze(); persist() }
     }
 
-    private func persist() { guard let analysis = model.analysis else { return }; record.update(from: analysis); try? context.save() }
+    private func persist() {
+        guard let analysis = model.analysis else { return }
+        persistenceFeedback.save(language: .detect(in: analysis.input)) {
+            try PersistenceFeedback.update(record, from: analysis) { try context.save() }
+        }
+    }
 }

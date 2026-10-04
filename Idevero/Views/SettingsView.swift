@@ -22,8 +22,12 @@ struct SettingsView: View {
                     .font(.footnote).foregroundStyle(.secondary)
             }
             Section(language.ui("Privacidad", "Privacy")) {
+                PrivacySupportAccessView(title: language.ui("Política de privacidad", "Privacy policy"), systemImage: "hand.raised", destination: PrivacySupportConfiguration.privacyPolicyURL, identifier: "privacyPolicyAccess")
                 Label(language.ui("Historial guardado en el dispositivo", "History saved on your device"), systemImage: "iphone")
                 Label(language.ui("No necesitas una cuenta", "No account needed"), systemImage: "lock")
+            }
+            Section(language.ui("Ayuda", "Help")) {
+                PrivacySupportAccessView(title: language.ui("Soporte", "Support"), systemImage: "questionmark.circle", destination: PrivacySupportConfiguration.supportURL, identifier: "supportAccess")
             }
             Section(language.ui("Versión", "Version")) {
                 LabeledContent(language.ui("Versión", "Version"), value: metadata.version)

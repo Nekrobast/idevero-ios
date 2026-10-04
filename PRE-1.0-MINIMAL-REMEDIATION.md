@@ -1,6 +1,6 @@
 # PRE-1.0 Minimal Compliance + Save Reliability
 
-Stage: guardrail proof and FEATURE RED preparation. No production change yet.
+Stage: confirmed native FEATURE RED; minimal production implementation awaiting targeted GREEN.
 
 PHYSICALLY VALIDATED BASELINE: 61eb2a8490b1bcfcbedbaadfda18b4746035326f.
 CONSOLIDATED PRE-1.0 BASELINE: 36b36c2463e00e3ef148f7d8ac7fe8f7a99d6a1d.
@@ -34,14 +34,22 @@ DEBUG-only controlled persistence-failure injection will later be scoped to the 
 After confirmed feature RED: minimal Settings/native system links with centralized optional URLs; nil URLs show an honest unpublished state without broken/fabricated links. ES/EN policy/support drafts use explicit legal-owner/contact placeholders. GitHub Pages files prepared but not activated. Minimal save feedback calls the actual existing save, displays success only after completion, reports errors while preserving result, and offers retry. Native unit/UI targeted GREEN then complete existing regression.
 
 Human input pending: legal responsible party, support contact, approved hosting/public URLs. No publication, account change, purchase or App Store signing.
-Current version/build: 0.2.9 / 14. Production has not been changed; no new IPA or GREEN claim.
+Current version/build: 0.2.9 / 14. Minimal production changes are implemented below; no new IPA or GREEN claim.
 
 ## Initial targeted harness failure (NOT feature RED)
 
 Run 37226325313 on commit 600ca73922a4e336881cc8489d53b9416469742d allocated macos-26 / GitHub Actions 1000000100. All 13 isolation simulations and actual diff gate PASS. Native XCTest did not execute: Bash rejected empty EXTRA array under nounset. Artifact 11311583356 is harness diagnostics only, not XCTest or IPA validation. Fix only the new workflow command by initializing its testing selector array with the UI target. Do not remove nounset or change any assertions. Feature RED remains unproven until native test assertions actually fail.
 
-## Native feature RED in progress and unpublished pages
+## Native feature RED confirmed and unpublished pages
 
-Corrected harness commit: 84b6c0979aa2aa9ad9405cd420e5a15e9f394336. Run 37226446216 allocated macos-26 / GitHub Actions 1000000101; isolation simulations and diff gate PASS; native targeted XCTest is running. No feature RED conclusion or production fix before its actual assertion results.
+Corrected harness commit: 84b6c0979aa2aa9ad9405cd420e5a15e9f394336. Run 37226446216 allocated macos-26 / GitHub Actions 1000000101; isolation simulations and diff gate PASS; native targeted XCTest executed four tests and reported four expected assertion failures: missing save error (line 63), missing History error (line 90), missing save success (line 52), missing privacy access (line 37). FEATURE RED is confirmed. The subsequent docs-only commit 93d71db4ef5ed90f56721cd9abd2f694969ec121 is the implementation starting point, not the executed run SHA.
 
 Privacy and Support ES/EN drafts are prepared under docs, with legal-owner/contact/effective-date placeholders. Three static HTML pages parse, have no broken relative links, and contain no scripts/external assets. GitHub Pages is suitable for this public repository, but is NOT activated; technically expected URLs are documented only as provisional, not live/final and not app configuration. No human identity, email or domain fabricated. No production modified, no new IPA generated, no new build number.
+
+## Minimal implementation for targeted GREEN
+
+Settings exposes native Privacy Policy and Support rows, localized ES/EN, Dynamic Type and combined VoiceOver labels with minimum 44-point targets. Centralized destinations remain nil: rows disclose pending publication and explain it in a native alert, without opening a fabricated URL or WebView. Pages remain unpublished and legal/contact placeholders unchanged.
+
+Create and History persistence use a dedicated feedback boundary. Success is announced only after save returns and dismisses after eight seconds. Throwing saves show a visible accessible error and retry without clearing analysis, prompt, Copy or Share. History restores the exact previously held record fields on a save error; a failed new insertion is removed from the context so it cannot appear as a successful saved record. No global context rollback, schema change, migration or provider change. DEBUG-only generic fault injection is limited to this boundary; Release ignores test environment overrides.
+
+The four original feature UI tests are unchanged. Five supplementary unit contracts cover completion ordering, error/retry, exact History restoration, duplicate-free persistence, and safe unpublished URL configuration. All existing test and production files outside the three authorized views remain frozen. Snapshot entries seal reviewed new helpers/tests and view changes; gate logic, simulations and workflow remain unchanged. Targeted GREEN must pass before full regression or build 15. Any targeted failure requires STOP.
