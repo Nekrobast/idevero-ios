@@ -38,7 +38,7 @@ final class PresentationRemediationUITests: XCTestCase {
         XCTAssertGreaterThanOrEqual(more.frame.height, 44)
         XCTAssertTrue(more.label.contains("Ver más recomendaciones"))
         more.tap()
-        XCTAssertTrue(app.staticTexts["Más recomendaciones"].exists)
+        XCTAssertTrue(app.staticTexts["Más recomendaciones"].waitForExistence(timeout: 3))
         let shot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         shot.lifetime = .keepAlways; add(shot)
     }
@@ -63,10 +63,12 @@ final class PresentationRemediationUITests: XCTestCase {
         XCTAssertEqual(why.label, "Por qué")
         XCTAssertGreaterThanOrEqual(why.frame.height, 44)
         why.tap()
-        if !app.staticTexts["De dónde sale esta recomendación"].firstMatch.exists {
+        let source = app.staticTexts["De dónde sale esta recomendación"].firstMatch
+        let sourceAppeared = source.waitForExistence(timeout: 3)
+        if !sourceAppeared {
             captureDiagnostics(app, name: "Missing recommendation source after Why")
         }
-        XCTAssertTrue(app.staticTexts["De dónde sale esta recomendación"].firstMatch.exists)
+        XCTAssertTrue(sourceAppeared)
     }
     func testEnglishGroupingAndSelectedActionCopy() {
         let app = open("I want an app to manage telescope bookings", heading: "Generated prompt")

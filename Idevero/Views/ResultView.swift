@@ -86,8 +86,12 @@ struct ResultView: View {
                                 .frame(minHeight: 44)
                                 .contentShape(Rectangle())
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.bordered)
                             .foregroundStyle(.tint)
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel(showMoreRecommendations
+                                                ? ui("Mostrar menos recomendaciones", "Show fewer recommendations")
+                                                : ui("Ver más recomendaciones (\(summary.more.count))", "See more recommendations (\(summary.more.count))"))
                             .accessibilityIdentifier("moreRecommendations")
                             .accessibilityValue(showMoreRecommendations ? ui("Expandido", "Expanded") : ui("Contraído", "Collapsed"))
                             .accessibilityHint(ui("Todas las recomendaciones siguen disponibles. Expande o contrae el resto.", "All recommendations remain available. Expand or collapse the rest."))
