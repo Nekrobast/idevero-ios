@@ -5,7 +5,10 @@ struct CreateView: View {
     @StateObject private var model = CreateViewModel()
     @Environment(\.modelContext) private var context
     @Environment(\.ideveroTabBarClearance) private var tabBarClearance
+    @Environment(\.appDisplayLanguageChanged) private var languageChanged
     @FocusState private var isIdeaFocused: Bool
+    private var language: DisplayLanguage { .detect(in: model.idea) }
+    private func ui(_ es: String, _ en: String) -> String { language == .spanish ? es : en }
 
     private enum ScrollAnchor: Hashable {
         case editor
@@ -17,10 +20,10 @@ struct CreateView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("¿Qué quieres conseguir?")
+                        Text(ui("¿Qué quieres conseguir?", "What do you want to achieve?"))
                             .font(.title.bold())
                             .accessibilityAddTraits(.isHeader)
-                        Text("Cuéntamelo aunque no sepas cómo pedirlo. Idevero descubre qué falta y construye el prompt.")
+                        Text(ui("Cuéntamelo aunque no sepas cómo pedirlo. Idevero descubre qué falta y construye el prompt.", "Tell me even if you are not sure how to ask. Idevero finds what is missing and builds the prompt."))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -31,7 +34,7 @@ struct CreateView: View {
                     Button(action: submit) {
                         HStack(spacing: 8) {
                             if model.isGenerating { ProgressView().tint(.white) }
-                            Text(model.isGenerating ? "Analizando" : "Crear prompt")
+                            Text(model.isGenerating ? ui("Analizando", "Analyzing") : ui("Crear prompt", "Create prompt"))
                                 .fontWeight(.semibold)
                         }
                         .frame(maxWidth: .infinity, minHeight: 48)
@@ -59,9 +62,8 @@ struct CreateView: View {
                                     proxy.scrollTo(ScrollAnchor.result, anchor: .top)
                                 }
                             }
-                        }) {
-                            context.insert(PromptRecord(analysis: analysis))
-                            try? context.save()
+                        }, isWorking: model.isGenerating, completionMessage: model.completionMessage) {
+                            try? PromptRecord.upsert(analysis, in: context)
                         }
                         .id(ScrollAnchor.result)
                     }
@@ -76,6 +78,7 @@ struct CreateView: View {
                     .accessibilityIdentifier("measuredTabBarClearance")
             }
             .scrollDismissesKeyboard(.interactively)
+            .safeAreaInset(edge: .top, spacing: 0) { OperationFeedbackView(model: model) }
             .scrollIndicators(.visible)
             .onChange(of: model.analysis?.analysisID) { _, analysisID in
                 guard analysisID != nil else { return }
@@ -89,11 +92,12 @@ struct CreateView: View {
             }
         }
         .navigationTitle("Idevero")
+        .onChange(of: model.idea) { _, request in languageChanged(.detect(in: request)) }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
-                Button("Crear prompt", action: submit)
+                Button(ui("Crear prompt", "Create prompt"), action: submit)
                     .fontWeight(.semibold)
                     .disabled(model.isGenerating || model.idea.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     .accessibilityIdentifier("keyboardCreatePromptButton")
@@ -145,7 +149,7 @@ private struct AdaptiveIdeaEditor: View {
                 .font(.body)
                 .scrollContentBackground(.hidden)
                 .focused(isFocused)
-                .accessibilityLabel("Describe tu idea")
+                .accessibilityLabel(DisplayLanguage.detect(in: text) == .spanish ? "Describe tu idea" : "Describe your idea")
                 .accessibilityIdentifier("ideaEditor")
         }
         .frame(height: editorHeight)

@@ -14,17 +14,20 @@ extension EnvironmentValues {
 
 struct RootView: View {
     @State private var tabBarClearance: CGFloat = 0
+    @State private var language: DisplayLanguage = .spanish
 
     var body: some View {
         TabView {
             NavigationStack { CreateView() }
-                .tabItem { Label("Crear", systemImage: "sparkles") }
+                .tabItem { Label(language.ui("Crear", "Create"), systemImage: "sparkles") }
             NavigationStack { HistoryView() }
-                .tabItem { Label("Historial", systemImage: "clock") }
+                .tabItem { Label(language.ui("Historial", "History"), systemImage: "clock") }
             NavigationStack { SettingsView() }
-                .tabItem { Label("Ajustes", systemImage: "gearshape") }
+                .tabItem { Label(language.ui("Ajustes", "Settings"), systemImage: "gearshape") }
         }
         .tint(.indigo)
+        .environment(\.appDisplayLanguage, language)
+        .environment(\.appDisplayLanguageChanged, { language = $0 })
         .environment(\.ideveroTabBarClearance, tabBarClearance)
         .background {
             TabBarClearanceReader { measured in

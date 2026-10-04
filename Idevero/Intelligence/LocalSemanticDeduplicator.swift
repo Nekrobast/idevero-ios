@@ -40,7 +40,17 @@ struct LocalSemanticDeduplicator: Sendable {
         }
     }
 
-    func appleDiscovery(index: Int, concept: String, reason: String, lens: String, existing: [Discovery]) -> Discovery? {
+    /// Stable local identity for model findings. It deliberately ignores display
+    /// wording and uses a conservative semantic signature.  This is not fuzzy
+    /// matching: two findings are equivalent only when their normalized semantic
+    /// atoms agree.
+    func semanticIdentity(concept: String, reason: String = "", role: String = "", anchor: String = "") -> String {
+        // Display reasons are explanatory prose and may change freely. Identity is
+        // intentionally derived from the concept plus a structured anchor/role.
+        DiscoverySemantics.identity(concept: concept, role: role, anchor: anchor)
+    }
+
+    func appleDiscovery(index: Int, concept: String, reason: String, lens: String, existing: [Discovery], semanticRole: String = "", anchor: String = "") -> Discovery? {
         let clean = concept.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !clean.isEmpty, !reason.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               !isDuplicate(clean, of: existing) else { return nil }
@@ -50,8 +60,10 @@ struct LocalSemanticDeduplicator: Sendable {
         // The identifier must not depend on response ordering: locks and exclusions
         // need to survive a later semantic pass that returns the same concept in a
         // different position.
-        return Discovery(id: "APPLE_EXTERNAL_\(stableSuffix(clean))", concept: clean, reason: reason, lens: lens, priority: .highValue, provenance: .appleModel, state: .included, dependencies: [], confidence: "MEDIUM", sourceProvenance: [.appleModel])
+        let identity = semanticIdentity(concept: clean, reason: reason, role: semanticRole, anchor: anchor)
+        return Discovery(id: "APPLE_EXTERNAL_\(stableSuffix(identity))", concept: clean, reason: reason, lens: lens, priority: .highValue, provenance: .appleModel, state: .included, dependencies: [], confidence: "MEDIUM", sourceProvenance: [.appleModel], semanticRole: semanticRole.isEmpty ? nil : semanticRole, anchor: anchor.isEmpty ? nil : anchor)
     }
+
 
     private func stableSuffix(_ value: String) -> String {
         var hash: UInt64 = 1469598103934665603

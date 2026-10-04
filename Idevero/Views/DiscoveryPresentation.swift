@@ -1,0 +1,192 @@
+import Foundation
+
+/// Immutable UI projection. Never persisted or passed to the compiler.
+struct DiscoveryPresentation: Sendable {
+    let item: Discovery
+    let language: DisplayLanguage
+    var originalRequest: String = ""
+
+    private struct Entry: Decodable, Sendable {
+        let ids: [String]
+        let title: LocalizedLabel
+        let explanation: LocalizedLabel
+    }
+    private struct Catalog: Decodable { let schema: Int; let entries: [Entry] }
+    private static let metadata: [String: Entry] = {
+        guard let url = Bundle.main.url(forResource: "DiscoveryDisplayMetadata", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let catalog = try? JSONDecoder().decode(Catalog.self, from: data), catalog.schema == 1 else { return [:] }
+        return Dictionary(uniqueKeysWithValues: catalog.entries.flatMap { entry in entry.ids.map { ($0, entry) } })
+    }()
+    // Merged Apple findings may retain their own ID but use an authored knowledge
+    // label. Exact resource-label lookup shares presentation without changing ID.
+    private static let metadataByConcept: [String: Entry] = {
+        guard let store = try? KnowledgeStore.load() else { return [:] }
+        var result: [String: Entry] = [:]
+        for key in metadata.keys.sorted() {
+            guard let entry = metadata[key] else { continue }
+            var labels: [String] = []
+            if key.hasPrefix("K_"), let concept = store.concepts.first(where: { "K_" + $0.id == key }) {
+                labels = [concept.labels.es, concept.labels.en]
+            } else if key.hasPrefix("S_") {
+                let parts = key.dropFirst(2).split(separator: "_")
+                if let last = parts.last, let index = Int(last) {
+                    let strategyID = parts.dropLast().joined(separator: "_")
+                    if let strategy = store.strategies.first(where: { $0.id == strategyID }), strategy.candidates.indices.contains(index) {
+                        labels = [strategy.candidates[index].label]
+                        if let english = LocalKnowledgeLocalization.candidate(strategy: strategyID, index: index) { labels.append(english.label) }
+                    }
+                }
+            }
+            for label in labels { result[label.lowercased()] = entry }
+        }
+        return result
+    }()
+    private var entry: Entry? { Self.metadata[item.id] ?? Self.metadataByConcept[item.concept.lowercased()] }
+    private func localized(_ value: LocalizedLabel) -> String { language == .spanish ? value.es : value.en }
+    private func ui(_ es: String, _ en: String) -> String { language == .spanish ? es : en }
+    private func safe(_ value: String, fallback: String) -> String {
+        let text = DisplayLocalization(language: language).text(value)
+        guard UserFacingTextPolicy(language: language).isSafeDisplay(text, minimumLength: 1),
+              text.range(of: "^[a-z0-9]+(?:_[a-z0-9]+)+$", options: .regularExpression) == nil else { return fallback }
+        let pattern = "\\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\\b"
+        if let expression = try? NSRegularExpression(pattern: pattern) {
+            let matches = expression.matches(in: text, range: NSRange(text.startIndex..., in: text))
+            for match in matches {
+                if let range = Range(match.range, in: text), !originalRequest.contains(String(text[range])) { return fallback }
+            }
+        }
+        return text
+    }
+
+    var title: String { entry.map { localized($0.title) } ?? technicalTitle }
+    var explanation: String { entry.map { localized($0.explanation) } ?? fullReason }
+    var technicalTitle: String { safe(item.concept, fallback: ui("Detalle de tu petición", "A detail of your request")) }
+    var fullReason: String { safe(item.reason, fallback: ui("Comprueba si este detalle te ayuda a conseguir lo que buscas.", "Check whether this detail helps you achieve your goal.")) }
+    var perspective: String {
+        if (item.sourceProvenance ?? [item.provenance]).contains(.appleModel),
+           let raw = item.semanticRole, let role = SemanticRole(rawValue: raw) {
+            return UserFacingTextPolicy(language: language).displayLens(for: role)
+        }
+        return DisplayLocalization(language: language).lens(item.lens)
+    }
+    var priority: String {
+        switch item.priority {
+        case .core: return ui("Importante", "Important")
+        case .highValue: return ui("Recomendado", "Recommended")
+        case .optional: return ui("Opcional", "Optional")
+        case .outOfScope: return ui("Fuera de esta petición", "Outside this request")
+        }
+    }
+    var state: String {
+        switch item.state {
+        case .included: return ui("Añadido", "Added")
+        case .locked: return ui("Se mantendrá siempre", "Always kept")
+        case .excluded: return ui("No se utilizará", "Not used")
+        case .optional: return ui("Puedes añadirlo", "You can add it")
+        case .pending: return ui("Por confirmar", "To confirm")
+        }
+    }
+    var sourceDescriptions: [String] {
+        var sources = item.sourceProvenance ?? []
+        if !sources.contains(item.provenance) { sources.insert(item.provenance, at: 0) }
+        var seen = Set<DiscoveryProvenance>()
+        return sources.filter { seen.insert($0).inserted }.map {
+            switch $0 {
+            case .userExplicit: return ui("Lo indicaste en tu petición.", "You stated it in your request.")
+            case .localKnowledge: return ui("Una recomendación del conocimiento integrado de Idevero.", "A recommendation from Idevero’s built-in knowledge.")
+            case .appleModel:
+                if item.state == .excluded || [.userExplicit, .userAccepted, .userLocked].contains(item.provenance) {
+                    return ui("Esta sugerencia se detectó con Apple Intelligence.", "This suggestion was detected with Apple Intelligence.")
+                }
+                return ui("Una sugerencia de Apple Intelligence que conviene confirmar.", "An Apple Intelligence suggestion to confirm.")
+            case .userAccepted:
+                return item.state == .excluded
+                    ? ui("Antes lo añadiste; ahora no se utilizará.", "You previously added it; it will not be used now.")
+                    : ui("Decidiste añadirlo a tu petición.", "You chose to add it to your request.")
+            case .userLocked:
+                return item.state == .excluded
+                    ? ui("Antes decidiste conservarlo; ahora no se utilizará.", "You previously chose to keep it; it will not be used now.")
+                    : ui("Decidiste que se mantenga aunque vuelvas a analizar.", "You chose to keep it even when analyzing again.")
+            case .placeholder: return ui("Falta información que puedes confirmar.", "Some information still needs your confirmation.")
+            }
+        }
+    }
+    func actionTitle(_ state: DiscoveryState) -> String {
+        switch state {
+        case .included: return ui("Añadir", "Add")
+        case .locked: return ui("Mantener siempre", "Always keep")
+        case .excluded: return ui("Quitar", "Remove")
+        case .optional, .pending: return ui("Confirmar", "Confirm")
+        }
+    }
+    func actionHint(_ state: DiscoveryState) -> String {
+        switch state {
+        case .included: return ui("Usar este detalle en el prompt.", "Use this detail in the prompt.")
+        case .locked: return ui("Conservar este detalle al regenerar o reanalizar.", "Keep this detail when regenerating or analyzing again.")
+        case .excluded: return ui("No usar este detalle en el prompt.", "Do not use this detail in the prompt.")
+        case .optional, .pending: return ui("Decidir si quieres utilizar este detalle.", "Decide whether to use this detail.")
+        }
+    }
+
+    /// Current copy is a projection, never an alternative state transition.
+    func isSelectedAction(_ action: DiscoveryState) -> Bool {
+        item.state == action || (item.state == .locked && action == .included)
+    }
+    func controlTitle(_ action: DiscoveryState) -> String {
+        if action == .included && isSelectedAction(action) { return ui("Añadido", "Added") }
+        if action == .excluded && isSelectedAction(action) { return ui("Quitado", "Removed") }
+        return actionTitle(action)
+    }
+    func controlHint(_ action: DiscoveryState) -> String {
+        if action == .included && item.state == .locked {
+            return ui("Ya está añadido. Úsalo sin mantenerlo siempre al reanalizar.", "Already added. Use it without always keeping it when analyzing again.")
+        }
+        if isSelectedAction(action) {
+            return ui("Decisión actual. ", "Current decision. ") + actionHint(action)
+        }
+        return actionHint(action)
+    }
+
+    struct Summary: Sendable {
+        let decisions: [Discovery]
+        let important: [Discovery]
+        let recommended: [Discovery]
+        let more: [Discovery]
+        var initial: [Discovery] { decisions + important + recommended }
+    }
+
+    /// Lossless display partition. Existing priority/state/provenance determine
+    /// order; original array position breaks ties. Never sent to the compiler.
+    static func summary(_ items: [Discovery]) -> Summary {
+        let decisions = items.filter {
+            [.userExplicit, .userAccepted, .userLocked].contains($0.provenance) || $0.state == .locked || $0.state == .excluded
+        }
+        let decisionIDs = Set(decisions.map(\.id))
+        func rank(_ item: Discovery) -> Int {
+            switch item.priority {
+            case .core: return 0
+            case .highValue: return 1
+            case .optional: return 2
+            case .outOfScope: return 3
+            }
+        }
+        let candidates = items.enumerated().filter { !decisionIDs.contains($0.element.id) }
+            .sorted {
+                if rank($0.element) != rank($1.element) { return rank($0.element) < rank($1.element) }
+                if ($0.element.state == .pending) != ($1.element.state == .pending) { return $0.element.state == .pending }
+                return $0.offset < $1.offset
+            }.map(\.element)
+        let eligible = candidates.filter { $0.priority != .outOfScope }
+        let core = eligible.filter { $0.priority == .core }
+        let important = Array((core.isEmpty ? eligible : core).prefix(4))
+        let importantIDs = Set(important.map(\.id))
+        let remaining = eligible.filter { !importantIDs.contains($0.id) }
+        let high = remaining.filter { $0.priority == .highValue }
+        let highIDs = Set(high.map(\.id))
+        let recommended = Array((high + remaining.filter { !highIDs.contains($0.id) }).prefix(2))
+        let previewIDs = Set((important + recommended).map(\.id))
+        let more = candidates.filter { !previewIDs.contains($0.id) }
+        return Summary(decisions: decisions, important: important, recommended: recommended, more: more)
+    }
+}

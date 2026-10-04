@@ -17,7 +17,7 @@ struct Discovery: Identifiable, Codable, Hashable, Sendable {
     var anchor: String? = nil
 }
 
-enum DomainKnowledgeStatus: String, Codable, Hashable, Sendable {
+enum DomainKnowledgeStatus: String, Codable, Hashable, Sendable, CaseIterable {
     case established = "ESTABLISHED"
     case caseDependent = "CASE_DEPENDENT"
     case userSpecificUnknown = "USER_SPECIFIC_UNKNOWN"
@@ -31,6 +31,12 @@ struct DomainContextItem: Codable, Hashable, Sendable {
     let decisionRelevance: String
 }
 
+enum DomainFrameLifecycle: String, Codable, Hashable, Sendable {
+    case empty = "EMPTY"
+    case rejected = "REJECTED"
+    case valid = "VALID"
+}
+
 struct DomainContext: Codable, Hashable, Sendable {
     let language: String
     let primaryJobStatus: String
@@ -42,6 +48,13 @@ struct DomainContext: Codable, Hashable, Sendable {
     let decisions: [String]
     let constraints: [String]
     var calibratedItems: [DomainContextItem]? = nil
+    var lifecycle: DomainFrameLifecycle? = nil
+
+    var resolvedLifecycle: DomainFrameLifecycle {
+        if let lifecycle { return lifecycle }
+        if let calibratedItems { return calibratedItems.isEmpty ? .empty : .valid }
+        return isEmpty ? .empty : .valid
+    }
 
     var isEmpty: Bool {
         primaryJobCandidates.isEmpty && actors.isEmpty && entities.isEmpty &&
