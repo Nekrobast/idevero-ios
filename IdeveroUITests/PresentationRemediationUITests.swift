@@ -13,6 +13,28 @@ final class PresentationRemediationUITests: XCTestCase {
         hierarchy.lifetime = .keepAlways
         add(hierarchy)
     }
+    private func reachVisibleContent(_ element: XCUIElement, in app: XCUIApplication, gestures: Int) -> Bool {
+        let scroll = app.scrollViews.firstMatch
+        let viewport = app.frame
+        let top = max(viewport.minY + viewport.height * 0.25,
+                      app.staticTexts["generationStatus"].exists ? app.staticTexts["generationStatus"].frame.maxY : viewport.minY)
+        let bottom = min(viewport.minY + viewport.height * 0.70, app.tabBars.firstMatch.frame.minY)
+        for _ in 0..<gestures {
+            if element.exists && element.isHittable && element.frame.minY >= top && element.frame.maxY <= bottom { return true }
+            // A short, directional drag reaches the actual content, not an occluded AX activation point.
+            let moveDown = element.exists && element.frame.minY < top
+            let start = scroll.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: moveDown ? 0.45 : 0.70))
+            let end = scroll.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: moveDown ? 0.70 : 0.45))
+            start.press(forDuration: 0.01, thenDragTo: end)
+        }
+        return element.exists && element.isHittable && element.frame.minY >= top && element.frame.maxY <= bottom
+    }
+    private func whyEvidence(_ app: XCUIApplication, phase: String, why: XCUIElement, source: XCUIElement) {
+        captureDiagnostics(app, name: "Why-" + phase)
+        let sourceDetails = source.exists ? "type=\(source.elementType.rawValue) frame=\(source.frame) hittable=\(source.isHittable) label=\(source.label)" : "absent"
+        let cardFrame = app.otherElements["discoveryRow"].firstMatch.frame
+        print("WHY EVIDENCE \(phase): viewport=\(app.frame) card=\(cardFrame) why=\(why.frame) hittable=\(why.isHittable) source=\(sourceDetails) tabBar=\(app.tabBars.firstMatch.frame)")
+    }
     private func open(_ request: String, heading: String) -> XCUIApplication {
         let app = XCUIApplication()
         app.launch()
@@ -62,13 +84,20 @@ final class PresentationRemediationUITests: XCTestCase {
         for _ in 0..<8 where !why.isHittable { app.swipeUp() }
         XCTAssertEqual(why.label, "Por qué")
         XCTAssertGreaterThanOrEqual(why.frame.height, 44)
-        why.tap()
         let source = app.staticTexts["De dónde sale esta recomendación"].firstMatch
+        whyEvidence(app, phase: "before-positioning", why: why, source: source)
+        XCTAssertTrue(reachVisibleContent(why, in: app, gestures: 8), "Why must be visible outside fixed overlays before a human tap.")
+        whyEvidence(app, phase: "before-tap", why: why, source: source)
+        why.tap()
+        whyEvidence(app, phase: "after-tap-before-scroll", why: why, source: source)
+        XCTAssertTrue(reachVisibleContent(source, in: app, gestures: 15), "The expanded recommendation source must be reachable and accessible.")
+        whyEvidence(app, phase: "after-detail-scroll", why: why, source: source)
         let sourceAppeared = source.waitForExistence(timeout: 3)
         if !sourceAppeared {
             captureDiagnostics(app, name: "Missing recommendation source after Why")
         }
         XCTAssertTrue(sourceAppeared)
+        XCTAssertTrue(source.isHittable)
     }
     func testEnglishGroupingAndSelectedActionCopy() {
         let app = open("I want an app to manage telescope bookings", heading: "Generated prompt")

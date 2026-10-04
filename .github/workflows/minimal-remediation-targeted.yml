@@ -1,6 +1,14 @@
 name: Minimal remediation targeted contracts
 
 on:
+  workflow_dispatch:
+    inputs:
+      why-stage:
+        description: 'Run Why individual first; suite only after both individual jobs pass'
+        required: true
+        default: individual
+        type: choice
+        options: [individual, suite]
   push:
     branches: [pre-1.0-minimal-remediation]
 
@@ -9,7 +17,7 @@ permissions:
 
 jobs:
   targeted-contracts:
-    if: contains(github.event.head_commit.message, '[feature-red]') || contains(github.event.head_commit.message, '[targeted-green]') || contains(github.event.head_commit.message, '[support-targeted]')
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[feature-red]') || contains(github.event.head_commit.message, '[targeted-green]') || contains(github.event.head_commit.message, '[support-targeted]') || contains(github.event.head_commit.message, '[why-targeted]')
     strategy:
       fail-fast: false
       matrix:
@@ -58,11 +66,21 @@ jobs:
           xcrun simctl bootstatus "$SIMULATOR_UDID" -b
           xcrun simctl ui "$SIMULATOR_UDID" content_size "${{ matrix.content-size }}"
       - name: Run native targeted feature contracts
+        env:
+          WHY_TARGETED: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[why-targeted]') }}
+          WHY_STAGE: ${{ inputs.why-stage || 'individual' }}
         shell: bash
         run: |
           set -euo pipefail
           set -o pipefail
           TARGETS=("-only-testing:IdeveroUITests/MinimalComplianceSaveUITests")
+          if [ "$WHY_TARGETED" = "true" ]; then
+            SELECTOR="IdeveroUITests/PresentationRemediationUITests"
+            if [ "$WHY_STAGE" = "individual" ]; then
+              SELECTOR="$SELECTOR/testSelectedActionsAndCompactWhyExposeStateWithoutAmbiguity"
+            fi
+            TARGETS=("-only-testing:$SELECTOR")
+          fi
           xcodebuild -project Idevero.xcodeproj -scheme Idevero \
             -destination "platform=iOS Simulator,id=$SIMULATOR_UDID" \
             -derivedDataPath DerivedData-Targeted \
@@ -72,7 +90,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: minimal-remediation-targeted-${{ matrix.kind }}-${{ github.sha }}
+          name: minimal-remediation-targeted-${{ inputs.why-stage || 'individual' }}-${{ matrix.kind }}-${{ github.sha }}
           path: |
             targeted-xcodebuild.log
             FeatureContracts.xcresult
