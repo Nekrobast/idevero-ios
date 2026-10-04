@@ -88,7 +88,6 @@ struct ResultView: View {
                             }
                             .buttonStyle(.bordered)
                             .foregroundStyle(.tint)
-                            .accessibilityElement(children: .ignore)
                             .accessibilityLabel(showMoreRecommendations
                                                 ? ui("Mostrar menos recomendaciones", "Show fewer recommendations")
                                                 : ui("Ver más recomendaciones (\(summary.more.count))", "See more recommendations (\(summary.more.count))"))
