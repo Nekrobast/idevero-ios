@@ -128,4 +128,65 @@ struct DiscoveryPresentation: Sendable {
         case .optional, .pending: return ui("Decidir si quieres utilizar este detalle.", "Decide whether to use this detail.")
         }
     }
+
+    /// Current copy is a projection, never an alternative state transition.
+    func isSelectedAction(_ action: DiscoveryState) -> Bool {
+        item.state == action || (item.state == .locked && action == .included)
+    }
+    func controlTitle(_ action: DiscoveryState) -> String {
+        if action == .included && isSelectedAction(action) { return ui("Añadido", "Added") }
+        if action == .excluded && isSelectedAction(action) { return ui("Quitado", "Removed") }
+        return actionTitle(action)
+    }
+    func controlHint(_ action: DiscoveryState) -> String {
+        if action == .included && item.state == .locked {
+            return ui("Ya está añadido. Úsalo sin mantenerlo siempre al reanalizar.", "Already added. Use it without always keeping it when analyzing again.")
+        }
+        if isSelectedAction(action) {
+            return ui("Decisión actual. ", "Current decision. ") + actionHint(action)
+        }
+        return actionHint(action)
+    }
+
+    struct Summary: Sendable {
+        let decisions: [Discovery]
+        let important: [Discovery]
+        let recommended: [Discovery]
+        let more: [Discovery]
+        var initial: [Discovery] { decisions + important + recommended }
+    }
+
+    /// Lossless display partition. Existing priority/state/provenance determine
+    /// order; original array position breaks ties. Never sent to the compiler.
+    static func summary(_ items: [Discovery]) -> Summary {
+        let decisions = items.filter {
+            [.userExplicit, .userAccepted, .userLocked].contains($0.provenance) || $0.state == .locked || $0.state == .excluded
+        }
+        let decisionIDs = Set(decisions.map(\.id))
+        func rank(_ item: Discovery) -> Int {
+            switch item.priority {
+            case .core: return 0
+            case .highValue: return 1
+            case .optional: return 2
+            case .outOfScope: return 3
+            }
+        }
+        let candidates = items.enumerated().filter { !decisionIDs.contains($0.element.id) }
+            .sorted {
+                if rank($0.element) != rank($1.element) { return rank($0.element) < rank($1.element) }
+                if ($0.element.state == .pending) != ($1.element.state == .pending) { return $0.element.state == .pending }
+                return $0.offset < $1.offset
+            }.map(\.element)
+        let eligible = candidates.filter { $0.priority != .outOfScope }
+        let core = eligible.filter { $0.priority == .core }
+        let important = Array((core.isEmpty ? eligible : core).prefix(4))
+        let importantIDs = Set(important.map(\.id))
+        let remaining = eligible.filter { !importantIDs.contains($0.id) }
+        let high = remaining.filter { $0.priority == .highValue }
+        let highIDs = Set(high.map(\.id))
+        let recommended = Array((high + remaining.filter { !highIDs.contains($0.id) }).prefix(2))
+        let previewIDs = Set((important + recommended).map(\.id))
+        let more = candidates.filter { !previewIDs.contains($0.id) }
+        return Summary(decisions: decisions, important: important, recommended: recommended, more: more)
+    }
 }

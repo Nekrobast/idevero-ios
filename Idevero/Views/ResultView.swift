@@ -10,6 +10,7 @@ struct ResultView: View {
     var completionMessage: String? = nil
     let onSave: () -> Void
     @State private var showDiscoveries = false
+    @State private var showMoreRecommendations = false
     @State private var showUpdateChoices = false
     private var language: DisplayLanguage { .detect(in: analysis.input) }
     private func ui(_ spanish: String, _ english: String) -> String { language == .spanish ? spanish : english }
@@ -22,13 +23,10 @@ struct ResultView: View {
         usedAppleAugmentation ? "Apple Intelligence" : ui("Conocimiento de Idevero", "Idevero’s built-in knowledge")
     }
 
-    private var displayedDiscoveries: [Discovery] {
-        let policy = UserFacingTextPolicy(language: .detect(in: analysis.input))
-        return analysis.discoveries.filter { item in
-            let isApple = (item.sourceProvenance ?? [item.provenance]).contains(.appleModel)
-            return !isApple || (policy.isSafeDisplay(item.concept) && policy.isSafeDisplay(item.reason, minimumLength: 12))
-        }
-    }
+    // Unsafe raw text receives the central display-safe fallback rather than
+    // dropping the discovery from the UI. The original analysis is untouched.
+    private var displayedDiscoveries: [Discovery] { analysis.discoveries }
+    private var summary: DiscoveryPresentation.Summary { DiscoveryPresentation.summary(displayedDiscoveries) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -69,11 +67,22 @@ struct ResultView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
-                LazyVStack(alignment: .leading, spacing: 0) {
-                    ForEach(displayedDiscoveries) { item in
-                        DiscoveryRow(item: item, language: .detect(in: analysis.input), originalRequest: analysis.input, onState: onState)
-                            .disabled(isWorking)
-                        if item.id != displayedDiscoveries.last?.id { Divider() }
+                VStack(alignment: .leading, spacing: 12) {
+                    discoverySection(ui("Tus decisiones", "Your decisions"), items: summary.decisions)
+                    discoverySection(ui("Lo más importante", "Most important"), items: summary.important)
+                    discoverySection(ui("También puede ayudar", "May also help"), items: summary.recommended)
+                    if !summary.more.isEmpty {
+                        DisclosureGroup(isExpanded: $showMoreRecommendations) {
+                            discoverySection(ui("Más recomendaciones", "More recommendations"), items: summary.more)
+                        } label: {
+                            Text(showMoreRecommendations
+                                 ? ui("Mostrar menos recomendaciones", "Show fewer recommendations")
+                                 : ui("Ver más recomendaciones (\(summary.more.count))", "See more recommendations (\(summary.more.count))"))
+                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(minHeight: 44)
+                        }
+                        .accessibilityIdentifier("moreRecommendations")
+                        .accessibilityHint(ui("Todas las recomendaciones siguen disponibles. Expande o contrae el resto.", "All recommendations remain available. Expand or collapse the rest."))
                     }
                 }
                 .padding(.top, 8)
@@ -96,6 +105,23 @@ struct ResultView: View {
             Button(ui("Regenerar prompt", "Regenerate prompt"), action: onRegenerate)
             Button(ui("Reanalizar necesidades", "Reanalyze needs"), action: onReanalyze)
             Button(ui("Cancelar", "Cancel"), role: .cancel) {}
+        }
+    }
+
+    @ViewBuilder
+    private func discoverySection(_ title: String, items: [Discovery]) -> some View {
+        if !items.isEmpty {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(title)
+                    .font(.subheadline.bold())
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityAddTraits(.isHeader)
+                ForEach(items) { item in
+                    DiscoveryRow(item: item, language: language, originalRequest: analysis.input, onState: onState)
+                        .disabled(isWorking)
+                    if item.id != items.last?.id { Divider() }
+                }
+            }
         }
     }
 
@@ -152,10 +178,12 @@ private struct DiscoveryRow: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 6)
             } label: {
-                Text(ui("¿Por qué me recomienda esto?", "Why is this recommended?"))
+                Text(ui("Por qué", "Why"))
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(minHeight: 44)
             }
+            .accessibilityIdentifier(ui("¿Por qué me recomienda esto?", "Why is this recommended?"))
+            .accessibilityHint(ui("Expande o contrae la razón, el origen y los detalles de esta recomendación.", "Expand or collapse the reason, source and details of this recommendation."))
         }
         .padding(.vertical, 12)
         .accessibilityElement(children: .contain)
@@ -173,11 +201,16 @@ private struct DiscoveryRow: View {
         Button(role: state == .excluded ? .destructive : nil) {
             onState(item.id, state)
         } label: {
-            Text(display.actionTitle(state))
+            HStack(spacing: 4) {
+                if display.isSelectedAction(state) { Image(systemName: "checkmark").accessibilityHidden(true) }
+                Text(display.controlTitle(state))
+            }
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(minWidth: 44, minHeight: 44)
         }
-        .accessibilityHint(display.actionHint(state))
+        .accessibilityLabel(display.controlTitle(state))
+        .accessibilityHint(display.controlHint(state))
+        .accessibilityAddTraits(display.isSelectedAction(state) ? .isSelected : [])
         // Preserve the existing UI-test selector, not a user-visible label.
         .accessibilityIdentifier(state == .excluded ? "Excluir" : "discoveryAction-" + state.rawValue)
     }

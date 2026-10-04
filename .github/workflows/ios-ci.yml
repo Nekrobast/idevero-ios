@@ -31,6 +31,9 @@ jobs:
       - name: Audit isolated presentation and bilingual metadata
         run: node Tools/audit-human-friendly-ux.mjs
 
+      - name: Audit build-13 frozen runtime and targeted presentation
+        run: node Tools/audit-presentation-remediation.mjs
+
       - name: Select installed Xcode
         shell: bash
         run: |
@@ -111,7 +114,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo '# IDEVERO 0.2.9 build 13 — responsive UI validation'
+            echo '# IDEVERO 0.2.9 build 14 — responsive UI validation'
             echo
             echo "- Commit: \`$SOURCE_COMMIT\`"
             echo "- Run: \`$GITHUB_RUN_ID\`"
@@ -184,7 +187,7 @@ jobs:
           test -d "$APP" && test -f "$INFO" && test -f "$EXECUTABLE"
           test "$(plutil -extract CFBundleIdentifier raw "$INFO")" = "com.aitor93.idevero"
           test "$(plutil -extract CFBundleShortVersionString raw "$INFO")" = "0.2.9"
-          test "$(plutil -extract CFBundleVersion raw "$INFO")" = "13"
+          test "$(plutil -extract CFBundleVersion raw "$INFO")" = "14"
           test "$(plutil -extract MinimumOSVersion raw "$INFO")" = "17.0"
           lipo -archs "$EXECUTABLE" | grep -qw arm64
           xcrun vtool -show-build "$EXECUTABLE" | tee device-platform.log
@@ -222,7 +225,7 @@ jobs:
           set -euo pipefail
           SHA256="$(cut -d ' ' -f 1 DeviceArtifact/Idevero-iOS-0.2.9-DeviceUnsigned.ipa.sha256)"
           {
-            echo '# IDEVERO 0.2.9 build 13 — iPhoneOS unsigned build'
+            echo '# IDEVERO 0.2.9 build 14 — iPhoneOS unsigned build'
             echo
             echo "- Commit: \`$SOURCE_COMMIT\`"
             echo "- Run: \`$GITHUB_RUN_ID\`"
@@ -235,7 +238,7 @@ jobs:
           } > DeviceArtifact/DEVICE-BUILD-REPORT.md
           cp SimulatorEvidence/UI-VALIDATION-REPORT.md DeviceArtifact/
           {
-            echo '# IDEVERO 0.2.9 build 13 — Xcode CI build'
+            echo '# IDEVERO 0.2.9 build 14 — Xcode CI build'
             echo
             echo "- Commit: \`$SOURCE_COMMIT\`"
             echo "- Run: \`$GITHUB_RUN_ID\`"
@@ -247,7 +250,7 @@ jobs:
           } > DeviceArtifact/XCODE-CI-BUILD-REPORT.md
           xcrun xcresulttool get test-results summary --path SimulatorEvidence/TestResults-Large.xcresult > DeviceArtifact/test-summary.json
           {
-            echo '# IDEVERO 0.2.9 build 13 — XCTest CI report'
+            echo '# IDEVERO 0.2.9 build 14 — XCTest CI report'
             echo
             echo "- Commit: \`$SOURCE_COMMIT\`"
             echo "- Run: \`$GITHUB_RUN_ID\`"
@@ -257,18 +260,18 @@ jobs:
             echo '```'
           } > DeviceArtifact/XCTEST-CI-REPORT.md
           cp QUALITY-V5-REPORT.md QUALITY-V4-REPORT.md QUALITY-023-024-025-026.md DeviceArtifact/
-          cp HUMAN-FRIENDLY-UX-RETEST.md Tools/VERIFY-IDEVERO-0.2.9.ps1 DeviceArtifact/
+          cp HUMAN-FRIENDLY-UX-BUILD14-RETEST.md Tools/VERIFY-IDEVERO-0.2.9-BUILD14.ps1 DeviceArtifact/
           test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
           export IPA_SHA256="$SHA256"
           export SOURCE_TREE="$(git rev-parse HEAD^{tree})"
           python3 <<'PY'
           import json, os
           manifest = {
-              "version": "0.2.9", "build": 13, "sourceCommit": os.environ["SOURCE_COMMIT"],
+              "version": "0.2.9", "build": 14, "sourceCommit": os.environ["SOURCE_COMMIT"],
               "sourceTree": os.environ["SOURCE_TREE"], "runID": os.environ["GITHUB_RUN_ID"],
               "runAttempt": os.environ["GITHUB_RUN_ATTEMPT"], "ipa": "Idevero-iOS-0.2.9-DeviceUnsigned.ipa",
               "ipaSHA256": os.environ["IPA_SHA256"], "architecture": "arm64", "platform": "iPhoneOS",
-              "signing": "unsigned", "physicalQualityV6Baseline": "PASS — 0.2.8 build 12", "humanFriendlyUX": "AWAITING IPHONE UX RETEST"
+              "signing": "unsigned", "physicalQualityV6Baseline": "PASS — 0.2.8 build 12", "humanFriendlyUXBaseline": "PARTIAL PASS — 0.2.9 build 13", "humanFriendlyUX": "AWAITING IPHONE RETEST"
           }
           with open("DeviceArtifact/manifest.json", "w") as output:
               json.dump(manifest, output, indent=2)
@@ -287,8 +290,10 @@ jobs:
             PHYSICAL-V6-TARGETED-REMEDIATION.md
             PHYSICAL-V6-BUILD12-PASS.md
             HUMAN-FRIENDLY-UX.md
-            DeviceArtifact/HUMAN-FRIENDLY-UX-RETEST.md
-            DeviceArtifact/VERIFY-IDEVERO-0.2.9.ps1
+            HUMAN-FRIENDLY-UX-BUILD13-PHYSICAL.md
+            HUMAN-FRIENDLY-UX-TARGETED-REMEDIATION.md
+            DeviceArtifact/HUMAN-FRIENDLY-UX-BUILD14-RETEST.md
+            DeviceArtifact/VERIFY-IDEVERO-0.2.9-BUILD14.ps1
             DeviceArtifact/DEVICE-BUILD-REPORT.md
             DeviceArtifact/UI-VALIDATION-REPORT.md
             DeviceArtifact/QUALITY-V5-REPORT.md

@@ -24,7 +24,7 @@ final class HumanFriendlyUXUITests: XCTestCase {
 
     func testSpanishCardsExplainActionsAndHideAdvancedMetadata() {
         let app = openDiscoveries("Quiero una app para gestionar prestamos de instrumentos", heading: "Prompt generado")
-        let add = app.buttons["Añadir"].firstMatch
+        let add = app.buttons["Añadido"].firstMatch
         for _ in 0..<12 where !add.isHittable { app.swipeUp() }
         XCTAssertTrue(add.isHittable)
         for title in ["Mantener siempre", "Quitar"] {
@@ -40,7 +40,7 @@ final class HumanFriendlyUXUITests: XCTestCase {
 
     func testEnglishCardsExposeUnderstandableAccessibleActions() {
         let app = openDiscoveries("I want an app to manage telescope bookings", heading: "Generated prompt")
-        let add = app.buttons["Add"].firstMatch
+        let add = app.buttons["Added"].firstMatch
         for _ in 0..<12 where !add.isHittable { app.swipeUp() }
         XCTAssertTrue(add.isHittable)
         for title in ["Always keep", "Remove"] {
