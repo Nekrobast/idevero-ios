@@ -62,7 +62,30 @@ struct ResultView: View {
             }
             .disabled(isWorking)
 
-            DisclosureGroup(isExpanded: $showDiscoveries) {
+            VStack(alignment: .leading, spacing: 8) {
+                Button { showDiscoveries.toggle() } label: {
+                    HStack(spacing: 8) {
+                        Text(ui("Lo que Idevero añadió", "What Idevero added"))
+                            .fontWeight(.semibold)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text("\(displayedDiscoveries.count)")
+                            .font(.caption.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 3)
+                            .background(.quaternary, in: Capsule())
+                        Spacer(minLength: 8)
+                        Image(systemName: showDiscoveries ? "chevron.down" : "chevron.right")
+                            .accessibilityHidden(true)
+                    }
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("discoveriesDisclosure")
+                .accessibilityValue(showDiscoveries ? ui("Expandido", "Expanded") : ui("Contraído", "Collapsed"))
+                .accessibilityHint(ui("Muestra u oculta las recomendaciones y tus decisiones.", "Show or hide recommendations and your decisions."))
+                if showDiscoveries {
                 Text(ui("Ideas y detalles que pueden mejorar tu petición. Puedes añadirlos, mantenerlos siempre o quitarlos.", "Ideas and details that can improve your request. You can add them, always keep them or remove them."))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -98,24 +121,11 @@ struct ResultView: View {
                                 discoverySection(ui("Más recomendaciones", "More recommendations"), items: summary.more)
                             }
                         }
-                        .accessibilityElement(children: .contain)
-                        .accessibilityIdentifier("moreRecommendationsSection")
                     }
                 }
                 .padding(.top, 8)
-            } label: {
-                HStack(spacing: 8) {
-                    Text(ui("Lo que Idevero añadió", "What Idevero added"))
-                        .fontWeight(.semibold)
-                    Text("\(displayedDiscoveries.count)")
-                        .font(.caption.monospacedDigit())
-                        .foregroundStyle(.secondary)
-                        .padding(.horizontal, 7)
-                        .padding(.vertical, 3)
-                        .background(.quaternary, in: Capsule())
                 }
             }
-            .accessibilityIdentifier("discoveriesDisclosure")
         }
         .padding(.top, 8)
         .confirmationDialog(ui("Elige cómo actualizar el prompt", "Choose how to update the prompt"), isPresented: $showUpdateChoices, titleVisibility: .visible) {
