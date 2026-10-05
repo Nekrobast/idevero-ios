@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   targeted-contracts:
-    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[feature-red]') || contains(github.event.head_commit.message, '[targeted-green]') || contains(github.event.head_commit.message, '[support-targeted]') || contains(github.event.head_commit.message, '[why-targeted]')
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[feature-red]') || contains(github.event.head_commit.message, '[targeted-green]') || contains(github.event.head_commit.message, '[support-targeted]') || contains(github.event.head_commit.message, '[why-targeted]') || contains(github.event.head_commit.message, '[why-suite]')
     strategy:
       fail-fast: false
       matrix:
@@ -67,8 +67,8 @@ jobs:
           xcrun simctl ui "$SIMULATOR_UDID" content_size "${{ matrix.content-size }}"
       - name: Run native targeted feature contracts
         env:
-          WHY_TARGETED: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[why-targeted]') }}
-          WHY_STAGE: ${{ inputs.why-stage || 'individual' }}
+          WHY_TARGETED: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[why-targeted]') || contains(github.event.head_commit.message, '[why-suite]') }}
+          WHY_STAGE: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[why-suite]') && 'suite' || inputs.why-stage || 'individual' }}
         shell: bash
         run: |
           set -euo pipefail

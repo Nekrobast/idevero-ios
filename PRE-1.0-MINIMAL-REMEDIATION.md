@@ -1,5 +1,10 @@
 # PRE-1.0 Minimal Compliance + Save Reliability
 
+## Authorized Why suite push dispatch
+
+Individual Why validation run 37295979227 passed 1/1 on iPhone 17 Pro Max normal and iPhone 16e Accessibility Large at 0e4894425d15bbb2ee05b7c0558b314884477cec, with one tap, expansion and reachable source detail. Classification B (test discovery defect) is confirmed; no production fix is required.
+The authorized workflow-only adaptation adds [why-suite] to the existing job condition and Why selector, resolving that push to suite. [why-targeted], manual inputs and all prior tags retain their behavior. Native commands, devices, Dynamic Type, timeouts, tests, assertions and guard logic are unchanged. Only this workflow and this documentation receive updated review seals; production seals remain unchanged. Full Presentation and full regression are still pending, not GREEN claims.
+
 Stage: confirmed native FEATURE RED; minimal production implementation awaiting targeted GREEN.
 Update: targeted GREEN confirmed; preparing full regression for physically distinguishable build 15.
 
