@@ -30,7 +30,7 @@ export const allowed = new Set([
   'docs/styles.css', 'docs/.nojekyll', 'docs/PAGES-PREPARATION.md'
 ]);
 export const digest = value => createHash('sha256').update(value).digest('hex');
-export const normalized = value => Buffer.from(value).toString('utf8').replaceAll('\n', '\n');
+export const normalized = value => Buffer.from(value).toString('utf8').replaceAll('\r\n', '\n');
 
 export function validateChange(path, before, after, snapshots) {
   if (before !== null && after !== null && Buffer.from(before).equals(Buffer.from(after))) return;
