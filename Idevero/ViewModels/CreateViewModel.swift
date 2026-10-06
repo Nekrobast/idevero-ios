@@ -1,4 +1,7 @@
 import Foundation
+import OSLog
+
+private let causalModelLogger = Logger(subsystem: "com.aitor93.idevero.causal", category: "generation")
 
 @MainActor
 final class CreateViewModel: ObservableObject {
@@ -21,6 +24,7 @@ final class CreateViewModel: ObservableObject {
     }
 
     func generate() async {
+        causalModelLogger.notice("IDEVERO_CAUSAL E2 GENERATION_TASK_START uptime=\(ProcessInfo.processInfo.systemUptime, privacy: .public) wall=\(Date.timeIntervalSinceReferenceDate, privacy: .public)")
         generationSequence &+= 1
         let generation = generationSequence
         isGenerating = true
@@ -32,9 +36,12 @@ final class CreateViewModel: ObservableObject {
         do {
             let captured = decisions.scoped(to: idea)
             let (result, provider) = captured.analysisID == nil ? try await coordinator.analyze(idea) : try await coordinator.reanalyze(idea, decisions: captured)
+            causalModelLogger.notice("IDEVERO_CAUSAL E7 GENERATION_RESULT_READY uptime=\(ProcessInfo.processInfo.systemUptime, privacy: .public) wall=\(Date.timeIntervalSinceReferenceDate, privacy: .public)")
             guard generation == generationSequence, !Task.isCancelled else { return }
+            causalModelLogger.notice("IDEVERO_CAUSAL E8 MAINACTOR_RESULT_ASSIGN_BEGIN uptime=\(ProcessInfo.processInfo.systemUptime, privacy: .public) wall=\(Date.timeIntervalSinceReferenceDate, privacy: .public)")
             analysis = result
             providerName = provider
+            causalModelLogger.notice("IDEVERO_CAUSAL E9 MAINACTOR_RESULT_ASSIGN_END uptime=\(ProcessInfo.processInfo.systemUptime, privacy: .public) wall=\(Date.timeIntervalSinceReferenceDate, privacy: .public)")
         } catch {
             guard generation == generationSequence, !Task.isCancelled else { return }
             errorMessage = error.localizedDescription

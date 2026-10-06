@@ -4,11 +4,11 @@
   "physicalBaseline": "61eb2a8490b1bcfcbedbaadfda18b4746035326f",
   "snapshots": {
     "IdeveroUITests/PresentationRemediationUITests.swift": "feac802772c8726e2390db3acef1c5850f1bf3a24d4637d8d6d4fa60d442bd69",
-    ".github/workflows/minimal-remediation-targeted.yml": "8f510201b405b6a818d8d14f454ee744f7f3a1148050cd7bc5172d5adca66300",
+    ".github/workflows/minimal-remediation-targeted.yml": "2f28ce573d2c65c4f7b9ba80e7eb37c0ad252ced13691e94b9a2c43023c08078",
     "IdeveroUITests/MinimalComplianceSaveUITests.swift": "61e152820708855c807071b4323051e649879ce1d06c5f5cbdb7b3fa6a8c4685",
-    "PRE-1.0-MINIMAL-REMEDIATION.md": "09a16161f8e803bfef4fd062caeee1c6e68e88a5338f833d45813262ec64e280",
+    "PRE-1.0-MINIMAL-REMEDIATION.md": "0c5df314d7d45ee334ee87681517c9f356f6cc5464a71b37350ea3b7a79e0380",
     "Idevero/Views/SettingsView.swift": "e441dc3cd67ec470907cfdcf58b101af694607b771bfc9cd1c254655c93a86c4",
-    "Idevero/Views/CreateView.swift": "bef7ee563a9a2d0583768a61c3523170c4c5a1dc960cfb53638d4458ab67b256",
+    "Idevero/Views/CreateView.swift": "72047d569e792962aa9eec897aef88f16fd858a9dcb2009613d15f7639c31434",
     "Idevero/Views/HistoryView.swift": "bd550cb3a7ed609df8df2ddf0d0cf3e42a2147f950ec44fc7074900b6282f5e7",
     "Idevero/Views/PrivacySupportConfiguration.swift": "d127e5f48f07c3fa8338f30244d894efb66738f048a2542d1f6187a93c4440de",
     "Idevero/Views/PrivacySupportAccessView.swift": "cdfd956205f1c3e2151df0291ab0e68cc0840eb03f82f6b8b2502c48964f2c72",
@@ -20,12 +20,15 @@
     "docs/privacy.html": "3678b8c32cfa22563ac3badfae529f0a78ecce5f22e1e8c5e227a63f7da07333",
     "docs/styles.css": "859dde11493b4f7d039ee91600e8a7a1d180c0ac1c5012c296c0e96a6bc52c61",
     "docs/support.html": "74303a116035a29d71f4feadbdd6b8fe6cc262350790775b988d0b2a7193a984",
-    "Tools/audit-authorized-remediation.mjs": "ae803dda5bf5451ac43bbe0be3a280cf3923369c4ca978e0b8a01702dd73308d",
+    "Tools/audit-authorized-remediation.mjs": "4e35ec8ad0e4839283dba442236269404f225f91046e155eb10df947bd96445f",
     "Tools/test-authorized-remediation.mjs": "78588c4ff7580ec6ee98c1983990aba797a6cc5d6ba4ec1469f754d634dcb3fd",
     ".github/workflows/ios-ci.yml": "29a1b09021073fc5874b2c56c6a521e453954a9823bdf2426f15667ef1893f8a",
     "Idevero.xcodeproj/project.pbxproj": "51859928581b73c510cac0822a90ff8d67e616057b67c7f89ac6fe40576ec190",
     "Tools/audit-physical-v6.mjs": "5445c421852bcfc6b6e2f01c456f95ff640ce15fb6d35785e6c4c24b2cad6945",
     "Tools/VERIFY-IDEVERO-0.2.9-BUILD15.ps1": "3e7ee3e6a9ae83a318c9666dda04059771a0d7e145ac9c7435c9efec6c24a70c",
-    "MINIMAL-REMEDIATION-BUILD15-RETEST.md": "a5643c9e3edf7525f7ddaacb5301c8466814dee5b890646692b913460d3bcb44"
+    "MINIMAL-REMEDIATION-BUILD15-RETEST.md": "a5643c9e3edf7525f7ddaacb5301c8466814dee5b890646692b913460d3bcb44",
+    "Idevero/ViewModels/CreateViewModel.swift": "1e38870d1b14216b38f1317a83af3665cb9b7dfc7cac4517de32685bd854556c",
+    "Idevero/Intelligence/IntelligenceCoordinator.swift": "fb650690b2070b1f065b98be42ef2ab1e3e6c42fc6ab076e4860365962efaa08",
+    "Tools/test-causal-instrumentation.mjs": "c77d1c9d5b3853bdc7dcab2b3e85cf4e06a89db0e2d3b7438c35d5bd9fdd6a5a"
   }
 }

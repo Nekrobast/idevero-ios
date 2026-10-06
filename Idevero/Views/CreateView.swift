@@ -1,5 +1,8 @@
 import SwiftUI
 import SwiftData
+import OSLog
+
+private let causalCreateLogger = Logger(subsystem: "com.aitor93.idevero.causal", category: "generation")
 
 struct CreateView: View {
     @StateObject private var model = CreateViewModel()
@@ -110,6 +113,7 @@ struct CreateView: View {
     }
 
     private func submit() {
+        causalCreateLogger.notice("IDEVERO_CAUSAL E1 TAP_HANDLER_ENTER uptime=\(ProcessInfo.processInfo.systemUptime, privacy: .public) wall=\(Date.timeIntervalSinceReferenceDate, privacy: .public)")
         isIdeaFocused = false
         Task { await model.generate() }
     }

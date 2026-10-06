@@ -273,3 +273,90 @@ jobs:
             devices.json
             targeted-environment.log
           retention-days: 7
+
+  english-causal:
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[english-causal]')
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify historical and causal isolation
+        run: |
+          node Tools/test-authorized-remediation.mjs
+          node Tools/test-causal-instrumentation.mjs
+          node Tools/audit-authorized-remediation.mjs
+      - name: Select Xcode and exact large simulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          XCODE_APP="$(find /Applications -maxdepth 1 -type d -name 'Xcode*.app' | sort -V | tail -1)"
+          test -n "$XCODE_APP"
+          sudo xcode-select --switch "$XCODE_APP/Contents/Developer"
+          xcrun simctl list devices available -j > devices.json
+          python3 <<'PY' >> "$GITHUB_ENV"
+          import json
+          devices = [d for rows in json.load(open('devices.json'))['devices'].values() for d in rows if d.get('isAvailable')]
+          chosen = next(d for d in devices if d['name'] == 'iPhone 17 Pro Max')
+          print('SIMULATOR_UDID=' + chosen['udid'])
+          PY
+          { sw_vers; xcodebuild -version; swift --version; } > targeted-environment.log
+          defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool false
+          xcrun simctl boot "$SIMULATOR_UDID" || true
+          xcrun simctl bootstatus "$SIMULATOR_UDID" -b
+          xcrun simctl ui "$SIMULATOR_UDID" content_size large
+      - name: Run bounded causal experiment with automatic early stop
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir CausalTrace
+          for SAMPLE in 1 2 3; do
+            set +e
+            xcodebuild -project Idevero.xcodeproj -scheme Idevero \
+              -destination "platform=iOS Simulator,id=$SIMULATOR_UDID" \
+              -derivedDataPath "DerivedData-Causal-$SAMPLE" \
+              -resultBundlePath "CausalTrace/EnglishCausal-$SAMPLE.xcresult" \
+              -only-testing:IdeveroUITests/PresentationRemediationUITests/testEnglishGroupingAndSelectedActionCopy \
+              clean test | tee "CausalTrace/english-causal-$SAMPLE.log"
+            RESULT=${PIPESTATUS[0]}
+            set -e
+            printf '%s\n' "$RESULT" > "CausalTrace/exit-$SAMPLE.txt"
+            xcrun simctl spawn "$SIMULATOR_UDID" log show --last 30m --style json --info \
+              --predicate 'subsystem == "com.aitor93.idevero.causal"' > "CausalTrace/internal-$SAMPLE.json" 2> "CausalTrace/log-export-$SAMPLE.txt" || true
+            export SAMPLE RESULT
+            set +e
+            python3 <<'PY'
+          import json, os, pathlib, re
+          sample = os.environ['SAMPLE']
+          text = pathlib.Path('CausalTrace/english-causal-' + sample + '.log').read_text()
+          def event(pattern):
+              match = re.search(r't =\s+([0-9.]+)s ' + pattern, text)
+              return float(match[1]) if match else None
+          tap = event(r'Tap "keyboardCreatePromptButton" Button')
+          observed = event(r'Find the "discoveriesDisclosure" Button')
+          wait = event(r'Waiting 20.0s for "Generated prompt"')
+          passed = "testEnglishGroupingAndSelectedActionCopy]' passed" in text
+          elapsed = observed - tap if tap is not None and observed is not None else None
+          stop = not passed or elapsed is None or elapsed > 20
+          data = dict(sample=int(sample), xcodebuild_exit=int(os.environ['RESULT']), passed=passed, tap=tap, wait=wait, ax_confirmed_by=observed, tap_to_ax_confirmation=elapsed, stop=stop, timing_semantics='native XCTest relative times; confirmation upper bound, not exact render time')
+          pathlib.Path('CausalTrace/summary-' + sample + '.json').write_text(json.dumps(data, indent=2))
+          print(json.dumps(data))
+          raise SystemExit(10 if stop else 0)
+          PY
+            DECISION=$?
+            set -e
+            if [ "$RESULT" -ne 0 ]; then exit "$RESULT"; fi
+            if [ "$DECISION" -eq 10 ]; then break; fi
+            if [ "$DECISION" -ne 0 ]; then exit "$DECISION"; fi
+          done
+      - name: Retain all executed causal samples
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: english-causal-${{ github.sha }}
+          path: |
+            CausalTrace
+            devices.json
+            targeted-environment.log
+          retention-days: 7
