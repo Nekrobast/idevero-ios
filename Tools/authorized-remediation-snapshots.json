@@ -4,9 +4,9 @@
   "physicalBaseline": "61eb2a8490b1bcfcbedbaadfda18b4746035326f",
   "snapshots": {
     "IdeveroUITests/PresentationRemediationUITests.swift": "feac802772c8726e2390db3acef1c5850f1bf3a24d4637d8d6d4fa60d442bd69",
-    ".github/workflows/minimal-remediation-targeted.yml": "3ff8db8b2fa8acb2bbb9298b782586e84b4ff87db8eb394c17c4f312205fb779",
+    ".github/workflows/minimal-remediation-targeted.yml": "8f510201b405b6a818d8d14f454ee744f7f3a1148050cd7bc5172d5adca66300",
     "IdeveroUITests/MinimalComplianceSaveUITests.swift": "61e152820708855c807071b4323051e649879ce1d06c5f5cbdb7b3fa6a8c4685",
-    "PRE-1.0-MINIMAL-REMEDIATION.md": "32a9eee0e3a42e03fa88b3b8fc5a2468c621bcecc41b2a456b54e8ea9ef8af75",
+    "PRE-1.0-MINIMAL-REMEDIATION.md": "09a16161f8e803bfef4fd062caeee1c6e68e88a5338f833d45813262ec64e280",
     "Idevero/Views/SettingsView.swift": "e441dc3cd67ec470907cfdcf58b101af694607b771bfc9cd1c254655c93a86c4",
     "Idevero/Views/CreateView.swift": "bef7ee563a9a2d0583768a61c3523170c4c5a1dc960cfb53638d4458ab67b256",
     "Idevero/Views/HistoryView.swift": "bd550cb3a7ed609df8df2ddf0d0cf3e42a2147f950ec44fc7074900b6282f5e7",
