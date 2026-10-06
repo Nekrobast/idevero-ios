@@ -1,5 +1,9 @@
 # PRE-1.0 Minimal Compliance + Save Reliability
 
+## One-shot isolated English diagnostic authorization
+
+At baseline b4ad28c1e4b5191e93a9c661ac4384444cea5076, [english-diagnostic] selects a dedicated macos-26 job with only iPhone 17 Pro Max normal and only testEnglishGroupingAndSelectedActionCopy. Existing tests, assertions, 20-second wait, input and production are byte-identical. No retry, locale override, state clearing or provider override is added. External log streaming and one observer triggered by the existing XCTest keyboard-button Tap event collect four consecutive five-second process samples at 10 ms intervals, CPU/RSS and screenshots; timestamps explicitly precede exact event synthesis and captures follow sampling, not exact 5/10/15/20-second deadlines. Observation runs outside the app/test and never gates the test; its own completion is awaited only after xcodebuild ends. xcresult supplies available native hierarchies and attachments. Sampling overhead remains a diagnostic limitation; a single PASS cannot prove environment or isolation. Only workflow/documentation seals are updated; gate and production seals are unchanged. STOP after the diagnostic report.
+
 ## Authorized Why suite push dispatch
 
 Individual Why validation run 37295979227 passed 1/1 on iPhone 17 Pro Max normal and iPhone 16e Accessibility Large at 0e4894425d15bbb2ee05b7c0558b314884477cec, with one tap, expansion and reachable source detail. Classification B (test discovery defect) is confirmed; no production fix is required.

@@ -97,3 +97,108 @@ jobs:
             devices.json
             targeted-environment.log
           retention-days: 7
+
+  english-generation-diagnostic:
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[english-diagnostic]')
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify authorized diff and guardrail simulations
+        run: |
+          node Tools/test-authorized-remediation.mjs
+          node Tools/audit-authorized-remediation.mjs
+      - name: Select Xcode and exact large simulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          XCODE_APP="$(find /Applications -maxdepth 1 -type d -name 'Xcode*.app' | sort -V | tail -1)"
+          test -n "$XCODE_APP"
+          sudo xcode-select --switch "$XCODE_APP/Contents/Developer"
+          xcrun simctl list devices available -j > devices.json
+          python3 <<'PY' >> "$GITHUB_ENV"
+          import json
+          devices = [d for rows in json.load(open('devices.json'))['devices'].values() for d in rows if d.get('isAvailable')]
+          chosen = next(d for d in devices if d['name'] == 'iPhone 17 Pro Max')
+          print('SIMULATOR_UDID=' + chosen['udid'])
+          PY
+          { sw_vers; xcodebuild -version; swift --version; } > targeted-environment.log
+      - name: Boot exact simulator with normal Dynamic Type
+        shell: bash
+        run: |
+          set -euo pipefail
+          defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool false
+          xcrun simctl boot "$SIMULATOR_UDID" || true
+          xcrun simctl bootstatus "$SIMULATOR_UDID" -b
+          xcrun simctl ui "$SIMULATOR_UDID" content_size large
+      - name: Run English test exactly once with external diagnostics
+        shell: bash
+        run: |
+          python3 <<'PY'
+          import json, os, pathlib, subprocess, threading, time
+          evidence = pathlib.Path('EnglishDiagnostic')
+          evidence.mkdir()
+          timeline = open(evidence / 'observer.jsonl', 'w', buffering=1)
+          udid = os.environ['SIMULATOR_UDID']
+          def record(event, **values):
+              timeline.write(json.dumps(dict(event=event, monotonic=time.monotonic(), **values)) + '\n')
+          def capture(name):
+              with open(evidence / (name + '-screenshot.log'), 'w') as output:
+                  subprocess.run(['xcrun', 'simctl', 'io', udid, 'screenshot', str(evidence / (name + '.png'))], stdout=output, stderr=output)
+          def observe():
+              try:
+                  candidates = subprocess.check_output(['pgrep', '-x', 'Idevero'], text=True).split()
+                  if len(candidates) != 1:
+                      record('pid-ambiguous', candidates=candidates)
+                      return
+                  pid = candidates[0]
+                  record('tap-observed', pid=pid, alignment='XCTest Tap event precedes event synthesis; not exact generation start')
+                  capture('tap-observed')
+                  for phase in range(1, 5):
+                      with open(evidence / ('sample-' + str(phase) + '.log'), 'w') as output:
+                          result = subprocess.run(['/usr/bin/sample', pid, '5', '10', '-file', str(evidence / ('sample-' + str(phase) + '.txt'))], stdout=output, stderr=output)
+                      record('sample-finished', phase=phase, returncode=result.returncode)
+                      with open(evidence / ('process-' + str(phase) + '.txt'), 'w') as output:
+                          subprocess.run(['ps', '-p', pid, '-o', 'pid,etime,time,%cpu,rss,state,command'], stdout=output, stderr=output)
+                      capture('after-sample-' + str(phase))
+              except Exception as error:
+                  record('observer-error', error=repr(error))
+          console = open(evidence / 'simulator-console.log', 'w')
+          stream = subprocess.Popen(['xcrun', 'simctl', 'spawn', udid, 'log', 'stream', '--style', 'compact', '--level', 'debug', '--predicate', 'process == "Idevero"'], stdout=console, stderr=subprocess.STDOUT)
+          command = ['xcodebuild', '-project', 'Idevero.xcodeproj', '-scheme', 'Idevero', '-destination', 'platform=iOS Simulator,id=' + udid, '-derivedDataPath', 'DerivedData-EnglishDiagnostic', '-resultBundlePath', 'FeatureContracts.xcresult', '-only-testing:IdeveroUITests/PresentationRemediationUITests/testEnglishGroupingAndSelectedActionCopy', 'clean', 'test']
+          record('command', argv=command, executions=1)
+          observer = None
+          with open('targeted-xcodebuild.log', 'w', buffering=1) as output:
+              process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+              for line in process.stdout:
+                  output.write(line)
+                  print(line, end='', flush=True)
+                  if observer is None and 'Tap "keyboardCreatePromptButton" Button' in line:
+                      observer = threading.Thread(target=observe)
+                      observer.start()
+                  if 'Waiting 20.0s for "Generated prompt"' in line or "testEnglishGroupingAndSelectedActionCopy]' passed" in line or "testEnglishGroupingAndSelectedActionCopy]' failed" in line:
+                      record('xctest-event', line=line.strip())
+              result = process.wait()
+          if observer is not None:
+              observer.join()
+          else:
+              record('tap-not-observed')
+          stream.terminate()
+          stream.wait()
+          record('xcodebuild-finished', returncode=result)
+          raise SystemExit(result)
+          PY
+      - name: Retain isolated English diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: idevero-isolated-english-diagnostic-${{ github.sha }}
+          path: |
+            EnglishDiagnostic
+            targeted-xcodebuild.log
+            FeatureContracts.xcresult
+            devices.json
+            targeted-environment.log
+          retention-days: 7
