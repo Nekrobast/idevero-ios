@@ -302,6 +302,10 @@ jobs:
           print('SIMULATOR_UDID=' + chosen['udid'])
           PY
           { sw_vers; xcodebuild -version; swift --version; } > targeted-environment.log
+      - name: Boot exact large simulator
+        shell: bash
+        run: |
+          set -euo pipefail
           defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool false
           xcrun simctl boot "$SIMULATOR_UDID" || true
           xcrun simctl bootstatus "$SIMULATOR_UDID" -b

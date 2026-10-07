@@ -4,7 +4,7 @@
   "physicalBaseline": "61eb2a8490b1bcfcbedbaadfda18b4746035326f",
   "snapshots": {
     "IdeveroUITests/PresentationRemediationUITests.swift": "feac802772c8726e2390db3acef1c5850f1bf3a24d4637d8d6d4fa60d442bd69",
-    ".github/workflows/minimal-remediation-targeted.yml": "2f28ce573d2c65c4f7b9ba80e7eb37c0ad252ced13691e94b9a2c43023c08078",
+    ".github/workflows/minimal-remediation-targeted.yml": "6709beb44f81ac798d24808c01d5cea84b83dead827eaa8d5960631157efecec",
     "IdeveroUITests/MinimalComplianceSaveUITests.swift": "61e152820708855c807071b4323051e649879ce1d06c5f5cbdb7b3fa6a8c4685",
     "PRE-1.0-MINIMAL-REMEDIATION.md": "0c5df314d7d45ee334ee87681517c9f356f6cc5464a71b37350ea3b7a79e0380",
     "Idevero/Views/SettingsView.swift": "e441dc3cd67ec470907cfdcf58b101af694607b771bfc9cd1c254655c93a86c4",
